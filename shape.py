@@ -130,7 +130,9 @@ class Shape(object):
             )
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
-            pen.setWidth(max(1, int(round(2.0 / self.scale))))
+            # pen.setWidth(max(1, int(round(2.0 / self.scale))))
+# 画笔的粗细
+            pen.setWidth(0)
             painter.setPen(pen)
 
             line_path = QtGui.QPainterPath()
@@ -196,6 +198,13 @@ class Shape(object):
             path.addEllipse(point, d / 2.0, d / 2.0)
         else:
             assert False, "unsupported vertex shape"
+
+# 补充 添加标签可见属性,
+        if i == 0:
+            myFont = QtGui.QFont('Times', 7)
+            mypoint = point - QtCore.QPointF(0, d)
+            point_name = self.label
+            path.addText(mypoint, myFont, point_name)
 
     def nearestVertex(self, point, epsilon):
         min_distance = float("inf")
