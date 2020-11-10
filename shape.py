@@ -33,7 +33,7 @@ class Shape(object):
     vertex_fill_color = DEFAULT_VERTEX_FILL_COLOR
     hvertex_fill_color = DEFAULT_HVERTEX_FILL_COLOR
     point_type = P_ROUND
-    point_size = 8
+    point_size = 5.0
     scale = 1.0
 
     def __init__(
@@ -125,12 +125,35 @@ class Shape(object):
 
     def paint(self, painter):
         if self.points:
-            color = (
-                self.select_line_color if self.selected else self.line_color
-            )
+# 外部填充颜色
+            if self.group_id == 'stMobile106':
+                color = (
+                    QtGui.QColor(255, 0, 0)
+                )
+            elif self.group_id == 'extraFacePoints':
+                color = (
+                    QtGui.QColor(0, 255, 0)
+                )
+            elif self.group_id == 'eyeballContour':
+                color = (
+                    QtGui.QColor(0, 0, 255)
+                )
+            elif self.group_id == 'eyeballCenter':
+                color = (
+                    QtGui.QColor(100, 100, 100)
+                )
+            else:
+                color = (
+                    self.select_line_color if self.selected else self.line_color
+                )
+            # color = (
+            #     self.select_line_color if self.selected else self.line_color
+            # )
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
-            pen.setWidth(max(1, int(round(2.0 / self.scale))))
+            # pen.setWidth(max(1, int(round(2.0 / self.scale))))
+# 画笔粗细
+            pen.setWidth(-5)
             painter.setPen(pen)
 
             line_path = QtGui.QPainterPath()
@@ -170,7 +193,19 @@ class Shape(object):
 
             painter.drawPath(line_path)
             painter.drawPath(vrtx_path)
-            painter.fillPath(vrtx_path, self._vertex_fill_color)
+            # painter.fillPath(vrtx_path, self._vertex_fill_color)
+# 填充颜色
+            if self.group_id == 'stMobile106':
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
+            elif self.group_id == 'extraFacePoints':
+                painter.fillPath(vrtx_path, QtGui.QColor(0, 255, 0))
+            elif self.group_id == 'eyeballContour':
+                painter.fillPath(vrtx_path, QtGui.QColor(0, 0, 255))
+            elif self.group_id == 'eyeballCenter':
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 255))
+            else:
+                painter.fillPath(vrtx_path, self._vertex_fill_color)
+
             if self.fill:
                 color = (
                     self.select_fill_color
@@ -196,6 +231,17 @@ class Shape(object):
             path.addEllipse(point, d / 2.0, d / 2.0)
         else:
             assert False, "unsupported vertex shape"
+
+# 加标签显示
+        if i == 0:
+            try:
+                myFont = QtGui.QFont('Thin', 3)
+                myFont.setItalic(True)
+                mypoint = point - QtCore.QPointF(0, d)
+                point_name = self.label
+                path.addText(mypoint, myFont, point_name)
+            except:
+                pass
 
     def nearestVertex(self, point, epsilon):
         min_distance = float("inf")
