@@ -419,18 +419,53 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
 
+# 增加和修改
         hideAll = action(
-            self.tr("&Hide\nPolygons"),
-            functools.partial(self.togglePolygons, False),
+            self.tr("隐藏所有标签"),
+            functools.partial(self.togglePolygons, True),
             icon="eye",
-            tip=self.tr("Hide all polygons"),
+            tip=self.tr("隐藏所有标签"),
             enabled=False,
         )
         showAll = action(
-            self.tr("&Show\nPolygons"),
-            functools.partial(self.togglePolygons, True),
+            self.tr("显示所有标签"),
+            functools.partial(self.togglePolygons, False),
             icon="eye",
-            tip=self.tr("Show all polygons"),
+            tip=self.tr("显示所有标签"),
+            enabled=False,
+        )
+
+        show106 = action(
+            self.tr('只显示106点'),
+            functools.partial(self.toggleShow106, True),
+            shortcuts["show106"],
+            icon="eye",
+            tip=self.tr("显示106点"),
+            enabled=False,
+
+        )
+        show134 = action(
+            self.tr('只显示134点'),
+            functools.partial(self.toggleShow134, True),
+            shortcuts["show134"],
+            icon="eye",
+            tip=self.tr("显示134点"),
+            enabled=False,
+        )
+        show38 = action(
+            self.tr('只显示38点'),
+            functools.partial(self.toggleShow38, True),
+            shortcuts["show38"],
+            icon="eye",
+            tip=self.tr("显示38点"),
+            enabled=False,
+        )
+        show2 = action(
+            self.tr('只显示2点(眼中央)'),
+            functools.partial(self.toggleShow2, True),
+            shortcuts["show2"],
+            icon="eye",
+            tip=self.tr("显示38点"),
             enabled=False,
         )
 
@@ -630,7 +665,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 editMode,
                 brightnessContrast,
             ),
-            onShapesPresent=(saveAs, hideAll, showAll),
+            onShapesPresent=(saveAs, hideAll, showAll, show106, show134, show38, show2),
         )
 
         self.canvas.edgeSelected.connect(self.canvasShapeEdgeSelected)
@@ -675,8 +710,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 None,
                 fill_drawing,
                 None,
-                hideAll,
                 showAll,
+                hideAll,
                 None,
                 zoomIn,
                 zoomOut,
@@ -686,6 +721,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 fitWidth,
                 None,
                 brightnessContrast,
+                None,
+                show106,
+                show134,
+                show38,
+                show2
             ),
         )
 
@@ -1267,7 +1307,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def labelItemChanged(self, item):
         shape = item.shape()
-        self.canvas.setShapeVisible(shape, item.checkState() == Qt.Checked)
+        self.canvas.setShapeVisible(shape, item.checkState() == Qt.Unchecked)
 
     def labelOrderChanged(self):
         self.setDirty()
@@ -1394,6 +1434,43 @@ class MainWindow(QtWidgets.QMainWindow):
     def togglePolygons(self, value):
         for item in self.labelList:
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
+
+# 增加可见函数
+    def toggleShow106(self, value):
+        shapes = [item.shape for item in self.labelList]
+        for shape in shapes:
+            a = re.findall('LabelListWidgetItem\((.*?)\)', str(shape))[0].split("(")[1]
+            if a == 'stMobile106':
+                self.labelList[shapes.index(shape)].setCheckState(Qt.Unchecked if value else Qt.Checked)
+            else:
+                self.labelList[shapes.index(shape)].setCheckState(Qt.Checked)
+
+    def toggleShow134(self, value):
+        shapes = [item.shape for item in self.labelList]
+        for shape in shapes:
+            a = re.findall('LabelListWidgetItem\((.*?)\)', str(shape))[0].split("(")[1]
+            if a == 'extraFacePoints':
+                self.labelList[shapes.index(shape)].setCheckState(Qt.Unchecked if value else Qt.Checked)
+            else:
+                self.labelList[shapes.index(shape)].setCheckState(Qt.Checked)
+
+    def toggleShow38(self, value):
+        shapes = [item.shape for item in self.labelList]
+        for shape in shapes:
+            a = re.findall('LabelListWidgetItem\((.*?)\)', str(shape))[0].split("(")[1]
+            if a == 'eyeballContour':
+                self.labelList[shapes.index(shape)].setCheckState(Qt.Unchecked if value else Qt.Checked)
+            else:
+                self.labelList[shapes.index(shape)].setCheckState(Qt.Checked)
+
+    def toggleShow2(self, value):
+        shapes = [item.shape for item in self.labelList]
+        for shape in shapes:
+            a = re.findall('LabelListWidgetItem\((.*?)\)', str(shape))[0].split("(")[1]
+            if a == 'eyeballCenter':
+                self.labelList[shapes.index(shape)].setCheckState(Qt.Unchecked if value else Qt.Checked)
+            else:
+                self.labelList[shapes.index(shape)].setCheckState(Qt.Checked)
 
     def loadFile(self, filename=None):
         """Load the specified file, or the last opened file if None."""
