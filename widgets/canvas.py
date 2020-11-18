@@ -727,7 +727,7 @@ class Canvas(QtWidgets.QWidget):
         self.drawingPolygon.emit(True)
 
     def undoLastPoint(self):
-        if not self.current or self.current.isClosed():
+        if not self.current:
             return
         self.current.popPoint()
         if len(self.current) > 0:

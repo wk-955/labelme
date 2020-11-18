@@ -43,6 +43,8 @@ class Shape(object):
         shape_type=None,
         flags=None,
         group_id=None,
+        visibilityArray=None,
+        toggle=None
     ):
         self.label = label
         self.group_id = group_id
@@ -52,6 +54,8 @@ class Shape(object):
         self.shape_type = shape_type
         self.flags = flags
         self.other_data = {}
+        self.visibilityArray = visibilityArray
+        self.toggle = toggle
 
         self._highlightIndex = None
         self._highlightMode = self.NEAR_VERTEX
@@ -142,10 +146,17 @@ class Shape(object):
                 color = (
                     QtGui.QColor(100, 100, 100)
                 )
+#aaaa
             else:
+                # color = (
+                #     QtGui.QColor(0, 0, 0)
+                # )
                 color = (
                     self.select_line_color if self.selected else self.line_color
                 )
+
+
+
             # color = (
             #     self.select_line_color if self.selected else self.line_color
             # )
@@ -153,10 +164,12 @@ class Shape(object):
             # Try using integer sizes for smoother drawing(?)
             # pen.setWidth(max(1, int(round(2.0 / self.scale))))
 # 画笔粗细
-            if self.shape_type == 'point':
-                pen.setWidth(-1)
-            else:
-                pen.setWidth(0)
+#             if self.shape_type == 'point':
+#                 pen.setWidth(0)
+#                 # pen.setWidth()
+#             else:
+#                 pen.setWidthF(0.5)
+            pen.setWidth(0)
             painter.setPen(pen)
 
             line_path = QtGui.QPainterPath()
@@ -209,6 +222,9 @@ class Shape(object):
             else:
                 painter.fillPath(vrtx_path, self._vertex_fill_color)
 
+            if self.visibilityArray == 0.0:
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 255, 255))
+
             if self.fill:
                 color = (
                     self.select_fill_color
@@ -234,9 +250,7 @@ class Shape(object):
             path.addEllipse(point, d / 2.0, d / 2.0)
         else:
             assert False, "unsupported vertex shape"
-
-# 加标签显示
-        if i == 0:
+        if i == 0 and self.toggle is False:
             try:
                 myFont = QtGui.QFont('Thin', 3)
                 myFont.setItalic(True)

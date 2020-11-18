@@ -197,9 +197,10 @@ class LabelDialog(QtWidgets.QDialog):
     def getGroupId(self):
         group_id = self.edit_group_id.text()
         if group_id:
-            return int(group_id)
-
-        return None
+            return group_id
+        else:
+            return 'z'
+        # return None
 
     def popUp(self, text=None, move=True, flags=None, group_id=None):
         if self._fit_to_content["row"]:

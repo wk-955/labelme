@@ -1,4 +1,6 @@
-auto_save: false
+toggle: True
+
+auto_save: true
 display_label_popup: true
 store_data: true
 keep_prev: false
@@ -97,8 +99,8 @@ shortcuts:
   delete_polygon: Delete
 #  duplicate_polygon: Ctrl+D
   duplicate_polygon: null
-  undo: Ctrl+Z
-  undo_last_point: [Ctrl+Z, Backspace]
+  undo: Ctrl+L
+  undo_last_point: null
   add_point_to_edge: Ctrl+Shift+P
 #  edit_label: Ctrl+E
   edit_label: Ctrl+T
@@ -107,6 +109,25 @@ shortcuts:
   show106: Q
   show134: W
   show38: E
-  show2: R
   hideAll: Ctrl+D
   showAll: Ctrl+A
+  showUpperLip: T
+  showLowerLip: Y
+  showRect: Z
+  createLeftPupil: C
+  createRightPupil: V
+  mergePoints: X
+  createKeypoints: Ctrl+4
+  mergeAndCreate: B
+  createEyebrow: Ctrl+1
+  createUpperlip: Ctrl+2
+  createLowerlip: Ctrl+3
+  showEyebrow: R
+  restructure: S
+  showEye: U
+  showKeyPoint: I
+  pointsort: L
+  createEye: P
+  showFaceKey: F
+  createFace: Ctrl+F
+  toggleLable: M
