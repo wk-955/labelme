@@ -198,6 +198,7 @@ class LabelDialog(QtWidgets.QDialog):
         group_id = self.edit_group_id.text()
         if group_id:
             return int(group_id)
+
         return None
 
     def popUp(self, text=None, move=True, flags=None, group_id=None):

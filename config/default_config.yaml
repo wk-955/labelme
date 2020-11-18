@@ -66,10 +66,12 @@ canvas:
   double_click: close
 
 shortcuts:
-  close: Ctrl+W
+#  close: Ctrl+W
+  close: null
   open: Ctrl+O
   open_dir: Ctrl+U
-  quit: Ctrl+Q
+#  quit: Ctrl+Q
+  quit: null
   save: Ctrl+S
   save_as: Ctrl+Shift+S
   save_to: null
@@ -85,16 +87,26 @@ shortcuts:
   fit_width: Ctrl+Shift+F
 
   create_polygon: Ctrl+N
-  create_rectangle: Ctrl+R
+#  create_rectangle: Ctrl+R
+  create_rectangle: null
   create_circle: null
   create_line: null
   create_point: null
   create_linestrip: null
   edit_polygon: Ctrl+J
   delete_polygon: Delete
-  duplicate_polygon: Ctrl+D
+#  duplicate_polygon: Ctrl+D
+  duplicate_polygon: null
   undo: Ctrl+Z
   undo_last_point: [Ctrl+Z, Backspace]
   add_point_to_edge: Ctrl+Shift+P
-  edit_label: Ctrl+E
+#  edit_label: Ctrl+E
+  edit_label: Ctrl+T
   toggle_keep_prev_mode: Ctrl+P
+
+  show106: Q
+  show134: W
+  show38: E
+  show2: R
+  hideAll: Ctrl+D
+  showAll: Ctrl+A
