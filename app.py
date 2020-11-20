@@ -31,7 +31,7 @@ from labelme.widgets import ToolBar
 from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
 
-
+from labelme.CommonSide import GetCommonSide
 # FIXME
 # - [medium] Set max zoom value to something big enough for FitWidth/Window
 
@@ -480,6 +480,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tr("Zoom to original size"),
             enabled=False,
         )
+# 加的
+        combinPoint = action(
+            self.tr('合并并演示'),
+            functools.partial(self.combine),
+            shortcuts["combinPoint"],
+            icon="eye",
+        )
+
         fitWindow = action(
             self.tr("&Fit Window"),
             self.setFitWindow,
@@ -686,6 +694,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 fitWidth,
                 None,
                 brightnessContrast,
+                None,
+                combinPoint
             ),
         )
 
@@ -720,6 +730,8 @@ class MainWindow(QtWidgets.QMainWindow):
             None,
             zoom,
             fitWidth,
+            None,
+            combinPoint
         )
 
         self.statusBar().showMessage(self.tr("%s started.") % __appname__)
@@ -1985,3 +1997,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     images.append(relativePath)
         images.sort(key=lambda x: x.lower())
         return images
+
+    def combine(self):
+        if self.filename:
+            print(self.filename)
+            a = GetCommonSide()
+            a.readFile(self.filename.replace('.jpg', '.json'))

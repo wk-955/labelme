@@ -132,7 +132,10 @@ class Shape(object):
             # Try using integer sizes for smoother drawing(?)
             # pen.setWidth(max(1, int(round(2.0 / self.scale))))
 # 画笔的粗细
-            pen.setWidth(0)
+            if self.shape_type == 'point':
+                pen.setWidth(-1)
+            else:
+                pen.setWidth(0)
             painter.setPen(pen)
 
             line_path = QtGui.QPainterPath()
