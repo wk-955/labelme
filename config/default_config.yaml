@@ -1,4 +1,4 @@
-toggle: True
+toggle: False
 
 auto_save: true
 display_label_popup: true
@@ -131,3 +131,5 @@ shortcuts:
   showFaceKey: F
   createFace: Ctrl+F
   toggleLable: M
+  createPoint: Ctrl+Q
+  RePoint: Ctrl+W

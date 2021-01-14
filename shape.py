@@ -44,8 +44,13 @@ class Shape(object):
         flags=None,
         group_id=None,
         visibilityArray=None,
-        toggle=None
+        toggle=None,
+        total=None,
+        total_num=None,
+        jishu=0
+
     ):
+        jishu = jishu+1
         self.label = label
         self.group_id = group_id
         self.points = []
@@ -56,6 +61,8 @@ class Shape(object):
         self.other_data = {}
         self.visibilityArray = visibilityArray
         self.toggle = toggle
+        self.total = total
+        self.total_num = total_num
 
         self._highlightIndex = None
         self._highlightMode = self.NEAR_VERTEX
@@ -146,6 +153,10 @@ class Shape(object):
                 color = (
                     QtGui.QColor(100, 100, 100)
                 )
+            elif self.group_id in ["face", "mouse", "nose", "right_eye", "left_eye", "right_eyebrow", "left_eyebrow"]:
+                color = (
+                    QtGui.QColor(255, 255, 0)
+                )
 #aaaa
             else:
                 # color = (
@@ -155,11 +166,6 @@ class Shape(object):
                     self.select_line_color if self.selected else self.line_color
                 )
 
-
-
-            # color = (
-            #     self.select_line_color if self.selected else self.line_color
-            # )
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
             # pen.setWidth(max(1, int(round(2.0 / self.scale))))
@@ -200,7 +206,6 @@ class Shape(object):
                 # for the 1st vertex, and make it non-filled, which
                 # may be desirable.
                 # self.drawVertex(vrtx_path, 0)
-
                 for i, p in enumerate(self.points):
                     line_path.lineTo(p)
                     self.drawVertex(vrtx_path, i)
@@ -219,6 +224,8 @@ class Shape(object):
                 painter.fillPath(vrtx_path, QtGui.QColor(0, 0, 255))
             elif self.group_id == 'eyeballCenter':
                 painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 255))
+            elif self.group_id in ["face", "mouse", "nose", "right_eye", "left_eye", "right_eyebrow", "left_eyebrow"]:
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 255, 0))
             else:
                 painter.fillPath(vrtx_path, self._vertex_fill_color)
 
@@ -250,15 +257,39 @@ class Shape(object):
             path.addEllipse(point, d / 2.0, d / 2.0)
         else:
             assert False, "unsupported vertex shape"
+# 获取json有多少数据
+# number=280
+# 全局
+# i=i+1
+# if i%number=0
+# i=0;
         if i == 0 and self.toggle is False:
-            try:
+            if {self.group_id: self.label} not in self.total:
+                self.total.append({self.group_id: self.label})
+            if len(self.total) % self.total_num == 0:
                 myFont = QtGui.QFont('Thin', 3)
                 myFont.setItalic(True)
                 mypoint = point - QtCore.QPointF(0, d)
                 point_name = self.label
                 path.addText(mypoint, myFont, point_name)
-            except:
-                pass
+                # self.total = []
+
+                # try:
+                #     if self.group_id in ["face", "mouse", "nose", "right_eye", "left_eye", "right_eyebrow", "left_eyebrow"]:
+                #         myFont = QtGui.QFont('Thin', 6)
+                #         myFont.setItalic(True)
+                #         mypoint = point - QtCore.QPointF(0, d)
+                #         point_name = self.label
+                #         path.addText(mypoint, myFont, point_name)
+                #     else:
+                #         myFont = QtGui.QFont('Thin', 3)
+                #         myFont.setItalic(True)
+                #         mypoint = point - QtCore.QPointF(0, d)
+                #         point_name = self.label
+                #         path.addText(mypoint, myFont, point_name)
+                #
+                # except:
+                #     pass
 
     def nearestVertex(self, point, epsilon):
         min_distance = float("inf")

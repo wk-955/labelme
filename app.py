@@ -35,11 +35,12 @@ from labelme.widgets import ZoomWidget
 
 from functools import reduce
 import numpy as np
+import base64
+from PIL import Image
 
 from CalAll import CalAll
+from CalAuto import CalAuto
 
-from multiprocessing.pool import Pool
-from concurrent.futures import ThreadPoolExecutor, wait, ProcessPoolExecutor
 
 # FIXME
 # - [medium] Set max zoom value to something big enough for FitWidth/Window
@@ -708,6 +709,22 @@ class MainWindow(QtWidgets.QMainWindow):
             icon="eye",
             tip=self.tr("等分重构106点"),
         )
+
+        createPoint = action(
+            self.tr('创建所有点'),
+            functools.partial(self.CreateAll),
+            shortcuts["createPoint"],
+            icon="eye",
+            tip=self.tr("创建所有点"),
+        )
+        RePoint = action(
+            self.tr('重置普通点'),
+            functools.partial(self.ResetPoint),
+            shortcuts["RePoint"],
+            icon="eye",
+            tip=self.tr("重置普通点"),
+        )
+
         help = action(
             self.tr("帮助"),
             self.tutorial,
@@ -922,6 +939,7 @@ class MainWindow(QtWidgets.QMainWindow):
             Eye=self.menu(self.tr("眼睛点")),
             Pupil=self.menu(self.tr("瞳孔点")),
             Lips=self.menu(self.tr("嘴唇点")),
+            Auto=self.menu(self.tr("创建点")),
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
@@ -986,6 +1004,10 @@ class MainWindow(QtWidgets.QMainWindow):
             createUpperlip,
             createLowerlip,
             createKeypoints,
+        ))
+        utils.addActions(self.menus.Auto, (
+            createPoint,
+            RePoint
         ))
         utils.addActions(
             self.menus.view,
@@ -1245,9 +1267,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def undoShapeEdit(self):
         self.canvas.restoreShape()
-        # self.labelList.clear()
         self.loadShapes(self.canvas.shapes)
-        # print(self.canvas.shapes)
         self.actions.undo.setEnabled(self.canvas.isShapeRestorable)
 
     def tutorial(self):
@@ -1493,6 +1513,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.loadShapes(shapes, replace=replace)
 
     def loadLabels(self, *toggle):
+
         if toggle:
             toggle = toggle[0]
         else:
@@ -1500,23 +1521,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # shapes = self.labelFile.shapes,
         new_shapes = self.labelFile.shapes
         s = []
-
-        executor = ThreadPoolExecutor()
-        future_list = []
+        total = []
+        total_num = len(new_shapes)
         for shape in new_shapes:
-            future = executor.submit(self.new, shape, toggle, s)
-            future_list.append(future)
-        wait(future_list)
-        # p = Pool()
-        # for shape in new_shapes:
-        #     # shape = self.new(shape, toggle)
-        #     shape = p.apply_async(self.new, shape, toggle)
-        #     s.append(shape)
-        # p.close()
-        # p.join()
-        self.loadShapes(s)
-
-    def new(self, shape, toggle, s):
             label = shape["label"]
             points = shape["points"]
             shape_type = shape["shape_type"]
@@ -1531,7 +1538,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             shape = Shape(
                 label=label, shape_type=shape_type, group_id=group_id, visibilityArray=visibilityArray,
-                toggle=toggle
+                toggle=toggle, total=total, total_num=total_num
             )
             for x, y in points:
                 shape.addPoint(QtCore.QPointF(x, y))
@@ -1546,11 +1553,45 @@ class MainWindow(QtWidgets.QMainWindow):
             shape.flags = default_flags
             shape.flags.update(flags)
             shape.other_data = other_data
-
             s.append(shape)
-            # return shape
-        #     s.append(shape)
-        # self.loadShapes(s)
+
+        self.loadShapes(s)
+
+    # def new(self, shape, toggle, s):
+    #         label = shape["label"]
+    #         points = shape["points"]
+    #         shape_type = shape["shape_type"]
+    #         flags = shape["flags"]
+    #         group_id = shape["group_id"]
+    #         other_data = shape["other_data"]
+    #
+    #         if 'visibilityArray' in other_data:
+    #             visibilityArray = other_data["visibilityArray"]
+    #         else:
+    #             visibilityArray = None
+    #
+    #         shape = Shape(
+    #             label=label, shape_type=shape_type, group_id=group_id, visibilityArray=visibilityArray,
+    #             toggle=toggle
+    #         )
+    #         for x, y in points:
+    #             shape.addPoint(QtCore.QPointF(x, y))
+    #         shape.close()
+    #
+    #         default_flags = {}
+    #         if self._config["label_flags"]:
+    #             for pattern, keys in self._config["label_flags"].items():
+    #                 if re.match(pattern, label):
+    #                     for key in keys:
+    #                         default_flags[key] = False
+    #         shape.flags = default_flags
+    #         shape.flags.update(flags)
+    #         shape.other_data = other_data
+    #
+    #         s.append(shape)
+    #         # return shape
+    #     #     s.append(shape)
+    #     # self.loadShapes(s)
 
     def loadFlags(self, flags):
         self.flag_widget.clear()
@@ -1761,18 +1802,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.brightnessContrast_values[self.filename] = (brightness, contrast)
 
     def togglePolygons(self, value):
-        # future_list = []
-        # executor = ThreadPoolExecutor()
-        # p = Pool()
+
         for item in self.labelList:
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
-        #     p.apply_async(self.aaa, (item, value))
-        # p.close()
-        # p.join()
 
-    def aaa(self, item, value):
-        print(item)
-        item.setCheckState(Qt.Checked if value else Qt.Unchecked)
 
     # 增加可见函数
     def toggleShow106(self, value):
@@ -1802,7 +1835,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def toggleRect(self, value):
         for item in self.labelList:
             a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")[1]
-            if a == 'z':
+            if a == 'z' or a == '1':
                 item.setCheckState(Qt.Checked)
             else:
                 item.setCheckState(Qt.Unchecked)
@@ -2281,6 +2314,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.noShapes():
                 for action in self.actions.onShapesPresent:
                     action.setEnabled(False)
+        self.saveFile()
 
     def copyShape(self):
         self.canvas.endMove(copy=True)
@@ -3096,6 +3130,121 @@ class MainWindow(QtWidgets.QMainWindow):
             json.dump(content, f, ensure_ascii=False, indent=4)
         self.loadFile(self.filename)
         self.toggleLowerLip(True)
+
+    def CreateAll(self):
+        self.saveFile()
+        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+            content = json.loads(f.read())
+        shapes = content["shapes"]
+        c = CalAuto()
+        c.shapes = shapes
+        c.deal()
+        content["shapes"] = c.newShapes
+        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+            json.dump(content, f, ensure_ascii=False, indent=4)
+        self.sortPoint(True)
+        self.toggleKeyPoints(True)
+
+    def ResetPoint(self):
+        try:
+            file = {
+                "version": "4.5.6",
+                "flags": {},
+                "shapes": [],
+                "imagePath": "",
+                "imageData": "",
+                "imageHeight": "",
+                "imageWidth": ""
+            }
+            with open(self.filename, 'rb') as f:
+                base64_data = base64.b64encode(f.read())
+            image = Image.open(osp.join(self.filename))
+            width = image.size[0]
+            height = image.size[1]
+            image.close()
+            file['imageData'] = base64_data.decode('utf-8')
+            file['imageHeight'] = height
+            file['imageWidth'] = width
+            file['imagePath'] = osp.basename(self.filename)
+            new_shapes = []
+
+            for num in range(0, 5):
+                shape = {
+                    "label": "{}".format(num),
+                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 4)]],
+                    "group_id": "left_eyebrow",
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                new_shapes.append(shape)
+
+            for num in range(5, 10):
+                shape = {
+                    "label": "{}".format(num),
+                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 4)]],
+                    "group_id": "right_eyebrow",
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                new_shapes.append(shape)
+
+            for num in range(10, 14):
+                shape = {
+                    "label": "{}".format(num),
+                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 3)]],
+                    "group_id": "left_eye",
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                new_shapes.append(shape)
+
+            for num in range(15, 19):
+                shape = {
+                    "label": "{}".format(num),
+                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 3)]],
+                    "group_id": "right_eye",
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                new_shapes.append(shape)
+
+            for num in range(20, 22):
+                shape = {
+                    "label": "{}".format(num),
+                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 3 + 200)]],
+                    "group_id": "nose",
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                new_shapes.append(shape)
+
+            for num in range(0, 6):
+                shape = {
+                    "label": "{}".format(num),
+                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 2)]],
+                    "group_id": "mouse",
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                new_shapes.append(shape)
+
+            for num in range(30, 35):
+                shape = {
+                    "label": "{}".format(num),
+                    "points": [[round(width / 3 + (num - 30) * 0.01 * width), round(height / 2) - 200]],
+                    "group_id": "face",
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                new_shapes.append(shape)
+
+            file["shapes"] = new_shapes
+            with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+                json.dump(file, f, ensure_ascii=False, indent=4)
+            self.loadFile(self.filename)
+            self.togglePolygons(True)
+        except Exception as e:
+            print(e)
 
     def GeneratingBisectors(self):
         self.saveFile()

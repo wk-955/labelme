@@ -6,8 +6,6 @@ from labelme import QT5
 from labelme.shape import Shape
 import labelme.utils
 
-
-# TODO(unknown):
 # - [maybe] Find optimal epsilon value.
 
 
@@ -428,7 +426,7 @@ class Canvas(QtWidgets.QWidget):
         ):
             self.current.popPoint()
             self.finalise()
-
+#选中点
     def selectShapes(self, shapes):
         self.setHiding()
         self.selectionChanged.emit(shapes)
@@ -543,12 +541,13 @@ class Canvas(QtWidgets.QWidget):
 
         p.drawPixmap(0, 0, self.pixmap)
         Shape.scale = self.scale
+
         for shape in self.shapes:
-            if (shape.selected or not self._hideBackround) and self.isVisible(
-                shape
-            ):
+        # if (shape.selected or not self._hideBackround) and self.isVisible(shape):
+            if (shape.selected or not self._hideBackround) and self.visible.get(shape, True):
                 shape.fill = shape.selected or shape == self.hShape
                 shape.paint(p)
+
         if self.current:
             self.current.paint(p)
             self.line.paint(p)
