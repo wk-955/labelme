@@ -5,7 +5,6 @@ from qtpy.QtGui import QPalette
 from qtpy import QtWidgets
 from qtpy.QtWidgets import QStyle
 
-
 # https://stackoverflow.com/a/2039745/4158863
 class HTMLDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
@@ -73,8 +72,10 @@ class LabelListWidgetItem(QtGui.QStandardItem):
         self.setText(text)
         self.setShape(shape)
 
+
+# 设置开局是否显示点
         self.setCheckable(True)
-        self.setCheckState(Qt.Unchecked)
+        self.setCheckState(Qt.Checked)
         self.setEditable(True)
         self.setTextAlignment(Qt.AlignBottom)
 
@@ -84,6 +85,7 @@ class LabelListWidgetItem(QtGui.QStandardItem):
     def setShape(self, shape):
         self.setData(shape, Qt.UserRole)
 
+# 返回状态
     def shape(self):
         return self.data(Qt.UserRole)
 

@@ -34,7 +34,7 @@ from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
 
 from functools import reduce
-import numpy as np
+
 import base64
 from PIL import Image
 
@@ -470,6 +470,44 @@ class MainWindow(QtWidgets.QMainWindow):
             tip=self.tr("显示40点"),
             enabled=False,
         )
+
+        showline1 = action(
+            self.tr('只显示上唇(106)'),
+            functools.partial(self.toggleLine, True, 1),
+            icon="eye",
+            tip=self.tr('只显示上唇(106)'),
+            enabled=False,
+        )
+        showline2 = action(
+            self.tr('只显示下唇(106)'),
+            functools.partial(self.toggleLine, True, 2),
+            icon="eye",
+            tip=self.tr("只显示下唇(106)"),
+            enabled=False,
+        )
+        showline3 = action(
+            self.tr('只显示下唇(134)'),
+            functools.partial(self.toggleLine, True, 3),
+            icon="eye",
+            tip=self.tr("只显示下唇(134)"),
+            enabled=False,
+        )
+        showline4 = action(
+            self.tr('只显示下唇(134)'),
+            functools.partial(self.toggleLine, True, 4),
+            icon="eye",
+            tip=self.tr("只显示下唇(134)"),
+            enabled=False,
+        )
+        showline5 = action(
+            self.tr('显示所有的连线'),
+            functools.partial(self.toggleLine, True, 5),
+            shortcuts["showline5"],
+            icon="eye",
+            tip=self.tr("显示所有的连线"),
+            enabled=False,
+        )
+
         # show2 = action(
         #     self.tr('只显示2点'),
         #     functools.partial(self.RegenerateLeftPupil),
@@ -566,12 +604,12 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
 
-        toggleLable = action(
-            self.tr('隐藏'),
-            functools.partial(self.loadLabels, True),
-            # shortcuts["toggleLable"],
+        re_occ = action(
+            self.tr('重构遮挡点'),
+            functools.partial(self.ReconstructionOcclusion),
+            shortcuts["ReconstructionOcclusion"],
             icon="eye",
-            tip=self.tr("隐藏"),
+            tip=self.tr("创建所有点"),
         )
 
         createFace = action(
@@ -833,6 +871,19 @@ class MainWindow(QtWidgets.QMainWindow):
             checkable=True,
             enabled=True,
         )
+        toggleLabel = action(
+            self.tr('显示\隐藏标签'),
+            self.enableToggleLabel,
+            checkable=True,
+            checked=self._config["toggle"],
+        )
+        toggleLine = action(
+            self.tr('显示\取消连线'),
+            self.enableToggleLine,
+            checkable=True,
+            checked=self._config["toggleLine"],
+        )
+
         fill_drawing.trigger()
 
         # Lavel list context menu.
@@ -845,6 +896,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Store actions for further handling.
         self.actions = utils.struct(
+            toggleLabel=toggleLabel,
             saveAuto=saveAuto,
             saveWithImageData=saveWithImageData,
             changeOutputDir=changeOutputDir,
@@ -923,7 +975,8 @@ class MainWindow(QtWidgets.QMainWindow):
             ),
             onShapesPresent=(saveAs, hideAll, showAll, show106, show134, show38, showEye106, showKeyPoint, pointSort,
                              showFace, showFaceKey,
-                             showUpperLip, showLowerLip, showRect, showEyebrow, showEye, showLip),
+                             showUpperLip, showLowerLip, showRect, showEyebrow, showEye, showLip,
+                             showline1, showline2, showline3, showline4, showline5),
         )
 
         self.canvas.edgeSelected.connect(self.canvasShapeEdgeSelected)
@@ -940,6 +993,8 @@ class MainWindow(QtWidgets.QMainWindow):
             Pupil=self.menu(self.tr("瞳孔点")),
             Lips=self.menu(self.tr("嘴唇点")),
             Auto=self.menu(self.tr("创建点")),
+            Line=self.menu(self.tr("连线")),
+            ReOcc=self.menu(self.tr("重构遮挡点")),
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
@@ -1009,6 +1064,17 @@ class MainWindow(QtWidgets.QMainWindow):
             createPoint,
             RePoint
         ))
+        utils.addActions(self.menus.ReOcc, (
+            re_occ,
+        ))
+        utils.addActions(self.menus.Line, (
+            showline1,
+            showline2,
+            showline3,
+            showline4,
+            showline5
+        ))
+
         utils.addActions(
             self.menus.view,
             (
@@ -1037,7 +1103,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 showUpperLip,
                 showLowerLip,
                 showRect,
-
+                None,
+                toggleLabel,
+                toggleLine
             ),
         )
 
@@ -1472,6 +1540,8 @@ class MainWindow(QtWidgets.QMainWindow):
         rgb = self._get_rgb_by_label(shape.label)
 
         r, g, b = rgb
+        # print(rgb)
+        # r, g, b = 100, 100, 100
         label_list_item.setText(
             '{} <font color="#{:02x}{:02x}{:02x}">●</font>'.format(
                 text, r, g, b
@@ -1504,6 +1574,7 @@ class MainWindow(QtWidgets.QMainWindow):
             item = self.labelList.findItemByShape(shape)
             self.labelList.removeItem(item)
 
+# 载点
     def loadShapes(self, shapes, replace=True):
         self._noSelectionSlot = True
         for shape in shapes:
@@ -1512,17 +1583,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self._noSelectionSlot = False
         self.canvas.loadShapes(shapes, replace=replace)
 
-    def loadLabels(self, *toggle):
-
-        if toggle:
-            toggle = toggle[0]
-        else:
-            toggle = False
+    def loadLabels(self,):
         # shapes = self.labelFile.shapes,
         new_shapes = self.labelFile.shapes
+        # new_shapes += self.addLine(new_shapes)
+        # print(self._config["toggleLine"])
+        if self._config["toggleLine"]:
+            if 'line' not in new_shapes and len(new_shapes) > 250:
+                new_shapes = new_shapes + self.addLine(new_shapes)
+        new_shapes = self.tran(new_shapes)
+        # print(len(new_shapes))
         s = []
         total = []
         total_num = len(new_shapes)
+        togg = self._config["toggle"]
+
         for shape in new_shapes:
             label = shape["label"]
             points = shape["points"]
@@ -1538,60 +1613,134 @@ class MainWindow(QtWidgets.QMainWindow):
 
             shape = Shape(
                 label=label, shape_type=shape_type, group_id=group_id, visibilityArray=visibilityArray,
-                toggle=toggle, total=total, total_num=total_num
+                toggle=togg, total=total, total_num=total_num,
             )
             for x, y in points:
                 shape.addPoint(QtCore.QPointF(x, y))
             shape.close()
 
             default_flags = {}
-            if self._config["label_flags"]:
-                for pattern, keys in self._config["label_flags"].items():
-                    if re.match(pattern, label):
-                        for key in keys:
-                            default_flags[key] = False
+            # if self._config["label_flags"]:
+            #     for pattern, keys in self._config["label_flags"].items():
+            #         if re.match(pattern, label):
+            #             for key in keys:
+            #                 default_flags[key] = False
             shape.flags = default_flags
             shape.flags.update(flags)
             shape.other_data = other_data
             s.append(shape)
-
         self.loadShapes(s)
 
-    # def new(self, shape, toggle, s):
-    #         label = shape["label"]
-    #         points = shape["points"]
-    #         shape_type = shape["shape_type"]
-    #         flags = shape["flags"]
-    #         group_id = shape["group_id"]
-    #         other_data = shape["other_data"]
-    #
-    #         if 'visibilityArray' in other_data:
-    #             visibilityArray = other_data["visibilityArray"]
-    #         else:
-    #             visibilityArray = None
-    #
-    #         shape = Shape(
-    #             label=label, shape_type=shape_type, group_id=group_id, visibilityArray=visibilityArray,
-    #             toggle=toggle
-    #         )
-    #         for x, y in points:
-    #             shape.addPoint(QtCore.QPointF(x, y))
-    #         shape.close()
-    #
-    #         default_flags = {}
-    #         if self._config["label_flags"]:
-    #             for pattern, keys in self._config["label_flags"].items():
-    #                 if re.match(pattern, label):
-    #                     for key in keys:
-    #                         default_flags[key] = False
-    #         shape.flags = default_flags
-    #         shape.flags.update(flags)
-    #         shape.other_data = other_data
-    #
-    #         s.append(shape)
-    #         # return shape
-    #     #     s.append(shape)
-    #     # self.loadShapes(s)
+    def addLine(self, shapes):
+        extra_shapes = []
+        long106 = [
+            shapes[:33],
+            shapes[33:38] + shapes[67:63:-1],
+            shapes[42:37:-1] + shapes[68:72],
+            shapes[52:54]+[shapes[72]]+shapes[54:57]+[shapes[73]]+[shapes[57]],
+            shapes[61:59:-1]+[shapes[75]]+shapes[59:57:-1]+[shapes[63]]+[shapes[76]]+[shapes[62]],
+            shapes[84:91], shapes[100:95:-1],
+            shapes[103:100:-1], shapes[91:96]
+        ]
+        for long in long106:
+            points = []
+            for shape in long:
+                points.append(shape["points"][0])
+            sh = {
+                "label": '999{}'.format(long106.index(long)),
+                "points": points,
+                "group_id": "stMobile106",
+                "shape_type": "linestrip",
+                "flags": {},
+                "other_data": {}
+            }
+            extra_shapes.append(sh)
+
+        long134 = [
+            shapes[106:106 + 11] + shapes[106 + 21:106 + 10:-1],
+            shapes[106 + 22:106 + 33] + shapes[106 + 43:106 + 32:-1],
+            shapes[106 + 44:106 + 51] + shapes[106 + 56:106 + 50:-1],
+            shapes[106 + 57:106 + 64] + shapes[106 + 69:106 + 63:-1],
+            # shapes[106 + 70:106 + 87] + shapes[106 + 103:106 + 87:-1],
+            # shapes[106 + 104:106 + 119] + shapes[106 + 133:106 + 118:-1]
+            shapes[106 + 70:106 + 87],
+            shapes[106 + 103:106 + 87:-1],
+            shapes[106 + 104:106 + 119],
+            shapes[106 + 133:106 + 118:-1]
+        ]
+        for long in long134:
+            points = []
+            for shape in long:
+                points.append(shape["points"][0])
+            sh = {
+                "label": '999{}'.format(long134.index(long)),
+                "points": points,
+                "group_id": "extraFacePoints",
+                "shape_type": "linestrip",
+                "flags": {},
+                "other_data": {}
+            }
+            extra_shapes.append(sh)
+        return extra_shapes
+
+    def tran(self, shapes):
+        stMobile106 = []
+        extraFacePoints = []
+        eyeballContour = []
+        eyeballCenter = []
+        occlusions = []
+        iris_occlusions = []
+        occ = []
+        irr = []
+        other = []
+
+        for shape in shapes:
+            if shape["group_id"] == 'stMobile106' and shape["shape_type"] == 'point':
+                stMobile106.append(shape)
+            elif shape["group_id"] == 'extraFacePoints' and shape["shape_type"] == 'point':
+                extraFacePoints.append(shape)
+            elif shape["group_id"] == 'eyeballContour' and shape["shape_type"] == 'point':
+                eyeballContour.append(shape)
+            elif shape["group_id"] == 'eyeballCenter' and shape["shape_type"] == 'point':
+                eyeballCenter.append(shape)
+            elif shape["group_id"] == 'z' and shape["shape_type"] == 'rectangle':
+                occlusions.append(shape["points"])
+                occ.append(shape)
+            elif shape["group_id"].isdigit() and shape["shape_type"] == 'rectangle':
+                iris_occlusions.append(shape["points"])
+                irr.append(shape)
+            else:
+                other.append(shape)
+
+        stMobile106 = sorted(stMobile106, key=lambda keys: int(keys["label"]))
+        extraFacePoints = sorted(extraFacePoints, key=lambda keys: int(keys["label"]))
+        eyeballContour = sorted(eyeballContour, key=lambda keys: int(keys["label"]))
+        eyeballCenter = sorted(eyeballCenter, key=lambda keys: int(keys["label"]))
+
+        if occlusions:
+            for occlusion in occlusions:
+                x = [occlusion[0][0], occlusion[1][0]]
+                y = [occlusion[0][1], occlusion[1][1]]
+                for i in stMobile106:
+                    if min(x) < i["points"][0][0] < max(x) and min(y) < i["points"][0][1] < max(y):
+                        stMobile106[stMobile106.index(i)]["other_data"]["visibilityArray"] = 0.0
+                for i in extraFacePoints:
+                    if min(x) < i["points"][0][0] < max(x) and min(y) < i["points"][0][1] < max(y):
+                        extraFacePoints[extraFacePoints.index(i)]["other_data"]["visibilityArray"] = 0.0
+                for i in eyeballCenter:
+                    if min(x) < i["points"][0][0] < max(x) and min(y) < i["points"][0][1] < max(y):
+                        eyeballCenter[eyeballCenter.index(i)]["other_data"]["visibilityArray"] = 0.0
+
+        if iris_occlusions:
+            for occlusion in iris_occlusions:
+                x = [occlusion[0][0], occlusion[1][0]]
+                y = [occlusion[0][1], occlusion[1][1]]
+                for i in eyeballContour:
+                    if min(x) < i["points"][0][0] < max(x) and min(y) < i["points"][0][1] < max(y):
+                        eyeballContour[eyeballContour.index(i)]["other_data"]["visibilityArray"] = 0.0
+        new_content = stMobile106 + extraFacePoints + eyeballContour + eyeballCenter + occ + irr + other
+        return new_content
+
 
     def loadFlags(self, flags):
         self.flag_widget.clear()
@@ -1617,7 +1766,8 @@ class MainWindow(QtWidgets.QMainWindow):
             )
             return data
 
-        shapes = [format_shape(item.shape()) for item in self.labelList]
+        shapes = [format_shape(item.shape()) for item in self.labelList if '999' not in format_shape(item.shape())["label"]]
+
         flags = {}
         for i in range(self.flag_widget.count()):
             item = self.flag_widget.item(i)
@@ -1675,6 +1825,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self.canvas.deSelectShape()
 
+# 打勾
     def labelItemChanged(self, item):
         shape = item.shape()
         self.canvas.setShapeVisible(shape, item.checkState() == Qt.Checked)
@@ -1811,7 +1962,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def toggleShow106(self, value):
         for item in self.labelList:
             a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")[1]
-            if a == 'stMobile106':
+            if a == 'stMobile106' and '999' not in str(item):
                 item.setCheckState(Qt.Checked)
             else:
                 item.setCheckState(Qt.Unchecked)
@@ -1819,7 +1970,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def toggleShow134(self, value):
         for item in self.labelList:
             a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")[1]
-            if a == 'extraFacePoints':
+            if a == 'extraFacePoints' and '999' not in str(item):
                 item.setCheckState(Qt.Checked)
             else:
                 item.setCheckState(Qt.Unchecked)
@@ -1915,9 +2066,8 @@ class MainWindow(QtWidgets.QMainWindow):
             prev_shapes = self.canvas.shapes
         self.canvas.loadPixmap(QtGui.QPixmap.fromImage(image))
         flags = {k: False for k in self._config["flags"] or []}
-        togg = self._config["toggle"]
         if self.labelFile:
-            self.loadLabels(togg)
+            self.loadLabels()
             if self.labelFile.flags is not None:
                 flags.update(self.labelFile.flags)
         self.loadFlags(flags)
@@ -2906,6 +3056,28 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 item.setCheckState(Qt.Unchecked)
 
+
+    # 显示线段
+    def toggleLine(self, value, num):
+        for item in self.labelList:
+            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")[1]
+            if num == 1:
+                if a == 'stMobile106' and ('9995' in str(item) or '9996' in str(item)):
+                    item.setCheckState(Qt.Checked)
+            if num == 2:
+                if a == 'stMobile106' and ('9997' in str(item) or '9998' in str(item)):
+                    item.setCheckState(Qt.Checked)
+            if num == 3:
+                if a == 'extraFacePoints' and ('9995' in str(item) or '9994' in str(item)):
+                    item.setCheckState(Qt.Checked)
+            if num == 4:
+                if a == 'extraFacePoints' and ('9997' in str(item) or '9996' in str(item)):
+                    item.setCheckState(Qt.Checked)
+            if num == 5:
+                if '999' in str(item):
+                    item.setCheckState(Qt.Checked)
+
+
     # 脸颊
     def GeneratingFace(self):
         self.saveFile()
@@ -3264,4 +3436,28 @@ class MainWindow(QtWidgets.QMainWindow):
 
         with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
             json.dump(content, f, ensure_ascii=False, indent=4)
+        self.loadFile(self.filename)
+
+    def ReconstructionOcclusion(self):
+        self.saveFile()
+        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+            content = json.loads(f.read())
+        shapes = content["shapes"]
+        for shape in shapes:
+            if "visibilityArray" in shape:
+                shape["visibilityArray"] = 1.0
+
+        content["shapes"] = shapes
+        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+            json.dump(content, f, ensure_ascii=False, indent=4)
+        self.loadFile(self.filename)
+
+    def enableToggleLabel(self, enabled):
+        self._config["toggle"] = enabled
+        self.actions.toggleLabel.setChecked(enabled)
+        self.loadFile(self.filename)
+
+    def enableToggleLine(self, enabled):
+        self._config["toggleLine"] = enabled
+        self.actions.toggleLabel.setChecked(enabled)
         self.loadFile(self.filename)

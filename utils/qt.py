@@ -9,7 +9,7 @@ from qtpy import QtWidgets
 
 from icons.images import images
 import base64
-
+import os
 
 here = osp.dirname(osp.abspath(__file__))
 

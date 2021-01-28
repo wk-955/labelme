@@ -526,6 +526,7 @@ class Canvas(QtWidgets.QWidget):
         if not self.boundedMoveShapes(shapes, point - offset):
             self.boundedMoveShapes(shapes, point + offset)
 
+# 绘画事件
     def paintEvent(self, event):
         if not self.pixmap:
             return super(Canvas, self).paintEvent(event)
@@ -545,6 +546,7 @@ class Canvas(QtWidgets.QWidget):
         for shape in self.shapes:
         # if (shape.selected or not self._hideBackround) and self.isVisible(shape):
             if (shape.selected or not self._hideBackround) and self.visible.get(shape, True):
+                # print(shape)
                 shape.fill = shape.selected or shape == self.hShape
                 shape.paint(p)
 
@@ -753,7 +755,7 @@ class Canvas(QtWidgets.QWidget):
         self.hVertex = None
         self.hEdge = None
         self.repaint()
-
+# 设置状态
     def setShapeVisible(self, shape, value):
         self.visible[shape] = value
         self.repaint()

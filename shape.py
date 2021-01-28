@@ -47,10 +47,7 @@ class Shape(object):
         toggle=None,
         total=None,
         total_num=None,
-        jishu=0
-
     ):
-        jishu = jishu+1
         self.label = label
         self.group_id = group_id
         self.points = []
@@ -135,7 +132,11 @@ class Shape(object):
         return QtCore.QRectF(x1, y1, x2 - x1, y2 - y1)
 
     def paint(self, painter):
+        # if self.points[0] not in self.total:
+        #     self.total.append(self.points[0])
+        # print(self.total)
         if self.points:
+        # if len(self.points) == self.total_num:
 # 外部填充颜色
             if self.group_id == 'stMobile106':
                 color = (
@@ -156,6 +157,14 @@ class Shape(object):
             elif self.group_id in ["face", "mouse", "nose", "right_eye", "left_eye", "right_eyebrow", "left_eyebrow"]:
                 color = (
                     QtGui.QColor(255, 255, 0)
+                )
+            elif self.group_id == 'z':
+                color = (
+                    QtGui.QColor(50, 50, 100)
+                )
+            elif str(self.group_id).isdigit():
+                color = (
+                    QtGui.QColor(191, 62, 255)
                 )
 #aaaa
             else:
@@ -205,13 +214,16 @@ class Shape(object):
                 # Uncommenting the following line will draw 2 paths
                 # for the 1st vertex, and make it non-filled, which
                 # may be desirable.
-                # self.drawVertex(vrtx_path, 0)
-                for i, p in enumerate(self.points):
-                    line_path.lineTo(p)
-                    self.drawVertex(vrtx_path, i)
+                self.drawVertex(vrtx_path, 0)
+
+                # for i, p in enumerate(self.points):
+                #     line_path.lineTo(p)
+                #     self.drawVertex(vrtx_path, i)
+
                 if self.isClosed():
                     line_path.lineTo(self.points[0])
 
+# 绘画
             painter.drawPath(line_path)
             painter.drawPath(vrtx_path)
             # painter.fillPath(vrtx_path, self._vertex_fill_color)
@@ -226,12 +238,17 @@ class Shape(object):
                 painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 255))
             elif self.group_id in ["face", "mouse", "nose", "right_eye", "left_eye", "right_eyebrow", "left_eyebrow"]:
                 painter.fillPath(vrtx_path, QtGui.QColor(255, 255, 0))
+            elif self.group_id == 'z':
+                painter.fillPath(vrtx_path, QtGui.QColor(50, 50, 100))
+            elif str(self.group_id).isdigit():
+                painter.fillPath(vrtx_path, QtGui.QColor(191, 62, 255))
             else:
                 painter.fillPath(vrtx_path, self._vertex_fill_color)
 
             if self.visibilityArray == 0.0:
                 painter.fillPath(vrtx_path, QtGui.QColor(255, 255, 255))
 
+# 填充
             if self.fill:
                 color = (
                     self.select_fill_color
@@ -263,16 +280,17 @@ class Shape(object):
 # i=i+1
 # if i%number=0
 # i=0;
-        if i == 0 and self.toggle is False:
-            if {self.group_id: self.label} not in self.total:
-                self.total.append({self.group_id: self.label})
-            if len(self.total) % self.total_num == 0:
+#         toggle =
+        if i == 0 and self.toggle:
+            # if {self.group_id: self.label} not in self.total:
+            #     self.total.append({self.group_id: self.label})
+            # # if len(self.total) % self.total_num == 0:
+            # if len(self.total) >= 280:
                 myFont = QtGui.QFont('Thin', 3)
                 myFont.setItalic(True)
                 mypoint = point - QtCore.QPointF(0, d)
                 point_name = self.label
                 path.addText(mypoint, myFont, point_name)
-                # self.total = []
 
                 # try:
                 #     if self.group_id in ["face", "mouse", "nose", "right_eye", "left_eye", "right_eyebrow", "left_eyebrow"]:
