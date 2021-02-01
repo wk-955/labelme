@@ -1,4 +1,4 @@
-toggle: False
+toggle: True
 
 auto_save: true
 display_label_popup: true
@@ -99,7 +99,7 @@ shortcuts:
   delete_polygon: Delete
 #  duplicate_polygon: Ctrl+D
   duplicate_polygon: null
-  undo: Ctrl+L
+  undo: mull
   undo_last_point: null
   add_point_to_edge: Ctrl+Shift+P
 #  edit_label: Ctrl+E

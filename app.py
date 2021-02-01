@@ -396,7 +396,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         undoLastPoint = action(
-            self.tr("撤消上一个点"),
+            self.tr("撤销上一个点"),
             self.canvas.undoLastPoint,
             shortcuts["undo_last_point"],
             "undo",
@@ -420,7 +420,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         undo = action(
-            self.tr("撤消"),
+            self.tr("撤销"),
             self.undoShapeEdit,
             shortcuts["undo"],
             "undo",
@@ -445,285 +445,41 @@ class MainWindow(QtWidgets.QMainWindow):
             tip=self.tr("显示所有标签"),
             enabled=False,
         )
-
-        show106 = action(
-            self.tr('只显示106点'),
-            functools.partial(self.toggleShow106, True),
+        toggleLabel = action(
+            self.tr('显示标签'),
+            self.enableToggleLabel,
+            checkable=True,
+            checked=self._config["toggle"],
+        )
+        reset = action(
+            self.tr('等分所有线段'),
+            functools.partial(self.ResetLine, ),
             shortcuts["show106"],
             icon="eye",
-            tip=self.tr("显示106点"),
-            enabled=False,
+            tip=self.tr("等分所有线段"),
         )
-        show134 = action(
-            self.tr('只显示134点'),
-            functools.partial(self.toggleShow134, True),
+        resetLeft = action(
+            self.tr('等分左线段'),
+            functools.partial(self.ResetLeftLine, ),
+            # shortcuts["show"],
+            icon="eye",
+            tip=self.tr("等分左线段"),
+        )
+        resetRight = action(
+            self.tr('等分右线段'),
+            functools.partial(self.ResetRightLine, ),
+            # shortcuts["show106"],
+            icon="eye",
+            tip=self.tr("等分右线段"),
+        )
+        add = action(
+            self.tr('生成关键点'),
+            functools.partial(self.addPoint, ),
             shortcuts["show134"],
             icon="eye",
-            tip=self.tr("显示134点"),
-            enabled=False,
-        )
-        show38 = action(
-            self.tr('只显示40点'),
-            functools.partial(self.toggleShow38, True),
-            shortcuts["show38"],
-            icon="eye",
-            tip=self.tr("显示40点"),
-            enabled=False,
-        )
-        # show2 = action(
-        #     self.tr('只显示2点'),
-        #     functools.partial(self.RegenerateLeftPupil),
-        #     shortcuts["show2"],
-        #     icon="eye",
-        #     tip=self.tr("显示2点"),
-        #     enabled=False,
-        # )
-        showFaceKey = action(
-            self.tr('只显示脸颊关键点'),
-            functools.partial(self.toggleFaceKeyPoint, True),
-            shortcuts["showFaceKey"],
-            icon="eye",
-            tip=self.tr("只显示脸部关键点"),
-            enabled=False,
-        )
-        showFace = action(
-            self.tr('只显示脸颊所有点'),
-            functools.partial(self.toggleFace, True),
-            # shortcuts["show8"],
-            icon="eye",
-            tip=self.tr("只显示脸部点"),
-            enabled=False,
-        )
-        pointSort = action(
-            self.tr('点位重新排序'),
-            functools.partial(self.sortPoint, True),
-            shortcuts["pointsort"],
-            icon="eye",
-            tip=self.tr("点位重新排序"),
-            enabled=False,
-        )
-        showKeyPoint = action(
-            self.tr('显示关键点(第一步)'),
-            functools.partial(self.toggleKeyPoints, True),
-            shortcuts["showKeyPoint"],
-            icon="eye",
-            tip=self.tr("显示关键点"),
-            enabled=False,
-        )
-        showEye106 = action(
-            self.tr('显示眼睛点(106)'),
-            functools.partial(self.toggleEye106, True),
-            shortcuts["showEye"],
-            icon="eye",
-            tip=self.tr("显示眼睛点(106)"),
-            enabled=False,
-        )
-        showEye = action(
-            self.tr('显示眼睛点(134)'),
-            functools.partial(self.toggleEye, True),
-            shortcuts["showEye"],
-            icon="eye",
-            tip=self.tr("显示眼睛点(134)"),
-            enabled=False,
-        )
-        showEyebrow = action(
-            self.tr('显示眉毛所有点(106和134)'),
-            functools.partial(self.toggleEyebrow, True),
-            shortcuts["showEyebrow"],
-            icon="eye",
-            tip=self.tr("只显示眉毛"),
-            enabled=False,
-        )
-        showUpperLip = action(
-            self.tr('只显示上唇'),
-            functools.partial(self.toggleUpperLip, True),
-            shortcuts["showUpperLip"],
-            icon="eye",
-            tip=self.tr("只显示上唇"),
-            enabled=False,
-        )
-        showLowerLip = action(
-            self.tr('只显示下唇'),
-            functools.partial(self.toggleLowerLip, True),
-            shortcuts["showLowerLip"],
-            icon="eye",
-            tip=self.tr("只显示下唇"),
-            enabled=False,
-        )
-        showLip = action(
-            self.tr('显示嘴唇(106和134)'),
-            functools.partial(self.toggleLip, True),
-            icon="eye",
-            tip=self.tr("显示嘴唇(106和134)"),
-            enabled=False,
-        )
-        showRect = action(
-            self.tr('只显示遮挡框'),
-            functools.partial(self.toggleRect, True),
-            shortcuts["showRect"],
-            icon="eye",
-            tip=self.tr("只显示遮挡框"),
-            enabled=False,
+            tip=self.tr("生成关键点"),
         )
 
-        toggleLable = action(
-            self.tr('隐藏'),
-            functools.partial(self.loadLabels, True),
-            # shortcuts["toggleLable"],
-            icon="eye",
-            tip=self.tr("隐藏"),
-        )
-
-        createFace = action(
-            self.tr('生成所有脸颊点'),
-            functools.partial(self.GeneratingFace),
-            shortcuts["createFace"],
-            icon="eye",
-            tip=self.tr("生成新的脸"),
-        )
-        createLeftPupil = action(
-            self.tr('生成新的左瞳孔'),
-            functools.partial(self.RegenerateLeftPupil),
-            shortcuts["createLeftPupil"],
-            icon="eye",
-            tip=self.tr("生成新的左瞳孔"),
-        )
-        createRightPupil = action(
-            self.tr('生成新的右瞳孔'),
-            functools.partial(self.RegenerateRightPupil),
-            shortcuts["createRightPupil"],
-            icon="eye",
-            tip=self.tr("生成新的右瞳孔"),
-        )
-        createLeftupperEye = action(
-            self.tr('生成新的左眼睛上位点(134)'),
-            functools.partial(self.GeneratingLeftupperEye),
-            # shortcuts["createLeftupperEye"],
-            icon="eye",
-            tip=self.tr("生成新的左眼睛上位点"),
-        )
-        createLeftlowerEye = action(
-            self.tr('生成新的左眼睛下位点(134)'),
-            functools.partial(self.GeneratingLeftLowerEye),
-            # shortcuts["createLeftupperEye"],
-            icon="eye",
-            tip=self.tr("生成新的左眼睛下位点"),
-        )
-        createRightupperEye = action(
-            self.tr('生成新的右眼睛上位点(134)'),
-            functools.partial(self.GeneratingRightupperEye),
-            # shortcuts["createLeftupperEye"],
-            icon="eye",
-            tip=self.tr("生成新的右眼睛上位点"),
-        )
-        createRightlowerEye = action(
-            self.tr('生成新的右眼睛下位点(134)'),
-            functools.partial(self.GeneratingRightLowerEye),
-            # shortcuts["createLeftupperEye"],
-            icon="eye",
-            tip=self.tr("生成新的右眼睛下位点"),
-        )
-        createLeftEye = action(
-            self.tr('生成新的左眼睛(134)'),
-            functools.partial(self.GeneratingLeftEye),
-            # shortcuts["createLeftupperEye"],
-            icon="eye",
-            tip=self.tr("生成新的左眼睛"),
-        )
-        createRightEye = action(
-            self.tr('生成新的右眼睛(134)'),
-            functools.partial(self.GeneratingRightEye),
-            # shortcuts["createLeftupperEye"],
-            icon="eye",
-            tip=self.tr("生成新的右眼睛"),
-        )
-        createEyeMid = action(
-            self.tr('生成眼睛74和77点(106)'),
-            functools.partial(self.GeneratingEyeMid),
-            # shortcuts["createLeftupperEye"],
-            icon="eye",
-            tip=self.tr("生成眼睛74和77点(106)"),
-        )
-        createEye = action(
-            self.tr('生成新的眼睛(全部(134))'),
-            functools.partial(self.GeneratingEye),
-            shortcuts["createEye"],
-            icon="eye",
-            tip=self.tr("生成新的眼睛(全部)"),
-        )
-        mergePoints = action(
-            self.tr('只合并关键点(106和134)'),
-            functools.partial(self.MergeKeyPoints),
-            shortcuts["mergePoints"],
-            icon="eye",
-            tip=self.tr("合并关键点"),
-        )
-
-        createEyebrow = action(
-            self.tr('生成眉毛等分点(134)'),
-            functools.partial(self.GeneratingEyebrowPoints),
-            shortcuts["createEyebrow"],
-            icon="eye",
-            tip=self.tr("生成眉毛等分点(134)"),
-        )
-        createEyebrow106 = action(
-            self.tr('生成眉毛等分点(106)'),
-            functools.partial(self.GeneratingEyebrowPoints106),
-            # shortcuts["createEyebrow"],
-            icon="eye",
-            tip=self.tr("生成眉毛等分点(106)"),
-        )
-        createUpperlip = action(
-            self.tr('生成上嘴唇等分点(134)'),
-            functools.partial(self.GeneratingUpperlipPoints),
-            shortcuts["createUpperlip"],
-            icon="eye",
-            tip=self.tr("生成上嘴唇等分点(134)"),
-        )
-        createLowerlip = action(
-            self.tr('生成下嘴唇等分点(134)'),
-            functools.partial(self.GeneratingLowerlipPoints),
-            shortcuts["createLowerlip"],
-            icon="eye",
-            tip=self.tr("生成下嘴唇等分点(134)"),
-        )
-        createKeypoints = action(
-            self.tr('生成嘴唇等分点(134)'),
-            functools.partial(self.GeneratingBisectors),
-            shortcuts["createKeypoints"],
-            icon="eye",
-            tip=self.tr("生成嘴唇等分点(134)"),
-        )
-
-        mergeAndCreate = action(
-            self.tr('等分134点(第三步)'),
-            functools.partial(self.MegrgeAndBisect),
-            shortcuts["mergeAndCreate"],
-            icon="eye",
-            tip=self.tr("合并关键点并创建嘴唇等分点"),
-        )
-        restructure = action(
-            self.tr('等分106点(第二步)'),
-            functools.partial(self.restructure106),
-            shortcuts["restructure"],
-            icon="eye",
-            tip=self.tr("等分重构106点"),
-        )
-
-        createPoint = action(
-            self.tr('创建所有点'),
-            functools.partial(self.CreateAll),
-            shortcuts["createPoint"],
-            icon="eye",
-            tip=self.tr("创建所有点"),
-        )
-        RePoint = action(
-            self.tr('重置普通点'),
-            functools.partial(self.ResetPoint),
-            shortcuts["RePoint"],
-            icon="eye",
-            tip=self.tr("重置普通点"),
-        )
 
         help = action(
             self.tr("帮助"),
@@ -845,6 +601,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Store actions for further handling.
         self.actions = utils.struct(
+            toggleLabel=toggleLabel,
             saveAuto=saveAuto,
             saveWithImageData=saveWithImageData,
             changeOutputDir=changeOutputDir,
@@ -921,9 +678,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 editMode,
                 brightnessContrast,
             ),
-            onShapesPresent=(saveAs, hideAll, showAll, show106, show134, show38, showEye106, showKeyPoint, pointSort,
-                             showFace, showFaceKey,
-                             showUpperLip, showLowerLip, showRect, showEyebrow, showEye, showLip),
+            onShapesPresent=(saveAs, hideAll, showAll, ),
         )
 
         self.canvas.edgeSelected.connect(self.canvasShapeEdgeSelected)
@@ -933,13 +688,8 @@ class MainWindow(QtWidgets.QMainWindow):
             file=self.menu(self.tr("文件")),
             edit=self.menu(self.tr("编辑")),
             view=self.menu(self.tr("视图")),
-            KeyPoints=self.menu(self.tr("关键点合并")),
-            Face=self.menu(self.tr("脸部")),
-            Eyebrow=self.menu(self.tr("眉毛点")),
-            Eye=self.menu(self.tr("眼睛点")),
-            Pupil=self.menu(self.tr("瞳孔点")),
-            Lips=self.menu(self.tr("嘴唇点")),
-            Auto=self.menu(self.tr("创建点")),
+            Lines=self.menu(self.tr("等分线段")),
+
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
@@ -963,52 +713,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 quit,
             ),
         )
-        utils.addActions(self.menus.KeyPoints, (
-            pointSort,
-            showKeyPoint,
-            restructure,
-            mergeAndCreate,
-            mergePoints,
-        ))
-        utils.addActions(self.menus.Face, (
-            showFaceKey,
-            showFace,
-            createFace
-        ))
-        utils.addActions(self.menus.Eyebrow, (
-            showEyebrow,
-            createEyebrow106,
-            createEyebrow,
-        ))
-        utils.addActions(self.menus.Eye, (
-            showEye106,
-            showEye,
-            createLeftupperEye,
-            createLeftlowerEye,
-            createRightupperEye,
-            createRightlowerEye,
-            createLeftEye,
-            createRightEye,
-            createEyeMid,
-            createEye
-        ))
-        utils.addActions(self.menus.Pupil, (
-            show38,
-            createLeftPupil,
-            createRightPupil,
-        ))
-        utils.addActions(self.menus.Lips, (
-            showUpperLip,
-            showLowerLip,
-            showLip,
-            createUpperlip,
-            createLowerlip,
-            createKeypoints,
-        ))
-        utils.addActions(self.menus.Auto, (
-            createPoint,
-            RePoint
-        ))
         utils.addActions(
             self.menus.view,
             (
@@ -1031,15 +735,16 @@ class MainWindow(QtWidgets.QMainWindow):
                 None,
                 brightnessContrast,
                 None,
-                show106,
-                show134,
-                show38,
-                showUpperLip,
-                showLowerLip,
-                showRect,
+                toggleLabel,
 
             ),
         )
+        utils.addActions(self.menus.Lines, (
+            resetLeft,
+            resetRight,
+            reset,
+            add
+        ))
 
         self.menus.file.aboutToShow.connect(self.updateFileMenu)
 
@@ -1072,14 +777,7 @@ class MainWindow(QtWidgets.QMainWindow):
             None,
             zoom,
             fitWidth,
-            None,
-            showKeyPoint,
-            show106,
-            show134,
-            show38,
-            showUpperLip,
-            showLowerLip,
-            showRect
+
         )
 
         self.statusBar().showMessage(self.tr("%s started.") % __appname__)
@@ -1512,17 +1210,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._noSelectionSlot = False
         self.canvas.loadShapes(shapes, replace=replace)
 
-    def loadLabels(self, *toggle):
-
-        if toggle:
-            toggle = toggle[0]
-        else:
-            toggle = False
+    def loadLabels(self, shapes, toggle):
         # shapes = self.labelFile.shapes,
-        new_shapes = self.labelFile.shapes
+        new_shapes = shapes
         s = []
-        total = []
-        total_num = len(new_shapes)
         for shape in new_shapes:
             label = shape["label"]
             points = shape["points"]
@@ -1538,7 +1229,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             shape = Shape(
                 label=label, shape_type=shape_type, group_id=group_id, visibilityArray=visibilityArray,
-                toggle=toggle, total=total, total_num=total_num
+                toggle=toggle,
             )
             for x, y in points:
                 shape.addPoint(QtCore.QPointF(x, y))
@@ -1806,40 +1497,6 @@ class MainWindow(QtWidgets.QMainWindow):
         for item in self.labelList:
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
 
-
-    # 增加可见函数
-    def toggleShow106(self, value):
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")[1]
-            if a == 'stMobile106':
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleShow134(self, value):
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")[1]
-            if a == 'extraFacePoints':
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleShow38(self, value):
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")[1]
-            if a == 'eyeballContour' or a == 'eyeballCenter':
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleRect(self, value):
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")[1]
-            if a == 'z' or a == '1':
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
     def loadFile(self, filename=None, ):
         """Load the specified file, or the last opened file if None."""
         # changing fileListWidget loads file
@@ -1917,7 +1574,7 @@ class MainWindow(QtWidgets.QMainWindow):
         flags = {k: False for k in self._config["flags"] or []}
         togg = self._config["toggle"]
         if self.labelFile:
-            self.loadLabels(togg)
+            self.loadLabels(self.labelFile.shapes, togg)
             if self.labelFile.flags is not None:
                 flags.update(self.labelFile.flags)
         self.loadFlags(flags)
@@ -2433,835 +2090,127 @@ class MainWindow(QtWidgets.QMainWindow):
         images.sort(key=lambda x: x.lower())
         return images
 
-    def RegenerateLeftPupil(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-        overdue_points = []
-        for shape in shapes:
-            if shape["group_id"] == 'eyeballCenter' and shape["label"] == "0":
-                circle_center = shape["points"][0]
-            if shape["group_id"] == 'eyeballContour' and shape["label"] == "4":
-                circle_peripheral = shape["points"][0]
-            if shape["group_id"] == 'eyeballContour' and shape["label"] in [str(x) for x in range(19)]:
-                overdue_points.append(shape)
+    def ResetLine(self):
+        if self.filename:
+            self.saveFile()
+            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+                content = json.loads(f.read())
+            shapes = content["shapes"]
+            c = CalAll()
+            c.shapes = shapes
+            new = c.Line()
+            content["shapes"] = new
 
-        if circle_center and circle_peripheral:
-            r = round(math.hypot(circle_center[0] - circle_peripheral[0], circle_center[1] - circle_peripheral[1]))
-            radians = (math.pi / 180) * round(360 / 19)
-            new_points = []
-            for i in range(19):
-                if i < 5:
-                    x = circle_center[0] + r * math.sin(radians * i)
-                    y = circle_center[1] + r * math.cos(radians * i)
-                    shape = {
-                        "label": "{}".format(4 - i),
-                        "points": [[x, y]],
-                        "group_id": "eyeballContour",
-                        "shape_type": "point",
-                        "flags": {}
-                    }
-                    new_points.append(shape)
-                else:
-                    x = circle_center[0] + r * math.sin(radians * i)
-                    y = circle_center[1] + r * math.cos(radians * i)
-                    shape = {
-                        "label": "{}".format(23 - i),
-                        "points": [[x, y]],
-                        "group_id": "eyeballContour",
-                        "shape_type": "point",
-                        "flags": {}
-                    }
-                    new_points.append(shape)
-            for i in overdue_points:
-                shapes.remove(i)
-            shapes += new_points
-            content["shapes"] = shapes
             with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
                 json.dump(content, f, ensure_ascii=False, indent=4)
             self.loadFile(self.filename)
-            self.toggleShow38(True)
 
-    def RegenerateRightPupil(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-        overdue_points = []
-        for shape in shapes:
-            if shape["group_id"] == 'eyeballCenter' and shape["label"] == "1":
-                circle_center = shape["points"][0]
-            if shape["group_id"] == 'eyeballContour' and shape["label"] == "23":
-                circle_peripheral = shape["points"][0]
-            if shape["group_id"] == 'eyeballContour' and shape["label"] in [str(x) for x in range(19, 38)]:
-                overdue_points.append(shape)
+    def ResetLeftLine(self):
+        if self.filename:
+            self.saveFile()
+            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+                content = json.loads(f.read())
+            shapes = content["shapes"]
+            c = CalAll()
+            c.shapes = shapes
+            new = c.LLine()
+            content["shapes"] = new
 
-        if circle_center and circle_peripheral:
-            r = round(math.hypot(circle_center[0] - circle_peripheral[0], circle_center[1] - circle_peripheral[1]))
-            radians = (math.pi / 180) * round(360 / 19)
-            new_points = []
-            for i in range(19):
-                if i < 15:
-                    x = circle_center[0] + r * math.sin(radians * i)
-                    y = circle_center[1] + r * math.cos(radians * i)
-                    shape = {
-                        "label": "{}".format(i + 23),
-                        "points": [[x, y]],
-                        "group_id": "eyeballContour",
-                        "shape_type": "point",
-                        "flags": {}
-                    }
-                    new_points.append(shape)
-                else:
-                    x = circle_center[0] + r * math.sin(radians * i)
-                    y = circle_center[1] + r * math.cos(radians * i)
-                    shape = {
-                        "label": "{}".format(i + 4),
-                        "points": [[x, y]],
-                        "group_id": "eyeballContour",
-                        "shape_type": "point",
-                        "flags": {}
-                    }
-                    new_points.append(shape)
-            for i in overdue_points:
-                shapes.remove(i)
-            shapes += new_points
-            content["shapes"] = shapes
             with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
                 json.dump(content, f, ensure_ascii=False, indent=4)
             self.loadFile(self.filename)
-            self.toggleShow38(True)
 
-    def calculation_point(self, prev_coordinate, next_coordinate, segments, part):
-        next_coordinate = next_coordinate[0]
-        prev_coordinate = prev_coordinate[0]
-        x = (next_coordinate[0] - prev_coordinate[0]) / (segments / part)
-        y = (next_coordinate[1] - prev_coordinate[1]) / (segments / part)
-        new_point = [prev_coordinate[0] + x, prev_coordinate[1] + y]
-        return [new_point]
-
-    # 关键点合并
-    def MergeKeyPoints(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        # 106点重合
-        shapes[96]["points"] = shapes[84]["points"]
-        shapes[100]["points"] = shapes[90]["points"]
-
-        # 左眉毛
-        shapes[150]["points"] = shapes[33]["points"]
-        shapes[153]["points"] = shapes[35]["points"]
-        shapes[156]["points"] = shapes[37]["points"]
-        shapes[159]["points"] = shapes[65]["points"]
-        shapes[162]["points"] = shapes[67]["points"]
-
-        # 右眉毛
-        shapes[169]["points"] = shapes[38]["points"]
-        shapes[166]["points"] = shapes[40]["points"]
-        shapes[163]["points"] = shapes[42]["points"]
-        shapes[175]["points"] = shapes[68]["points"]
-        shapes[172]["points"] = shapes[70]["points"]
-
-        # 眼睛
-        shapes[117]["points"] = shapes[52]["points"]
-        shapes[116]["points"] = shapes[55]["points"]
-        shapes[138]["points"] = shapes[58]["points"]
-        shapes[139]["points"] = shapes[61]["points"]
-
-        # 上嘴唇
-        shapes[193]["points"] = shapes[176]["points"]
-        shapes[209]["points"] = shapes[192]["points"]
-
-        shapes[176]["points"] = shapes[84]["points"]
-        shapes[179]["points"] = shapes[85]["points"]
-        shapes[182]["points"] = shapes[86]["points"]
-        shapes[184]["points"] = shapes[87]["points"]
-        shapes[186]["points"] = shapes[88]["points"]
-        shapes[189]["points"] = shapes[89]["points"]
-        shapes[192]["points"] = shapes[90]["points"]
-        shapes[201]["points"] = shapes[98]["points"]
-
-        # 下嘴唇
-        shapes[217]["points"] = shapes[102]["points"]
-        shapes[232]["points"] = shapes[93]["points"]
-
-        content["shapes"] = shapes
-
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.sortPoint(True)
-        self.toggleShow134(True)
-
-    # 一键合并
-    def MegrgeAndBisect(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        a = []
-        b = []
-        c = []
-        d = []
-        shapes = []
-        for shape in content["shapes"]:
-            if shape["group_id"] == 'stMobile106':
-                a.append(shape)
-            elif shape["group_id"] == 'extraFacePoints':
-                b.append(shape)
-            elif shape["group_id"] == 'eyeballContour':
-                c.append(shape)
-            else:
-                d.append(shape)
-        shapes = sorted(a, key=lambda keys: int(keys["label"])) + sorted(b, key=lambda keys: int(keys["label"])) \
-                 + sorted(c, key=lambda keys: int(keys["label"])) + d
-
-        c = CalAll()
-        c.shapes = shapes
-
-        # 左眉毛
-        shapes[44+106]["points"] = shapes[33]["points"]
-        # shapes[153]["points"] = shapes[35]["points"]
-        shapes[50+106]["points"] = shapes[37]["points"]
-        # shapes[159]["points"] = shapes[65]["points"]
-        shapes[56+106]["points"] = shapes[67]["points"]
-
-        # 右眉毛
-        shapes[63+106]["points"] = shapes[38]["points"]
-        # shapes[166]["points"] = shapes[40]["points"]
-        shapes[57+106]["points"] = shapes[42]["points"]
-        shapes[69+106]["points"] = shapes[68]["points"]
-        # shapes[172]["points"] = shapes[70]["points"]
-
-        # 眼睛
-        shapes[117]["points"] = shapes[52]["points"]
-        shapes[116]["points"] = shapes[55]["points"]
-        shapes[138]["points"] = shapes[58]["points"]
-        shapes[139]["points"] = shapes[61]["points"]
-
-        # 上嘴唇
-        shapes[70+106]["points"] = shapes[84]["points"]
-        # shapes[179]["points"] = shapes[85]["points"]
-        shapes[76+106]["points"] = shapes[86]["points"]
-        shapes[78+106]["points"] = shapes[87]["points"]
-        shapes[80+106]["points"] = shapes[88]["points"]
-        # shapes[189]["points"] = shapes[89]["points"]
-        shapes[86+106]["points"] = shapes[90]["points"]
-        shapes[95+106]["points"] = shapes[98]["points"]
-
-        shapes[87 + 106]["points"] = shapes[84]["points"]
-        shapes[103 + 106]["points"] = shapes[90]["points"]
-
-        # 下嘴唇
-        shapes[217]["points"] = shapes[102]["points"]
-        shapes[232]["points"] = shapes[93]["points"]
-
-        # 生成的点
-
-        # 眉毛
-        c.CalLeftUpperEyebrow()
-        c.CalLeftLowerEyebrow()
-        c.CalRightUpperEyebrow()
-        c.CalRightLowerEyebrow()
-
-        # 眼睛
-        c.CalLeftLowerEye()
-        c.CalLeftUpperEye()
-        c.CalRightLowerEye()
-        c.CalRightUpperEye()
-
-        # 嘴唇
-        c.CalUpperLipUpper()
-        c.CalUpperLipLower()
-        c.CalLowerLipUpper()
-        c.CalLowerLipLower()
-
-        # 瞳孔点
-        shapes[278]["points"] = shapes[104]["points"]
-        shapes[279]["points"] = shapes[105]["points"]
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        # self.loadFile(self.filename)
-        self.sortPoint(True)
-        self.toggleShow134(True)
-
-    # 排序
-    def sortPoint(self, value):
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        a = []
-        b = []
-        c = []
-        d = []
-        e = []
-        shapes = []
-
-        num106 = [x for x in range(106)]
-        num134 = [x for x in range(134)]
-        num38 = [x for x in range(38)]
-        num2 = [x for x in range(2)]
-
-        run_function = lambda x, y: x if y in x else x + [y]
-        sort_shapes = reduce(run_function, [[], ] + content["shapes"])
-        for shape in sort_shapes:
-            if shape["group_id"] == 'stMobile106' and int(shape["label"]) in num106:
-                num106.remove(int(shape["label"]))
-                a.append(shape)
-            elif shape["group_id"] == 'extraFacePoints' and int(shape["label"]) in num134:
-                num134.remove(int(shape["label"]))
-                b.append(shape)
-            elif shape["group_id"] == 'eyeballContour' and int(shape["label"]) in num38:
-                num38.remove(int(shape["label"]))
-                c.append(shape)
-            elif shape["group_id"] == 'eyeballCenter' and int(shape["label"]) in num2:
-                num2.remove(int(shape["label"]))
-                d.append(shape)
-            else:
-                if shape["group_id"] == 'stMobile106' or shape["group_id"] == 'extraFacePoints' or \
-                        shape["group_id"] == 'eyeballContour' or shape["group_id"] == 'eyeballCenter':
-                    pass
-                else:
-                    e.append(shape)
-        shapes = sorted(a, key=lambda keys: int(keys["label"])) + sorted(b, key=lambda keys: int(keys["label"])) \
-                 + sorted(c, key=lambda keys: int(keys["label"])) + sorted(d, key=lambda keys: int(keys["label"])) + e
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-
-    # 等分106点
-    def restructure106(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        a = []
-        b = []
-        c = []
-        d = []
-        shapes = []
-        for shape in content["shapes"]:
-            if shape["group_id"] == 'stMobile106':
-                a.append(shape)
-            elif shape["group_id"] == 'extraFacePoints':
-                b.append(shape)
-            elif shape["group_id"] == 'eyeballContour':
-                c.append(shape)
-            else:
-                d.append(shape)
-        shapes = sorted(a, key=lambda keys: int(keys["label"])) + sorted(b, key=lambda keys: int(keys["label"])) \
-                 + sorted(c, key=lambda keys: int(keys["label"])) + d
-
-        c = CalAll()
-        c.shapes = shapes
-
-        # 脸颊
-        c.CalFace()
-
-        # 眉毛
-        c.Cal106LeftEyebrow()
-        c.Cal106RightEyebrow()
-
-        # 眼睛
-        c.CalLeftEye()
-        c.CalRightEye()
-        c.CalEyeMid()
-
-        # 嘴巴
-        c.Cal106UpperLip()
-        c.Cal106LowerLip()
-
-        # # 瞳孔
-        # c.Cal74And77()
-
-        # 106点重合
-        shapes[96]["points"] = shapes[84]["points"]
-        shapes[100]["points"] = shapes[90]["points"]
-        shapes[278]["points"] = shapes[104]["points"]
-        shapes[279]["points"] = shapes[105]["points"]
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleShow106(True)
-
-    def toggleKeyPoints(self, value):
-        number = [84, 86, 87, 88, 90, 98, 102, 93, 33, 37, 67, 52, 55, 38,
-                  103, 95, 94, 92, 101, 91, 85, 97, 89, 99, 85,
-                  34, 35, 36, 64, 65, 66, 39, 40, 41, 69, 70, 71,
-                  53, 72, 54, 57, 73, 56, 59, 75, 60, 62, 76, 63,
-                  68, 42, 58, 61, 35, 65, 40, 70,
-                  0, 5, 9, 11, 13, 15, 16, 17, 19, 21, 23, 27, 32, 12, 20]
-        number1 = [119, 125, 127, 133, 104, 118, 71, 85, 88, 102, 110, 112,
-                   94, 96, 102,
-                   12, 21, 0, 9, 43, 34, 31, 22,
-                   45, 49, 51, 55, 62, 58, 68, 64
-                   ]
-
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")
-            num = a[0].replace('"', '')
-            group = a[1]
-            if group == 'stMobile106' and int(num) in number:
-                item.setCheckState(Qt.Checked)
-            elif group == 'extraFacePoints' and int(num) in number1:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleEyebrow(self, value):
-        st106 = [x for x in range(33, 43)] + [x for x in range(64, 72)]
-        ex134 = [x for x in range(44, 70)]
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")
-            num = a[0].replace('"', '')
-            group = a[1]
-            if group == 'stMobile106' and int(num) in st106:
-                item.setCheckState(Qt.Checked)
-            elif group == 'extraFacePoints' and int(num) in ex134:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleEye(self, value):
-        number = [x for x in range(0, 44)]
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")
-            num = a[0].replace('"', '')
-            group = a[1]
-            if group == 'extraFacePoints' and int(num) in number:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleEye106(self, value):
-        number = [x for x in range(52, 64)] + [72, 73, 75, 76, 74, 104, 77, 105]
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")
-            num = a[0].replace('"', '')
-            group = a[1]
-            if group == 'stMobile106' and int(num) in number:
-                item.setCheckState(Qt.Checked)
-
-    def toggleUpperLip(self, value):
-        number = [x for x in range(70, 104)]
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")
-            num = a[0].replace('"', '')
-            group = a[1]
-            if group == 'extraFacePoints' and int(num) in number:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleLowerLip(self, value):
-        number = [x for x in range(104, 134)] + [70, 86]
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")
-            num = a[0].replace('"', '')
-            group = a[1]
-            if group == 'extraFacePoints' and int(num) in number:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleLip(self, value):
-        number = [x for x in range(104, 134)] + [x for x in range(70, 104)]
-        number1 = [x for x in range(84, 104)]
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")
-            num = a[0].replace('"', '')
-            group = a[1]
-            if group == 'extraFacePoints' and int(num) in number:
-                item.setCheckState(Qt.Checked)
-            elif group == 'stMobile106' and int(num) in number1:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleFaceKeyPoint(self, value):
-        number = [0, 5, 9, 11, 13, 15, 16, 17, 19, 21, 23, 27, 32]
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")
-            num = a[0].replace('"', '')
-            group = a[1]
-            if group == 'stMobile106' and int(num) in number:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    def toggleFace(self, value):
-        number = [x for x in range(33)]
-        for item in self.labelList:
-            a = re.findall('LabelListWidgetItem\((.*?)\)', str(item))[0].split("(")
-            num = a[0].replace('"', '')
-            group = a[1]
-            if group == 'stMobile106' and int(num) in number:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
-
-    # 脸颊
-    def GeneratingFace(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-        # 生成的点
-        c = CalAll()
-        c.shapes = shapes
-        c.CalFace()
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleFace(True)
-
-    # 眉毛
-    def GeneratingEyebrowPoints(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        # 生成的点
-        c = CalAll()
-        c.shapes = shapes
-
-        c.CalLeftUpperEyebrow()
-        c.CalLeftLowerEyebrow()
-        c.CalRightUpperEyebrow()
-        c.CalRightLowerEyebrow()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEyebrow(True)
-
-    def GeneratingEyebrowPoints106(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        # 生成的点
-        c = CalAll()
-        c.shapes = shapes
-
-        c.Cal106LeftEyebrow()
-        c.Cal106RightEyebrow()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEyebrow(True)
-
-    # 眼睛
-    def GeneratingLeftEye(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalLeftLowerEye()
-        c.CalLeftUpperEye()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEye(True)
-
-    def GeneratingLeftupperEye(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalLeftUpperEye()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEye(True)
-
-    def GeneratingLeftLowerEye(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalLeftLowerEye()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEye(True)
-
-    def GeneratingRightEye(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalRightLowerEye()
-        c.CalRightUpperEye()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEye(True)
-
-    def GeneratingRightupperEye(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalRightUpperEye()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEye(True)
-
-    def GeneratingRightLowerEye(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalRightLowerEye()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEye(True)
-
-    def GeneratingEye(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalLeftLowerEye()
-        c.CalLeftUpperEye()
-        c.CalRightLowerEye()
-        c.CalRightUpperEye()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEye(True)
-
-    def GeneratingEyeMid(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalEyeMid()
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleEye106(True)
-
-    # 嘴巴
-    def GeneratingUpperlipPoints(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalUpperLipUpper()
-        c.CalUpperLipLower()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleUpperLip(True)
-
-    def GeneratingLowerlipPoints(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-        c.CalLowerLipUpper()
-        c.CalLowerLipLower()
-
-        content["shapes"] = shapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.loadFile(self.filename)
-        self.toggleLowerLip(True)
-
-    def CreateAll(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-        c = CalAuto()
-        c.shapes = shapes
-        c.deal()
-        content["shapes"] = c.newShapes
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-        self.sortPoint(True)
-        self.toggleKeyPoints(True)
-
-    def ResetPoint(self):
-        try:
-            file = {
-                "version": "4.5.6",
-                "flags": {},
-                "shapes": [],
-                "imagePath": "",
-                "imageData": "",
-                "imageHeight": "",
-                "imageWidth": ""
-            }
-            with open(self.filename, 'rb') as f:
-                base64_data = base64.b64encode(f.read())
-            image = Image.open(osp.join(self.filename))
-            width = image.size[0]
-            height = image.size[1]
-            image.close()
-            file['imageData'] = base64_data.decode('utf-8')
-            file['imageHeight'] = height
-            file['imageWidth'] = width
-            file['imagePath'] = osp.basename(self.filename)
-            new_shapes = []
-
-            for num in range(0, 5):
-                shape = {
-                    "label": "{}".format(num),
-                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 4)]],
-                    "group_id": "left_eyebrow",
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                new_shapes.append(shape)
-
-            for num in range(5, 10):
-                shape = {
-                    "label": "{}".format(num),
-                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 4)]],
-                    "group_id": "right_eyebrow",
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                new_shapes.append(shape)
-
-            for num in range(10, 14):
-                shape = {
-                    "label": "{}".format(num),
-                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 3)]],
-                    "group_id": "left_eye",
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                new_shapes.append(shape)
-
-            for num in range(15, 19):
-                shape = {
-                    "label": "{}".format(num),
-                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 3)]],
-                    "group_id": "right_eye",
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                new_shapes.append(shape)
-
-            for num in range(20, 22):
-                shape = {
-                    "label": "{}".format(num),
-                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 3 + 200)]],
-                    "group_id": "nose",
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                new_shapes.append(shape)
-
-            for num in range(0, 6):
-                shape = {
-                    "label": "{}".format(num),
-                    "points": [[round(width / 2 + num * 0.01 * width), round(height / 2)]],
-                    "group_id": "mouse",
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                new_shapes.append(shape)
-
-            for num in range(30, 35):
-                shape = {
-                    "label": "{}".format(num),
-                    "points": [[round(width / 3 + (num - 30) * 0.01 * width), round(height / 2) - 200]],
-                    "group_id": "face",
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                new_shapes.append(shape)
-
-            file["shapes"] = new_shapes
+    def ResetRightLine(self):
+        if self.filename:
+            self.saveFile()
+            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+                content = json.loads(f.read())
+            shapes = content["shapes"]
+            c = CalAll()
+            c.shapes = shapes
+            new = c.RLine()
+            content["shapes"] = new
             with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-                json.dump(file, f, ensure_ascii=False, indent=4)
+                json.dump(content, f, ensure_ascii=False, indent=4)
             self.loadFile(self.filename)
-            self.togglePolygons(True)
-        except Exception as e:
-            print(e)
 
-    def GeneratingBisectors(self):
-        self.saveFile()
-        with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-            content = json.loads(f.read())
-        shapes = content["shapes"]
-
-        c = CalAll()
-        c.shapes = shapes
-
-        c.CalUpperLipUpper()
-        c.CalUpperLipLower()
-        c.CalLowerLipUpper()
-        c.CalLowerLipLower()
-
-        content["shapes"] = shapes
-
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
+    def enableToggleLabel(self, enabled):
+        self._config["toggle"] = enabled
+        self.actions.toggleLabel.setChecked(enabled)
         self.loadFile(self.filename)
+
+    def addPoint(self):
+        if self.filename:
+            try:
+                file = {
+                    "version": "4.5.6",
+                    "flags": {},
+                    "shapes": [],
+                    "imagePath": osp.basename(self.filename),
+                    "imageData": "",
+                    "imageHeight": "",
+                    "imageWidth": ""
+                }
+                with open(self.filename, 'rb') as f:
+                    base64_data = base64.b64encode(f.read())
+                image = Image.open(osp.join(self.filename))
+                width = image.size[0]
+                height = image.size[1]
+                image.close()
+                file['imageData'] = base64_data.decode('utf-8')
+                file['imageHeight'] = height
+                file['imageWidth'] = width
+                file['imagePath'] = osp.basename(self.filename)
+
+                point0 = {
+                    "label": "0",
+                    "points": [[round(width / 2 - 0.05 * width), round(height / 2 + 0.05 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                point4 = {
+                    "label": "4",
+                    "points": [[round(width / 2 - 0.05 * width), round(height / 2 + 0.1 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                point8 = {
+                    "label": "8",
+                    "points": [[round(width / 2 - 0.1 * width), round(height / 2 + 0.1 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+
+                point17 = {
+                    "label": "17",
+                    "points": [[round(width / 2 + 0.05 * width), round(height / 2 + 0.05 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+
+                point13 = {
+                    "label": "13",
+                    "points": [[round(width / 2 + 0.05 * width), round(height / 2 + 0.1 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                point9 = {
+                    "label": "9",
+                    "points": [[round(width / 2 + 0.1 * width), round(height / 2 + 0.1 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+
+                new_shapes = [point0, point4, point8, point9, point13, point17]
+                file["shapes"] = new_shapes
+                with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+                    json.dump(file, f, ensure_ascii=False, indent=4)
+                self.loadFile(self.filename)
+            except Exception as e:
+                print(e)

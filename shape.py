@@ -45,12 +45,9 @@ class Shape(object):
         group_id=None,
         visibilityArray=None,
         toggle=None,
-        total=None,
-        total_num=None,
-        jishu=0
 
     ):
-        jishu = jishu+1
+
         self.label = label
         self.group_id = group_id
         self.points = []
@@ -61,9 +58,6 @@ class Shape(object):
         self.other_data = {}
         self.visibilityArray = visibilityArray
         self.toggle = toggle
-        self.total = total
-        self.total_num = total_num
-
         self._highlightIndex = None
         self._highlightMode = self.NEAR_VERTEX
         self._highlightSettings = {
@@ -101,7 +95,7 @@ class Shape(object):
         self._shape_type = value
 
     def close(self):
-        self._closed = True
+        self._closed = False
 
     def addPoint(self, point):
         if self.points and point == self.points[0]:
@@ -137,25 +131,25 @@ class Shape(object):
     def paint(self, painter):
         if self.points:
 # 外部填充颜色
-            if self.group_id == 'stMobile106':
+            if self.shape_type == 'rectangle' and self.label == '0':
                 color = (
-                    QtGui.QColor(255, 0, 0)
+                    QtGui.QColor(10, 10, 10)
                 )
-            elif self.group_id == 'extraFacePoints':
+            elif self.shape_type == 'rectangle' and self.label == '1':
                 color = (
-                    QtGui.QColor(0, 255, 0)
+                    QtGui.QColor(255, 255, 255)
                 )
-            elif self.group_id == 'eyeballContour':
+            elif self.shape_type == 'rectangle' and self.label == '2':
                 color = (
                     QtGui.QColor(0, 0, 255)
                 )
-            elif self.group_id == 'eyeballCenter':
+            elif self.shape_type == 'linestrip':
                 color = (
-                    QtGui.QColor(100, 100, 100)
+                    QtGui.QColor(0, 255, 0)
                 )
-            elif self.group_id in ["face", "mouse", "nose", "right_eye", "left_eye", "right_eyebrow", "left_eyebrow"]:
+            elif self.shape_type == 'point':
                 color = (
-                    QtGui.QColor(255, 255, 0)
+                    QtGui.QColor(255, 0, 0)
                 )
 #aaaa
             else:
@@ -216,22 +210,20 @@ class Shape(object):
             painter.drawPath(vrtx_path)
             # painter.fillPath(vrtx_path, self._vertex_fill_color)
 # 填充颜色
-            if self.group_id == 'stMobile106':
+            if self.shape_type == 'rectangle' and self.label == '0':
                 painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
-            elif self.group_id == 'extraFacePoints':
+            elif self.shape_type == 'rectangle' and self.label == '1':
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
+            elif self.shape_type == 'rectangle' and self.label == '2':
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
+            elif self.shape_type == 'linestrip':
                 painter.fillPath(vrtx_path, QtGui.QColor(0, 255, 0))
-            elif self.group_id == 'eyeballContour':
-                painter.fillPath(vrtx_path, QtGui.QColor(0, 0, 255))
-            elif self.group_id == 'eyeballCenter':
-                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 255))
-            elif self.group_id in ["face", "mouse", "nose", "right_eye", "left_eye", "right_eyebrow", "left_eyebrow"]:
-                painter.fillPath(vrtx_path, QtGui.QColor(255, 255, 0))
+            elif self.shape_type == 'point':
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
             else:
                 painter.fillPath(vrtx_path, self._vertex_fill_color)
-
             if self.visibilityArray == 0.0:
                 painter.fillPath(vrtx_path, QtGui.QColor(255, 255, 255))
-
             if self.fill:
                 color = (
                     self.select_fill_color
@@ -257,39 +249,13 @@ class Shape(object):
             path.addEllipse(point, d / 2.0, d / 2.0)
         else:
             assert False, "unsupported vertex shape"
-# 获取json有多少数据
-# number=280
-# 全局
-# i=i+1
-# if i%number=0
-# i=0;
-        if i == 0 and self.toggle is False:
-            if {self.group_id: self.label} not in self.total:
-                self.total.append({self.group_id: self.label})
-            if len(self.total) % self.total_num == 0:
+
+        if i == 0 and self.toggle:
                 myFont = QtGui.QFont('Thin', 3)
                 myFont.setItalic(True)
                 mypoint = point - QtCore.QPointF(0, d)
                 point_name = self.label
                 path.addText(mypoint, myFont, point_name)
-                # self.total = []
-
-                # try:
-                #     if self.group_id in ["face", "mouse", "nose", "right_eye", "left_eye", "right_eyebrow", "left_eyebrow"]:
-                #         myFont = QtGui.QFont('Thin', 6)
-                #         myFont.setItalic(True)
-                #         mypoint = point - QtCore.QPointF(0, d)
-                #         point_name = self.label
-                #         path.addText(mypoint, myFont, point_name)
-                #     else:
-                #         myFont = QtGui.QFont('Thin', 3)
-                #         myFont.setItalic(True)
-                #         mypoint = point - QtCore.QPointF(0, d)
-                #         point_name = self.label
-                #         path.addText(mypoint, myFont, point_name)
-                #
-                # except:
-                #     pass
 
     def nearestVertex(self, point, epsilon):
         min_distance = float("inf")

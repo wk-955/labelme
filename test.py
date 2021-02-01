@@ -1,46 +1,18 @@
 import json
+import CalAll
 
 
-def CalPoint(line1, line2):
-    x1, y1, x2, y2 = line1[0], line1[1], line1[2], line1[3]
-    x3, y3, x4, y4 = line2[0], line2[1], line2[2], line2[3]
-
-    k1 = (y2 - y1) * 1.0 / (x2 - x1)
-    b1 = y1 * 1.0 - x1 * k1 * 1.0
-    if (x4 - x3) == 0:
-        k2 = None
-        b2 = 0
-    else:
-        k2 = (y4 - y3) * 1.0 / (x4 - x3)
-        b2 = y3 * 1.0 - x3 * k2 * 1.0
-    if k2 == None:
-        x = x3
-    else:
-        x = (b2 - b1) * 1.0 / (k1 - k2)
-    y = k1 * x * 1.0 + b1 * 1.0
-    return [x, y]
-
-
-path = r'E:\数据测试\280点'
-with open(path + '\\' + '20330.json', 'r', encoding='utf-8') as f:
+path = r'E:\数据测试\aaa\658288864427900940.json'
+with open(path, 'r', encoding='utf-8') as f:
     content = json.loads(f.read())
+# print(content)
+c = CalAll.CalAll()
 shapes = content["shapes"]
-new_shapes = []
-for shape in shapes:
-    if shape["group_id"] == "stMobile106" and shape["label"] in ['53', '54', '57', '56']:
-        new_shapes.append(shape["points"][0])
-print(new_shapes)
-line1 = new_shapes[0] + new_shapes[2]
-line2 = new_shapes[1] + new_shapes[3]
-print(line1)
-print(line2)
-shapes[74]["points"] = [CalPoint(line1, line2)]
-content["shapes"] = shapes
-with open(path + '\\' + '20330.json', 'w', encoding='utf-8') as f:
-    json.dump(content, f, ensure_ascii=False, indent=4)
+c.shapes = shapes
+c.Line()
 
 
 
 
-
-
+[[246.07284768211917, 396.35099337748346], [244.08609271523176, 420.02649006622516], [242.09933774834437, 443.7019867549669], [240.11258278145695, 467.3774834437086], [238.12582781456956, 491.05298013245033], [184.48344370860931, 512.7417218543047], [130.841059602649, 534.4304635761589], [77.19867549668876, 556.1192052980132], [23.55629139072849, 577.8079470198676]]
+[[246.07284768211917, 396.35099337748346], [242.70268963789695, 442.26939673001203], [243.21884383426163, 448.9843486636552], [242.66225207282125, 445.23509512410794], [238.12582781456956, 491.05298013245033], [119.6523159781356, 530.6978128870546], [132.77074250601953, 520.9592229847701], [138.31661056543106, 528.4343213284259], [23.55629139072849, 577.8079470198676]]
