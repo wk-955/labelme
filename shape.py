@@ -33,7 +33,7 @@ class Shape(object):
     vertex_fill_color = DEFAULT_VERTEX_FILL_COLOR
     hvertex_fill_color = DEFAULT_HVERTEX_FILL_COLOR
     point_type = P_ROUND
-    point_size = 8
+    point_size = 5.0
     scale = 1.0
 
     def __init__(
@@ -43,6 +43,7 @@ class Shape(object):
         shape_type=None,
         flags=None,
         group_id=None,
+        toggle=None,
     ):
         self.label = label
         self.group_id = group_id
@@ -52,6 +53,7 @@ class Shape(object):
         self.shape_type = shape_type
         self.flags = flags
         self.other_data = {}
+        self.toggle = toggle
 
         self._highlightIndex = None
         self._highlightMode = self.NEAR_VERTEX
@@ -125,9 +127,37 @@ class Shape(object):
 
     def paint(self, painter):
         if self.points:
-            color = (
-                self.select_line_color if self.selected else self.line_color
-            )
+            if self.shape_type == 'rectangle' and self.label == '0':
+                color = (
+                    QtGui.QColor(10, 10, 10)
+                )
+            elif self.shape_type == 'rectangle' and self.label == '1':
+                color = (
+                    QtGui.QColor(255, 255, 255)
+                )
+            elif self.shape_type == 'rectangle' and self.label == '2':
+                color = (
+                    QtGui.QColor(0, 0, 255)
+                )
+            elif self.shape_type == 'linestrip':
+                color = (
+                    QtGui.QColor(0, 255, 0)
+                )
+            elif self.shape_type == 'point':
+                color = (
+                    QtGui.QColor(255, 0, 0)
+                )
+                # aaaa
+            else:
+                # color = (
+                #     QtGui.QColor(0, 0, 0)
+                # )
+                color = (
+                    self.select_line_color if self.selected else self.line_color
+                )
+            # color = (
+            #     self.select_line_color if self.selected else self.line_color
+            # )
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
             # pen.setWidth(max(1, int(round(2.0 / self.scale))))
@@ -172,7 +202,21 @@ class Shape(object):
 
             painter.drawPath(line_path)
             painter.drawPath(vrtx_path)
-            painter.fillPath(vrtx_path, self._vertex_fill_color)
+
+            if self.shape_type == 'rectangle' and self.label == '0':
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
+            elif self.shape_type == 'rectangle' and self.label == '1':
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
+            elif self.shape_type == 'rectangle' and self.label == '2':
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
+            elif self.shape_type == 'linestrip':
+                painter.fillPath(vrtx_path, QtGui.QColor(0, 255, 0))
+            elif self.shape_type == 'point':
+                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
+            else:
+                painter.fillPath(vrtx_path, self._vertex_fill_color)
+            # painter.fillPath(vrtx_path, self._vertex_fill_color)
+
             if self.fill:
                 color = (
                     self.select_fill_color
@@ -200,8 +244,8 @@ class Shape(object):
             assert False, "unsupported vertex shape"
 
 # 补充 添加标签可见属性,
-        if i == 0:
-            myFont = QtGui.QFont('Times', 7)
+        if i == 0 and self.toggle:
+            myFont = QtGui.QFont('Times', 3)
             mypoint = point - QtCore.QPointF(0, d)
             point_name = self.label
             path.addText(mypoint, myFont, point_name)

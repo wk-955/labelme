@@ -31,6 +31,10 @@ from labelme.widgets import ToolBar
 from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
 
+import json
+from CalAll import CalAll
+import base64
+from PIL import Image
 
 # FIXME
 # - [medium] Set max zoom value to something big enough for FitWidth/Window
@@ -121,9 +125,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.labelList.itemChanged.connect(self.labelItemChanged)
         self.labelList.itemDropped.connect(self.labelOrderChanged)
         self.shape_dock = QtWidgets.QDockWidget(
-            self.tr("Polygon Labels"), self
+            self.tr("多边形标签"), self
         )
-        self.shape_dock.setObjectName("Labels")
+        self.shape_dock.setObjectName("标签")
         self.shape_dock.setWidget(self.labelList)
 
         self.uniqLabelList = UniqueLabelQListWidget()
@@ -139,12 +143,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.uniqLabelList.addItem(item)
                 rgb = self._get_rgb_by_label(label)
                 self.uniqLabelList.setItemLabel(item, label, rgb)
-        self.label_dock = QtWidgets.QDockWidget(self.tr(u"Label List"), self)
-        self.label_dock.setObjectName(u"Label List")
+        self.label_dock = QtWidgets.QDockWidget(self.tr(u"标签列表"), self)
+        self.label_dock.setObjectName(u"标签列表")
         self.label_dock.setWidget(self.uniqLabelList)
 
         self.fileSearch = QtWidgets.QLineEdit()
-        self.fileSearch.setPlaceholderText(self.tr("Search Filename"))
+        self.fileSearch.setPlaceholderText(self.tr("搜索文件名"))
         self.fileSearch.textChanged.connect(self.fileSearchChanged)
         self.fileListWidget = QtWidgets.QListWidget()
         self.fileListWidget.itemSelectionChanged.connect(
@@ -155,8 +159,8 @@ class MainWindow(QtWidgets.QMainWindow):
         fileListLayout.setSpacing(0)
         fileListLayout.addWidget(self.fileSearch)
         fileListLayout.addWidget(self.fileListWidget)
-        self.file_dock = QtWidgets.QDockWidget(self.tr(u"File List"), self)
-        self.file_dock.setObjectName(u"Files")
+        self.file_dock = QtWidgets.QDockWidget(self.tr(u"文件列表"), self)
+        self.file_dock.setObjectName(u"文件")
         fileListWidget = QtWidgets.QWidget()
         fileListWidget.setLayout(fileListLayout)
         self.file_dock.setWidget(fileListWidget)
@@ -207,28 +211,28 @@ class MainWindow(QtWidgets.QMainWindow):
         action = functools.partial(utils.newAction, self)
         shortcuts = self._config["shortcuts"]
         quit = action(
-            self.tr("&Quit"),
+            self.tr("退出"),
             self.close,
             shortcuts["quit"],
             "quit",
-            self.tr("Quit application"),
+            self.tr("退出应用"),
         )
         open_ = action(
-            self.tr("&Open"),
+            self.tr("打开"),
             self.openFile,
             shortcuts["open"],
             "open",
-            self.tr("Open image or label file"),
+            self.tr("打开图片或者label文件"),
         )
         opendir = action(
-            self.tr("&Open Dir"),
+            self.tr("打开文件夹"),
             self.openDirDialog,
             shortcuts["open_dir"],
             "open",
-            self.tr(u"Open Dir"),
+            self.tr(u"打开文件夹"),
         )
         openNextImg = action(
-            self.tr("&Next Image"),
+            self.tr("下一张图片"),
             self.openNextImg,
             shortcuts["open_next"],
             "next",
@@ -236,7 +240,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         openPrevImg = action(
-            self.tr("&Prev Image"),
+            self.tr("上一张图片"),
             self.openPrevImg,
             shortcuts["open_prev"],
             "prev",
@@ -244,7 +248,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         save = action(
-            self.tr("&Save"),
+            self.tr("保存"),
             self.saveFile,
             shortcuts["save"],
             "save",
@@ -252,7 +256,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         saveAs = action(
-            self.tr("&Save As"),
+            self.tr("另存为"),
             self.saveFileAs,
             shortcuts["save_as"],
             "save-as",
@@ -261,7 +265,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         deleteFile = action(
-            self.tr("&Delete File"),
+            self.tr("删除文件"),
             self.deleteFile,
             shortcuts["delete_file"],
             "delete",
@@ -270,7 +274,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         changeOutputDir = action(
-            self.tr("&Change Output Dir"),
+            self.tr("改变保存路径"),
             slot=self.changeOutputDirDialog,
             shortcut=shortcuts["save_to"],
             icon="open",
@@ -278,7 +282,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         saveAuto = action(
-            text=self.tr("Save &Automatically"),
+            text=self.tr("自动保存"),
             slot=lambda x: self.actions.saveAuto.setChecked(x),
             icon="save",
             tip=self.tr("Save automatically"),
@@ -288,7 +292,7 @@ class MainWindow(QtWidgets.QMainWindow):
         saveAuto.setChecked(self._config["auto_save"])
 
         saveWithImageData = action(
-            text="Save With Image Data",
+            text="保存时带图片信息",
             slot=self.enableSaveImageWithData,
             tip="Save image data in label file",
             checkable=True,
@@ -296,7 +300,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         close = action(
-            "&Close",
+            "关闭",
             self.closeFile,
             shortcuts["close"],
             "close",
@@ -304,7 +308,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         toggle_keep_prev_mode = action(
-            self.tr("Keep Previous Annotation"),
+            self.tr("保留上一个的标注"),
             self.toggleKeepPrevMode,
             shortcuts["toggle_keep_prev_mode"],
             None,
@@ -314,7 +318,7 @@ class MainWindow(QtWidgets.QMainWindow):
         toggle_keep_prev_mode.setChecked(self._config["keep_prev"])
 
         createMode = action(
-            self.tr("Create Polygons"),
+            self.tr("创建多边形"),
             lambda: self.toggleDrawMode(False, createMode="polygon"),
             shortcuts["create_polygon"],
             "objects",
@@ -322,7 +326,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createRectangleMode = action(
-            self.tr("Create Rectangle"),
+            self.tr("创建矩形"),
             lambda: self.toggleDrawMode(False, createMode="rectangle"),
             shortcuts["create_rectangle"],
             "objects",
@@ -330,7 +334,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createCircleMode = action(
-            self.tr("Create Circle"),
+            self.tr("创建圆形"),
             lambda: self.toggleDrawMode(False, createMode="circle"),
             shortcuts["create_circle"],
             "objects",
@@ -338,7 +342,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createLineMode = action(
-            self.tr("Create Line"),
+            self.tr("创建线"),
             lambda: self.toggleDrawMode(False, createMode="line"),
             shortcuts["create_line"],
             "objects",
@@ -346,7 +350,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createPointMode = action(
-            self.tr("Create Point"),
+            self.tr("创建点"),
             lambda: self.toggleDrawMode(False, createMode="point"),
             shortcuts["create_point"],
             "objects",
@@ -354,7 +358,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createLineStripMode = action(
-            self.tr("Create LineStrip"),
+            self.tr("创建多线条"),
             lambda: self.toggleDrawMode(False, createMode="linestrip"),
             shortcuts["create_linestrip"],
             "objects",
@@ -362,7 +366,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         editMode = action(
-            self.tr("Edit Polygons"),
+            self.tr("编辑多边形"),
             self.setEditMode,
             shortcuts["edit_polygon"],
             "edit",
@@ -371,7 +375,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         delete = action(
-            self.tr("Delete Polygons"),
+            self.tr("删除多边形"),
             self.deleteSelectedShape,
             shortcuts["delete_polygon"],
             "cancel",
@@ -379,7 +383,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         copy = action(
-            self.tr("Duplicate Polygons"),
+            self.tr("复制多边形"),
             self.copySelectedShape,
             shortcuts["duplicate_polygon"],
             "copy",
@@ -387,7 +391,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         undoLastPoint = action(
-            self.tr("Undo last point"),
+            self.tr("还原上一个点"),
             self.canvas.undoLastPoint,
             shortcuts["undo_last_point"],
             "undo",
@@ -395,7 +399,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         addPointToEdge = action(
-            text=self.tr("Add Point to Edge"),
+            text=self.tr("添加点到边"),
             slot=self.canvas.addPointToEdge,
             shortcut=shortcuts["add_point_to_edge"],
             icon="edit",
@@ -403,7 +407,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         removePoint = action(
-            text="Remove Selected Point",
+            text="删除选定点",
             slot=self.canvas.removeSelectedPoint,
             icon="edit",
             tip="Remove selected point from polygon",
@@ -411,7 +415,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         undo = action(
-            self.tr("Undo"),
+            self.tr("还原"),
             self.undoShapeEdit,
             shortcuts["undo"],
             "undo",
@@ -420,18 +424,53 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         hideAll = action(
-            self.tr("&Hide\nPolygons"),
+            self.tr("隐藏所有标签"),
             functools.partial(self.togglePolygons, False),
             icon="eye",
             tip=self.tr("Hide all polygons"),
             enabled=False,
         )
         showAll = action(
-            self.tr("&Show\nPolygons"),
+            self.tr("显示所有标签"),
             functools.partial(self.togglePolygons, True),
             icon="eye",
             tip=self.tr("Show all polygons"),
             enabled=False,
+        )
+
+        toggleLabel = action(
+            self.tr('显示标签'),
+            self.enableToggleLabel,
+            checkable=True,
+            checked=self._config["toggle"],
+        )
+        reset = action(
+            self.tr('等分所有线段'),
+            functools.partial(self.ResetLine, ),
+            shortcuts["reset"],
+            icon="eye",
+            tip=self.tr("等分所有线段"),
+        )
+        resetLeft = action(
+            self.tr('等分左线段'),
+            functools.partial(self.ResetLeftLine, ),
+            # shortcuts["show"],
+            icon="eye",
+            tip=self.tr("等分左线段"),
+        )
+        resetRight = action(
+            self.tr('等分右线段'),
+            functools.partial(self.ResetRightLine, ),
+            # shortcuts["show106"],
+            icon="eye",
+            tip=self.tr("等分右线段"),
+        )
+        add = action(
+            self.tr('生成关键点'),
+            functools.partial(self.addPoint, ),
+            shortcuts["add"],
+            icon="eye",
+            tip=self.tr("生成关键点"),
         )
 
         help = action(
@@ -457,7 +496,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.zoomWidget.setEnabled(False)
 
         zoomIn = action(
-            self.tr("Zoom &In"),
+            self.tr("放大"),
             functools.partial(self.addZoom, 1.1),
             shortcuts["zoom_in"],
             "zoom-in",
@@ -465,7 +504,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         zoomOut = action(
-            self.tr("&Zoom Out"),
+            self.tr("缩小"),
             functools.partial(self.addZoom, 0.9),
             shortcuts["zoom_out"],
             "zoom-out",
@@ -473,7 +512,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         zoomOrg = action(
-            self.tr("&Original size"),
+            self.tr("原始尺寸"),
             functools.partial(self.setZoom, 100),
             shortcuts["zoom_to_original"],
             "zoom",
@@ -481,7 +520,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         fitWindow = action(
-            self.tr("&Fit Window"),
+            self.tr("适应窗口"),
             self.setFitWindow,
             shortcuts["fit_window"],
             "fit-window",
@@ -490,7 +529,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         fitWidth = action(
-            self.tr("Fit &Width"),
+            self.tr("适应宽度"),
             self.setFitWidth,
             shortcuts["fit_width"],
             "fit-width",
@@ -499,7 +538,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         brightnessContrast = action(
-            "&Brightness Contrast",
+            "亮度对比度",
             self.brightnessContrast,
             None,
             "color",
@@ -525,7 +564,7 @@ class MainWindow(QtWidgets.QMainWindow):
         }
 
         edit = action(
-            self.tr("&Edit Label"),
+            self.tr("编辑标签"),
             self.editLabel,
             shortcuts["edit_label"],
             "edit",
@@ -534,7 +573,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         fill_drawing = action(
-            self.tr("Fill Drawing Polygon"),
+            self.tr("填充多边形"),
             self.canvas.setFillDrawing,
             None,
             "color",
@@ -554,6 +593,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Store actions for further handling.
         self.actions = utils.struct(
+            toggleLabel=toggleLabel,
             saveAuto=saveAuto,
             saveWithImageData=saveWithImageData,
             changeOutputDir=changeOutputDir,
@@ -637,11 +677,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.vertexSelected.connect(self.actions.removePoint.setEnabled)
 
         self.menus = utils.struct(
-            file=self.menu(self.tr("&File")),
-            edit=self.menu(self.tr("&Edit")),
-            view=self.menu(self.tr("&View")),
-            help=self.menu(self.tr("&Help")),
-            recentFiles=QtWidgets.QMenu(self.tr("Open &Recent")),
+            file=self.menu(self.tr("文件")),
+            edit=self.menu(self.tr("编辑")),
+            view=self.menu(self.tr("视图")),
+            # help=self.menu(self.tr("&Help")),
+            Lines=self.menu(self.tr("等分线段")),
+            recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
 
@@ -664,7 +705,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 quit,
             ),
         )
-        utils.addActions(self.menus.help, (help,))
+        # utils.addActions(self.menus.help, (help,))
         utils.addActions(
             self.menus.view,
             (
@@ -686,8 +727,17 @@ class MainWindow(QtWidgets.QMainWindow):
                 fitWidth,
                 None,
                 brightnessContrast,
+                None,
+                toggleLabel
             ),
         )
+
+        utils.addActions(self.menus.Lines, (
+            resetLeft,
+            resetRight,
+            reset,
+            add
+        ))
 
         self.menus.file.aboutToShow.connect(self.updateFileMenu)
 
@@ -1153,7 +1203,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._noSelectionSlot = False
         self.canvas.loadShapes(shapes, replace=replace)
 
-    def loadLabels(self, shapes):
+    def loadLabels(self, shapes, toggle):
         s = []
         for shape in shapes:
             label = shape["label"]
@@ -1164,7 +1214,7 @@ class MainWindow(QtWidgets.QMainWindow):
             other_data = shape["other_data"]
 
             shape = Shape(
-                label=label, shape_type=shape_type, group_id=group_id,
+                label=label, shape_type=shape_type, group_id=group_id, toggle=toggle
             )
             for x, y in points:
                 shape.addPoint(QtCore.QPointF(x, y))
@@ -1470,8 +1520,9 @@ class MainWindow(QtWidgets.QMainWindow):
             prev_shapes = self.canvas.shapes
         self.canvas.loadPixmap(QtGui.QPixmap.fromImage(image))
         flags = {k: False for k in self._config["flags"] or []}
+        toggle = self._config["toggle"]
         if self.labelFile:
-            self.loadLabels(self.labelFile.shapes)
+            self.loadLabels(self.labelFile.shapes, toggle)
             if self.labelFile.flags is not None:
                 flags.update(self.labelFile.flags)
         self.loadFlags(flags)
@@ -1985,3 +2036,130 @@ class MainWindow(QtWidgets.QMainWindow):
                     images.append(relativePath)
         images.sort(key=lambda x: x.lower())
         return images
+
+    def enableToggleLabel(self, enabled):
+        self._config["toggle"] = enabled
+        self.actions.toggleLabel.setChecked(enabled)
+        self.loadFile(self.filename)
+
+    def ResetLine(self):
+        if self.filename:
+            self.saveFile()
+            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+                content = json.loads(f.read())
+            shapes = content["shapes"]
+            c = CalAll()
+            c.shapes = shapes
+            new = c.Line()
+            content["shapes"] = new
+
+            with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+                json.dump(content, f, ensure_ascii=False, indent=4)
+            self.loadFile(self.filename)
+
+    def ResetLeftLine(self):
+        if self.filename:
+            self.saveFile()
+            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+                content = json.loads(f.read())
+            shapes = content["shapes"]
+            if shapes:
+                c = CalAll()
+                c.shapes = shapes
+                new = c.LLine()
+                content["shapes"] = new
+
+            with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+                json.dump(content, f, ensure_ascii=False, indent=4)
+            self.loadFile(self.filename)
+
+    def ResetRightLine(self):
+        if self.filename:
+            self.saveFile()
+            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+                content = json.loads(f.read())
+            shapes = content["shapes"]
+            if shapes:
+                c = CalAll()
+                c.shapes = shapes
+                new = c.RLine()
+                content["shapes"] = new
+            with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+                json.dump(content, f, ensure_ascii=False, indent=4)
+            self.loadFile(self.filename)
+
+    def addPoint(self):
+        if self.filename:
+            try:
+                file = {
+                    "version": "4.5.6",
+                    "flags": {},
+                    "shapes": [],
+                    "imagePath": osp.basename(self.filename),
+                    "imageData": "",
+                    "imageHeight": "",
+                    "imageWidth": ""
+                }
+                with open(self.filename, 'rb') as f:
+                    base64_data = base64.b64encode(f.read())
+                image = Image.open(osp.join(self.filename))
+                width = image.size[0]
+                height = image.size[1]
+                image.close()
+                file['imageData'] = base64_data.decode('utf-8')
+                file['imageHeight'] = height
+                file['imageWidth'] = width
+                file['imagePath'] = osp.basename(self.filename)
+
+                point0 = {
+                    "label": "0",
+                    "points": [[round(width / 2 - 0.05 * width), round(height / 2 + 0.05 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                point4 = {
+                    "label": "4",
+                    "points": [[round(width / 2 - 0.05 * width), round(height / 2 + 0.1 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                point8 = {
+                    "label": "8",
+                    "points": [[round(width / 2 - 0.1 * width), round(height / 2 + 0.1 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+
+                point17 = {
+                    "label": "17",
+                    "points": [[round(width / 2 + 0.05 * width), round(height / 2 + 0.05 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+
+                point13 = {
+                    "label": "13",
+                    "points": [[round(width / 2 + 0.05 * width), round(height / 2 + 0.1 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+                point9 = {
+                    "label": "9",
+                    "points": [[round(width / 2 + 0.1 * width), round(height / 2 + 0.1 * height)]],
+                    "group_id": None,
+                    "shape_type": "point",
+                    "flags": {}
+                }
+
+                new_shapes = [point0, point4, point8, point9, point13, point17]
+                file["shapes"] = new_shapes
+                with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+                    json.dump(file, f, ensure_ascii=False, indent=4)
+                self.loadFile(self.filename)
+            except Exception as e:
+                print(e)
