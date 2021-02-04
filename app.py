@@ -432,7 +432,7 @@ class MainWindow(QtWidgets.QMainWindow):
         hideAll = action(
             self.tr("隐藏所有标签"),
             functools.partial(self.togglePolygons, False),
-            shortcuts["hideAll"],
+            # shortcuts["hideAll"],
             icon="eye",
             tip=self.tr("隐藏所有标签"),
             enabled=False,
@@ -440,7 +440,7 @@ class MainWindow(QtWidgets.QMainWindow):
         showAll = action(
             self.tr("显示所有标签"),
             functools.partial(self.togglePolygons, True),
-            shortcuts["showAll"],
+            # shortcuts["showAll"],
             icon="eye",
             tip=self.tr("显示所有标签"),
             enabled=False,
@@ -454,7 +454,7 @@ class MainWindow(QtWidgets.QMainWindow):
         reset = action(
             self.tr('等分所有线段'),
             functools.partial(self.ResetLine, ),
-            shortcuts["show106"],
+            shortcuts["add"],
             icon="eye",
             tip=self.tr("等分所有线段"),
         )
@@ -475,9 +475,16 @@ class MainWindow(QtWidgets.QMainWindow):
         add = action(
             self.tr('生成关键点'),
             functools.partial(self.addPoint, ),
-            shortcuts["show134"],
+            shortcuts["reset"],
             icon="eye",
             tip=self.tr("生成关键点"),
+        )
+        reserKey = action(
+            self.tr('等分所有线段(按关键点等分)'),
+            functools.partial(self.ResetKeyLine, ),
+            shortcuts["resetKey"],
+            icon="eye",
+            tip=self.tr("等分所有线段(按关键点等分)"),
         )
 
 
@@ -743,6 +750,7 @@ class MainWindow(QtWidgets.QMainWindow):
             resetLeft,
             resetRight,
             reset,
+            reserKey,
             add
         ))
 
@@ -2214,3 +2222,70 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.loadFile(self.filename)
             except Exception as e:
                 print(e)
+
+    def ResetKeyLine(self):
+        if self.filename:
+            self.saveFile()
+            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+                content = json.loads(f.read())
+            shapes = content["shapes"]
+            new = []
+            for shape in shapes:
+                if shape["shape_type"] == "linestrip" and shape["label"] == "left":
+                    a1 = {
+                        "label": "0",
+                        "points": [shape["points"][0]],
+                        "group_id": None,
+                        "shape_type": "point",
+                        "flags": {}
+                    }
+                    a2 = {
+                        "label": "4",
+                        "points": [shape["points"][4]],
+                        "group_id": None,
+                        "shape_type": "point",
+                        "flags": {}
+                    }
+                    a3 = {
+                        "label": "8",
+                        "points": [shape["points"][8]],
+                        "group_id": None,
+                        "shape_type": "point",
+                        "flags": {}
+                    }
+                    new += [a1, a2, a3]
+                elif shape["shape_type"] == "linestrip" and shape["label"] == "right":
+                    a1 = {
+                        "label": "9",
+                        "points": [shape["points"][0]],
+                        "group_id": None,
+                        "shape_type": "point",
+                        "flags": {}
+                    }
+                    a2 = {
+                        "label": "13",
+                        "points": [shape["points"][4]],
+                        "group_id": None,
+                        "shape_type": "point",
+                        "flags": {}
+                    }
+                    a3 = {
+                        "label": "17",
+                        "points": [shape["points"][8]],
+                        "group_id": None,
+                        "shape_type": "point",
+                        "flags": {}
+                    }
+                    new += [a1, a2, a3]
+                elif shape["shape_type"] == "point" and shape["label"] in ['0', '4', '8', '9', '13', '17']:
+                    new.append(shape)
+
+            c = CalAll()
+            c.shapes = new
+
+            new1 = c.Line()
+            content["shapes"] = new1
+
+            with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+                json.dump(content, f, ensure_ascii=False, indent=4)
+            self.loadFile(self.filename)

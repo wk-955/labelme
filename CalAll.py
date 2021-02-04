@@ -622,10 +622,10 @@ class CalAll:
             right_line2 = []
             other = []
             for shape in self.shapes:
-                if shape["shape_type"] == "linestrip" and shape["label"] == "1":
+                if shape["shape_type"] == "linestrip" and shape["label"] == "left":
                     left_line1 = shape["points"][:5]
                     left_line2 = shape["points"][4:]
-                elif shape["shape_type"] == "linestrip" and shape["label"] == "2":
+                elif shape["shape_type"] == "linestrip" and shape["label"] == "right":
                     right_line1 = shape["points"][:5]
                     right_line2 = shape["points"][4:]
                 elif shape["shape_type"] == "point" and shape["label"] == '0':
@@ -648,7 +648,7 @@ class CalAll:
                 new_shapes = []
                 left = self.LeftLine(left_line1, left_line2)
                 l = {
-                    "label": "1",
+                    "label": "left",
                     "points": left,
                     "group_id": None,
                     "shape_type": "linestrip",
@@ -658,7 +658,7 @@ class CalAll:
 
                 right = self.RightLine(right_line1, right_line2)
                 r = {
-                    "label": "2",
+                    "label": "right",
                     "points": right,
                     "group_id": None,
                     "shape_type": "linestrip",
@@ -677,7 +677,7 @@ class CalAll:
             left_line2 = []
             other = []
             for shape in self.shapes:
-                if shape["shape_type"] == "linestrip" and shape["label"] == "1":
+                if shape["shape_type"] == "linestrip" and shape["label"] == "left":
                     left_line1 = shape["points"][:5]
                     left_line2 = shape["points"][4:]
                 elif shape["shape_type"] == "point" and shape["label"] == '0':
@@ -693,7 +693,7 @@ class CalAll:
                 new_shapes = []
                 left = self.LeftLine(left_line1, left_line2)
                 l = {
-                    "label": "1",
+                    "label": "left",
                     "points": left,
                     "group_id": None,
                     "shape_type": "linestrip",
@@ -710,7 +710,7 @@ class CalAll:
             right_line2 = []
             other = []
             for shape in self.shapes:
-                if shape["shape_type"] == "linestrip" and shape["label"] == "2":
+                if shape["shape_type"] == "linestrip" and shape["label"] == "right":
                     right_line1 = shape["points"][:5]
                     right_line2 = shape["points"][4:]
                 elif shape["shape_type"] == "point" and shape["label"] == '9':
@@ -726,7 +726,7 @@ class CalAll:
                 new_shapes = []
                 right = self.RightLine(right_line1, right_line2)
                 r = {
-                    "label": "2",
+                    "label": "right",
                     "points": right,
                     "group_id": None,
                     "shape_type": "linestrip",

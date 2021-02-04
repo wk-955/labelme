@@ -1,5 +1,4 @@
-toggle: True
-
+toggle: true
 auto_save: true
 display_label_popup: true
 store_data: true
@@ -68,12 +67,10 @@ canvas:
   double_click: close
 
 shortcuts:
-#  close: Ctrl+W
-  close: null
+  close: Ctrl+W
   open: Ctrl+O
   open_dir: Ctrl+U
-#  quit: Ctrl+Q
-  quit: null
+  quit: Ctrl+Q
   save: Ctrl+S
   save_as: Ctrl+Shift+S
   save_to: null
@@ -89,47 +86,19 @@ shortcuts:
   fit_width: Ctrl+Shift+F
 
   create_polygon: Ctrl+N
-#  create_rectangle: Ctrl+R
-  create_rectangle: null
+  create_rectangle: Ctrl+R
   create_circle: null
   create_line: null
   create_point: null
   create_linestrip: null
   edit_polygon: Ctrl+J
   delete_polygon: Delete
-#  duplicate_polygon: Ctrl+D
-  duplicate_polygon: null
-  undo: mull
-  undo_last_point: null
+  duplicate_polygon: Ctrl+D
+  undo: Ctrl+Z
+  undo_last_point: [Ctrl+Z, Backspace]
   add_point_to_edge: Ctrl+Shift+P
-#  edit_label: Ctrl+E
-  edit_label: Ctrl+T
+  edit_label: Ctrl+E
   toggle_keep_prev_mode: Ctrl+P
-
-  show106: Q
-  show134: W
-  show38: E
-  hideAll: Ctrl+D
-  showAll: Ctrl+A
-  showUpperLip: T
-  showLowerLip: Y
-  showRect: Z
-  createLeftPupil: C
-  createRightPupil: V
-  mergePoints: X
-  createKeypoints: Ctrl+4
-  mergeAndCreate: B
-  createEyebrow: Ctrl+1
-  createUpperlip: Ctrl+2
-  createLowerlip: Ctrl+3
-  showEyebrow: R
-  restructure: S
-  showEye: U
-  showKeyPoint: I
-  pointsort: L
-  createEye: P
-  showFaceKey: F
-  createFace: Ctrl+F
-  toggleLable: M
-  createPoint: Ctrl+Q
-  RePoint: Ctrl+W
+  reset: W
+  add: Q
+  resetKey: E
