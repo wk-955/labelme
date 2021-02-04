@@ -31,10 +31,8 @@ from labelme.widgets import ToolBar
 from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
 
+from Reveraal import Reversal
 import json
-from CalAll import CalAll
-import base64
-from PIL import Image
 
 # FIXME
 # - [medium] Set max zoom value to something big enough for FitWidth/Window
@@ -444,33 +442,16 @@ class MainWindow(QtWidgets.QMainWindow):
             checkable=True,
             checked=self._config["toggle"],
         )
-        reset = action(
-            self.tr('等分所有线段'),
-            functools.partial(self.ResetLine, ),
-            shortcuts["reset"],
-            icon="eye",
-            tip=self.tr("等分所有线段"),
+
+        toggleRect = action(
+            self.tr('隐藏人体框'),
+            functools.partial(self.showRect, ),
+            icon='eye',
         )
-        resetLeft = action(
-            self.tr('等分左线段'),
-            functools.partial(self.ResetLeftLine, ),
-            # shortcuts["show"],
-            icon="eye",
-            tip=self.tr("等分左线段"),
-        )
-        resetRight = action(
-            self.tr('等分右线段'),
-            functools.partial(self.ResetRightLine, ),
-            # shortcuts["show106"],
-            icon="eye",
-            tip=self.tr("等分右线段"),
-        )
-        add = action(
-            self.tr('生成关键点'),
-            functools.partial(self.addPoint, ),
-            shortcuts["add"],
-            icon="eye",
-            tip=self.tr("生成关键点"),
+        new_lines = action(
+            self.tr('镜像点位'),
+            functools.partial(self.change_direction, ),
+            icon='eye',
         )
 
         help = action(
@@ -681,7 +662,7 @@ class MainWindow(QtWidgets.QMainWindow):
             edit=self.menu(self.tr("编辑")),
             view=self.menu(self.tr("视图")),
             # help=self.menu(self.tr("&Help")),
-            Lines=self.menu(self.tr("等分线段")),
+            Lines=self.menu(self.tr("22点工具")),
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
@@ -733,10 +714,8 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         utils.addActions(self.menus.Lines, (
-            resetLeft,
-            resetRight,
-            reset,
-            add
+            toggleRect,
+            new_lines,
         ))
 
         self.menus.file.aboutToShow.connect(self.updateFileMenu)
@@ -2042,124 +2021,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actions.toggleLabel.setChecked(enabled)
         self.loadFile(self.filename)
 
-    def ResetLine(self):
+
+
+    def showRect(self):
+        if self.labelList:
+            for item in self.labelList:
+                label = re.compile('\((".*?)<').findall(str(item))
+                if label:
+                    if "people" in label[0]:
+                        item.setCheckState(Qt.Unchecked)
+
+    def change_direction(self):
         if self.filename:
             self.saveFile()
             with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
                 content = json.loads(f.read())
             shapes = content["shapes"]
-            c = CalAll()
-            c.shapes = shapes
-            new = c.Line()
-            content["shapes"] = new
-
+            r = Reversal()
+            r.shapes = shapes
+            r.head()
+            r.face()
+            r.hand()
+            r.foot()
+            content["shapes"] = shapes
             with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
                 json.dump(content, f, ensure_ascii=False, indent=4)
             self.loadFile(self.filename)
-
-    def ResetLeftLine(self):
-        if self.filename:
-            self.saveFile()
-            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-                content = json.loads(f.read())
-            shapes = content["shapes"]
-            if shapes:
-                c = CalAll()
-                c.shapes = shapes
-                new = c.LLine()
-                content["shapes"] = new
-
-            with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-                json.dump(content, f, ensure_ascii=False, indent=4)
-            self.loadFile(self.filename)
-
-    def ResetRightLine(self):
-        if self.filename:
-            self.saveFile()
-            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-                content = json.loads(f.read())
-            shapes = content["shapes"]
-            if shapes:
-                c = CalAll()
-                c.shapes = shapes
-                new = c.RLine()
-                content["shapes"] = new
-            with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-                json.dump(content, f, ensure_ascii=False, indent=4)
-            self.loadFile(self.filename)
-
-    def addPoint(self):
-        if self.filename:
-            try:
-                file = {
-                    "version": "4.5.6",
-                    "flags": {},
-                    "shapes": [],
-                    "imagePath": osp.basename(self.filename),
-                    "imageData": "",
-                    "imageHeight": "",
-                    "imageWidth": ""
-                }
-                with open(self.filename, 'rb') as f:
-                    base64_data = base64.b64encode(f.read())
-                image = Image.open(osp.join(self.filename))
-                width = image.size[0]
-                height = image.size[1]
-                image.close()
-                file['imageData'] = base64_data.decode('utf-8')
-                file['imageHeight'] = height
-                file['imageWidth'] = width
-                file['imagePath'] = osp.basename(self.filename)
-
-                point0 = {
-                    "label": "0",
-                    "points": [[round(width / 2 - 0.05 * width), round(height / 2 + 0.05 * height)]],
-                    "group_id": None,
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                point4 = {
-                    "label": "4",
-                    "points": [[round(width / 2 - 0.05 * width), round(height / 2 + 0.1 * height)]],
-                    "group_id": None,
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                point8 = {
-                    "label": "8",
-                    "points": [[round(width / 2 - 0.1 * width), round(height / 2 + 0.1 * height)]],
-                    "group_id": None,
-                    "shape_type": "point",
-                    "flags": {}
-                }
-
-                point17 = {
-                    "label": "17",
-                    "points": [[round(width / 2 + 0.05 * width), round(height / 2 + 0.05 * height)]],
-                    "group_id": None,
-                    "shape_type": "point",
-                    "flags": {}
-                }
-
-                point13 = {
-                    "label": "13",
-                    "points": [[round(width / 2 + 0.05 * width), round(height / 2 + 0.1 * height)]],
-                    "group_id": None,
-                    "shape_type": "point",
-                    "flags": {}
-                }
-                point9 = {
-                    "label": "9",
-                    "points": [[round(width / 2 + 0.1 * width), round(height / 2 + 0.1 * height)]],
-                    "group_id": None,
-                    "shape_type": "point",
-                    "flags": {}
-                }
-
-                new_shapes = [point0, point4, point8, point9, point13, point17]
-                file["shapes"] = new_shapes
-                with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-                    json.dump(file, f, ensure_ascii=False, indent=4)
-                self.loadFile(self.filename)
-            except Exception as e:
-                print(e)
