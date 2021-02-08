@@ -446,11 +446,81 @@ class MainWindow(QtWidgets.QMainWindow):
         toggleRect = action(
             self.tr('隐藏人体框'),
             functools.partial(self.showRect, ),
+            shortcuts["toggleRect"],
             icon='eye',
         )
-        new_lines = action(
-            self.tr('镜像点位'),
-            functools.partial(self.change_direction, ),
+        mirror0 = action(
+            self.tr('镜像点位(组0)'),
+            functools.partial(self.mirrorImage, 0, 0),
+            shortcuts["mirror0"],
+            icon='eye',
+        )
+        mirror01 = action(
+            self.tr('镜像点位(组0)[头部]'),
+            functools.partial(self.mirrorImage, 0, 1),
+            # shortcuts["new_lines"],
+            icon='eye',
+        )
+        mirror02 = action(
+            self.tr('镜像点位(组0)[手部]'),
+            functools.partial(self.mirrorImage, 0, 2),
+            # shortcuts["new_lines"],
+            icon='eye',
+        )
+        mirror03 = action(
+            self.tr('镜像点位(组0)[腿部]'),
+            functools.partial(self.mirrorImage, 0, 3),
+            # shortcuts["new_lines"],
+            icon='eye',
+        )
+
+        mirror1 = action(
+            self.tr('镜像点位(组1)'),
+            functools.partial(self.mirrorImage, 1, 0),
+            shortcuts["mirror1"],
+            icon='eye',
+        )
+        mirror11 = action(
+            self.tr('镜像点位(组1)[头部]'),
+            functools.partial(self.mirrorImage, 1, 1),
+            # shortcuts["new_lines"],
+            icon='eye',
+        )
+        mirror12 = action(
+            self.tr('镜像点位(组1)[手部]'),
+            functools.partial(self.mirrorImage, 1, 2),
+            # shortcuts["new_lines"],
+            icon='eye',
+        )
+        mirror13 = action(
+            self.tr('镜像点位(组1)[腿部]'),
+            functools.partial(self.mirrorImage, 1, 3),
+            # shortcuts["new_lines"],
+            icon='eye',
+        )
+
+        mirror2 = action(
+            self.tr('镜像点位(组2)'),
+            functools.partial(self.mirrorImage, 2, 0),
+            shortcuts["mirror2"],
+            icon='eye',
+        )
+        mirror21 = action(
+            self.tr('镜像点位(组2)[头部]'),
+            functools.partial(self.mirrorImage, 2, 1),
+            # shortcuts["new_lines"],
+            icon='eye',
+        )
+        mirror22 = action(
+            self.tr('镜像点位(组2)[手部]'),
+            functools.partial(self.mirrorImage, 2, 2),
+            # shortcuts["new_lines"],
+            icon='eye',
+        )
+        mirror23 = action(
+            self.tr('镜像点位(组2)[腿部]'),
+            functools.partial(self.mirrorImage, 2, 3),
+            # shortcuts["new_lines"],
             icon='eye',
         )
 
@@ -715,7 +785,21 @@ class MainWindow(QtWidgets.QMainWindow):
 
         utils.addActions(self.menus.Lines, (
             toggleRect,
-            new_lines,
+            None,
+            mirror0,
+            mirror01,
+            mirror02,
+            mirror03,
+            None,
+            mirror1,
+            mirror11,
+            mirror12,
+            mirror13,
+            None,
+            mirror2,
+            mirror21,
+            mirror22,
+            mirror23
         ))
 
         self.menus.file.aboutToShow.connect(self.updateFileMenu)
@@ -2031,7 +2115,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if "people" in label[0]:
                         item.setCheckState(Qt.Unchecked)
 
-    def change_direction(self):
+    def mirrorImage(self, num, fun):
         if self.filename:
             self.saveFile()
             with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
@@ -2039,10 +2123,19 @@ class MainWindow(QtWidgets.QMainWindow):
             shapes = content["shapes"]
             r = Reversal()
             r.shapes = shapes
-            r.head()
-            r.face()
-            r.hand()
-            r.foot()
+            r.get_people()
+            if fun == 0:
+                r.head(num)
+                r.face(num)
+                r.hand(num)
+                r.foot(num)
+            elif fun == 1:
+                r.head(num)
+                r.face(num)
+            elif fun == 2:
+                r.hand(num)
+            elif fun == 3:
+                r.foot(num)
             content["shapes"] = shapes
             with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
                 json.dump(content, f, ensure_ascii=False, indent=4)
