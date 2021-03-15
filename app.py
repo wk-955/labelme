@@ -108,7 +108,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lastOpenDir = None
 
         self.flag_dock = self.flag_widget = None
-        self.flag_dock = QtWidgets.QDockWidget(self.tr("Flags"), self)
+        self.flag_dock = QtWidgets.QDockWidget(self.tr("标识"), self)
         self.flag_dock.setObjectName("Flags")
         self.flag_widget = QtWidgets.QListWidget()
         if config["flags"]:
@@ -121,7 +121,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.labelList.itemChanged.connect(self.labelItemChanged)
         self.labelList.itemDropped.connect(self.labelOrderChanged)
         self.shape_dock = QtWidgets.QDockWidget(
-            self.tr("Polygon Labels"), self
+            self.tr("多边形标签"), self
         )
         self.shape_dock.setObjectName("Labels")
         self.shape_dock.setWidget(self.labelList)
@@ -139,12 +139,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.uniqLabelList.addItem(item)
                 rgb = self._get_rgb_by_label(label)
                 self.uniqLabelList.setItemLabel(item, label, rgb)
-        self.label_dock = QtWidgets.QDockWidget(self.tr(u"Label List"), self)
+        self.label_dock = QtWidgets.QDockWidget(self.tr(u"标签列表"), self)
         self.label_dock.setObjectName(u"Label List")
         self.label_dock.setWidget(self.uniqLabelList)
 
         self.fileSearch = QtWidgets.QLineEdit()
-        self.fileSearch.setPlaceholderText(self.tr("Search Filename"))
+        self.fileSearch.setPlaceholderText(self.tr("搜索文件名"))
         self.fileSearch.textChanged.connect(self.fileSearchChanged)
         self.fileListWidget = QtWidgets.QListWidget()
         self.fileListWidget.itemSelectionChanged.connect(
@@ -155,7 +155,7 @@ class MainWindow(QtWidgets.QMainWindow):
         fileListLayout.setSpacing(0)
         fileListLayout.addWidget(self.fileSearch)
         fileListLayout.addWidget(self.fileListWidget)
-        self.file_dock = QtWidgets.QDockWidget(self.tr(u"File List"), self)
+        self.file_dock = QtWidgets.QDockWidget(self.tr(u"文件列表"), self)
         self.file_dock.setObjectName(u"Files")
         fileListWidget = QtWidgets.QWidget()
         fileListWidget.setLayout(fileListLayout)
@@ -207,28 +207,28 @@ class MainWindow(QtWidgets.QMainWindow):
         action = functools.partial(utils.newAction, self)
         shortcuts = self._config["shortcuts"]
         quit = action(
-            self.tr("&Quit"),
+            self.tr("退出"),
             self.close,
             shortcuts["quit"],
             "quit",
             self.tr("Quit application"),
         )
         open_ = action(
-            self.tr("&Open"),
+            self.tr("打开"),
             self.openFile,
             shortcuts["open"],
             "open",
             self.tr("Open image or label file"),
         )
         opendir = action(
-            self.tr("&Open Dir"),
+            self.tr("打开文件夹"),
             self.openDirDialog,
             shortcuts["open_dir"],
             "open",
             self.tr(u"Open Dir"),
         )
         openNextImg = action(
-            self.tr("&Next Image"),
+            self.tr("下一张图片"),
             self.openNextImg,
             shortcuts["open_next"],
             "next",
@@ -236,7 +236,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         openPrevImg = action(
-            self.tr("&Prev Image"),
+            self.tr("上一张图片"),
             self.openPrevImg,
             shortcuts["open_prev"],
             "prev",
@@ -244,7 +244,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         save = action(
-            self.tr("&Save"),
+            self.tr("保存"),
             self.saveFile,
             shortcuts["save"],
             "save",
@@ -252,7 +252,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         saveAs = action(
-            self.tr("&Save As"),
+            self.tr("保存为"),
             self.saveFileAs,
             shortcuts["save_as"],
             "save-as",
@@ -261,7 +261,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         deleteFile = action(
-            self.tr("&Delete File"),
+            self.tr("删除文件"),
             self.deleteFile,
             shortcuts["delete_file"],
             "delete",
@@ -270,7 +270,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         changeOutputDir = action(
-            self.tr("&Change Output Dir"),
+            self.tr("更改保存路径"),
             slot=self.changeOutputDirDialog,
             shortcut=shortcuts["save_to"],
             icon="open",
@@ -278,7 +278,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         saveAuto = action(
-            text=self.tr("Save &Automatically"),
+            text=self.tr("自动保存"),
             slot=lambda x: self.actions.saveAuto.setChecked(x),
             icon="save",
             tip=self.tr("Save automatically"),
@@ -288,7 +288,7 @@ class MainWindow(QtWidgets.QMainWindow):
         saveAuto.setChecked(self._config["auto_save"])
 
         saveWithImageData = action(
-            text="Save With Image Data",
+            text="保存时附带图片数据",
             slot=self.enableSaveImageWithData,
             tip="Save image data in label file",
             checkable=True,
@@ -296,7 +296,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         close = action(
-            "&Close",
+            "关闭",
             self.closeFile,
             shortcuts["close"],
             "close",
@@ -304,7 +304,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         toggle_keep_prev_mode = action(
-            self.tr("Keep Previous Annotation"),
+            self.tr("保持上一张的标注"),
             self.toggleKeepPrevMode,
             shortcuts["toggle_keep_prev_mode"],
             None,
@@ -314,7 +314,7 @@ class MainWindow(QtWidgets.QMainWindow):
         toggle_keep_prev_mode.setChecked(self._config["keep_prev"])
 
         createMode = action(
-            self.tr("Create Polygons"),
+            self.tr("创建多边形"),
             lambda: self.toggleDrawMode(False, createMode="polygon"),
             shortcuts["create_polygon"],
             "objects",
@@ -322,7 +322,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createRectangleMode = action(
-            self.tr("Create Rectangle"),
+            self.tr("创建矩形"),
             lambda: self.toggleDrawMode(False, createMode="rectangle"),
             shortcuts["create_rectangle"],
             "objects",
@@ -330,7 +330,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createCircleMode = action(
-            self.tr("Create Circle"),
+            self.tr("创建圆形"),
             lambda: self.toggleDrawMode(False, createMode="circle"),
             shortcuts["create_circle"],
             "objects",
@@ -338,7 +338,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createLineMode = action(
-            self.tr("Create Line"),
+            self.tr("创建线段"),
             lambda: self.toggleDrawMode(False, createMode="line"),
             shortcuts["create_line"],
             "objects",
@@ -346,7 +346,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createPointMode = action(
-            self.tr("Create Point"),
+            self.tr("创建点"),
             lambda: self.toggleDrawMode(False, createMode="point"),
             shortcuts["create_point"],
             "objects",
@@ -354,7 +354,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         createLineStripMode = action(
-            self.tr("Create LineStrip"),
+            self.tr("创建多线段"),
             lambda: self.toggleDrawMode(False, createMode="linestrip"),
             shortcuts["create_linestrip"],
             "objects",
@@ -362,7 +362,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         editMode = action(
-            self.tr("Edit Polygons"),
+            self.tr("编辑多边形"),
             self.setEditMode,
             shortcuts["edit_polygon"],
             "edit",
@@ -371,7 +371,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         delete = action(
-            self.tr("Delete Polygons"),
+            self.tr("删除多边形"),
             self.deleteSelectedShape,
             shortcuts["delete_polygon"],
             "cancel",
@@ -379,7 +379,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         copy = action(
-            self.tr("Duplicate Polygons"),
+            self.tr("复制多边形"),
             self.copySelectedShape,
             shortcuts["duplicate_polygon"],
             "copy",
@@ -387,7 +387,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         undoLastPoint = action(
-            self.tr("Undo last point"),
+            self.tr("还原上一个标注"),
             self.canvas.undoLastPoint,
             shortcuts["undo_last_point"],
             "undo",
@@ -395,7 +395,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         addPointToEdge = action(
-            text=self.tr("Add Point to Edge"),
+            text=self.tr("在边上增加点"),
             slot=self.canvas.addPointToEdge,
             shortcut=shortcuts["add_point_to_edge"],
             icon="edit",
@@ -403,7 +403,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         removePoint = action(
-            text="Remove Selected Point",
+            text="删除所选点",
             slot=self.canvas.removeSelectedPoint,
             icon="edit",
             tip="Remove selected point from polygon",
@@ -411,7 +411,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         undo = action(
-            self.tr("Undo"),
+            self.tr("还原"),
             self.undoShapeEdit,
             shortcuts["undo"],
             "undo",
@@ -420,14 +420,14 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         hideAll = action(
-            self.tr("&Hide\nPolygons"),
+            self.tr("隐藏多边形"),
             functools.partial(self.togglePolygons, False),
             icon="eye",
             tip=self.tr("Hide all polygons"),
             enabled=False,
         )
         showAll = action(
-            self.tr("&Show\nPolygons"),
+            self.tr("显示多边形"),
             functools.partial(self.togglePolygons, True),
             icon="eye",
             tip=self.tr("Show all polygons"),
@@ -457,7 +457,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.zoomWidget.setEnabled(False)
 
         zoomIn = action(
-            self.tr("Zoom &In"),
+            self.tr("放大"),
             functools.partial(self.addZoom, 1.1),
             shortcuts["zoom_in"],
             "zoom-in",
@@ -465,7 +465,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         zoomOut = action(
-            self.tr("&Zoom Out"),
+            self.tr("缩小"),
             functools.partial(self.addZoom, 0.9),
             shortcuts["zoom_out"],
             "zoom-out",
@@ -473,7 +473,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         zoomOrg = action(
-            self.tr("&Original size"),
+            self.tr("原始尺寸"),
             functools.partial(self.setZoom, 100),
             shortcuts["zoom_to_original"],
             "zoom",
@@ -481,7 +481,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         fitWindow = action(
-            self.tr("&Fit Window"),
+            self.tr("适合窗口"),
             self.setFitWindow,
             shortcuts["fit_window"],
             "fit-window",
@@ -490,7 +490,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         fitWidth = action(
-            self.tr("Fit &Width"),
+            self.tr("适合宽度"),
             self.setFitWidth,
             shortcuts["fit_width"],
             "fit-width",
@@ -499,7 +499,7 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         brightnessContrast = action(
-            "&Brightness Contrast",
+            "对比色",
             self.brightnessContrast,
             None,
             "color",
@@ -525,7 +525,7 @@ class MainWindow(QtWidgets.QMainWindow):
         }
 
         edit = action(
-            self.tr("&Edit Label"),
+            self.tr("编辑标签"),
             self.editLabel,
             shortcuts["edit_label"],
             "edit",
@@ -534,7 +534,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         fill_drawing = action(
-            self.tr("Fill Drawing Polygon"),
+            self.tr("填充多边形"),
             self.canvas.setFillDrawing,
             None,
             "color",
@@ -637,11 +637,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.vertexSelected.connect(self.actions.removePoint.setEnabled)
 
         self.menus = utils.struct(
-            file=self.menu(self.tr("&File")),
-            edit=self.menu(self.tr("&Edit")),
-            view=self.menu(self.tr("&View")),
-            help=self.menu(self.tr("&Help")),
-            recentFiles=QtWidgets.QMenu(self.tr("Open &Recent")),
+            file=self.menu(self.tr("文件")),
+            edit=self.menu(self.tr("编辑")),
+            view=self.menu(self.tr("视图")),
+            help=self.menu(self.tr("帮助")),
+            recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
 
@@ -1979,9 +1979,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         images = []
         for root, dirs, files in os.walk(folderPath):
-            for file in files:
-                if file.lower().endswith(tuple(extensions)):
-                    relativePath = osp.join(root, file)
-                    images.append(relativePath)
-        images.sort(key=lambda x: x.lower())
+                for file in files:
+                    if file.lower().endswith(tuple(extensions)):
+                        relativePath = osp.join(root, file)
+                        images.append(relativePath)
+        try:
+            images.sort(key=lambda x: int(osp.basename(x).split('.')[0]))
+        except:
+            images.sort(key=lambda x: x.lower())
         return images
