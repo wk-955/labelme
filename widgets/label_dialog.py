@@ -74,6 +74,13 @@ class LabelDialog(QtWidgets.QDialog):
         layout.addWidget(bb)
         # label_list
         self.labelList = QtWidgets.QListWidget()
+
+        self.labelList.addItem('Head')
+        self.labelList.addItem('Visible')
+        self.labelList.addItem('Full')
+        self.labelList.addItem('Head_1')
+        self.labelList.addItem('Full_1')
+
         if self._fit_to_content["row"]:
             self.labelList.setHorizontalScrollBarPolicy(
                 QtCore.Qt.ScrollBarAlwaysOff
@@ -198,7 +205,7 @@ class LabelDialog(QtWidgets.QDialog):
         group_id = self.edit_group_id.text()
         if group_id:
             return int(group_id)
-        return None
+        return 0
 
     def popUp(self, text=None, move=True, flags=None, group_id=None):
         if self._fit_to_content["row"]:

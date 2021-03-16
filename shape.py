@@ -33,7 +33,7 @@ class Shape(object):
     vertex_fill_color = DEFAULT_VERTEX_FILL_COLOR
     hvertex_fill_color = DEFAULT_HVERTEX_FILL_COLOR
     point_type = P_ROUND
-    point_size = 4
+    point_size = 6
     scale = 1.0
 
     def __init__(
@@ -125,9 +125,30 @@ class Shape(object):
 
     def paint(self, painter):
         if self.points:
-            color = (
-                self.select_line_color if self.selected else self.line_color
-            )
+            if self.group_id == 0:
+                color = (QtGui.QColor('#ff0000'))
+            elif self.group_id == 1:
+                color = (QtGui.QColor('#ff9900'))
+            elif self.group_id == 2:
+                color = (QtGui.QColor('#ffff00'))
+            elif self.group_id == 3:
+                color = (QtGui.QColor('#00ff00'))
+            elif self.group_id == 4:
+                color = (QtGui.QColor('#00ffff'))
+            elif self.group_id == 5:
+                color = (QtGui.QColor('#4a86e8'))
+            elif self.group_id == 6:
+                color = (QtGui.QColor('#9900ff'))
+            elif self.group_id == 7:
+                color = (QtGui.QColor('#ff00ff'))
+            elif self.group_id == 8:
+                color = (QtGui.QColor('#fce5cd'))
+            elif self.group_id == 9:
+                color = (QtGui.QColor('#9fc5e8'))
+            else:
+                color = (
+                    self.select_line_color if self.selected else self.line_color
+                )
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
             # pen.setWidth(max(1, int(round(2.0 / self.scale))))
@@ -172,7 +193,29 @@ class Shape(object):
 
             painter.drawPath(line_path)
             painter.drawPath(vrtx_path)
-            painter.fillPath(vrtx_path, self._vertex_fill_color)
+            # painter.fillPath(vrtx_path, self._vertex_fill_color)
+            if self.group_id == 0:
+                painter.fillPath(vrtx_path, QtGui.QColor("#ff0000"))
+            elif self.group_id == 1:
+                painter.fillPath(vrtx_path, QtGui.QColor('#ff9900'))
+            elif self.group_id == 2:
+                painter.fillPath(vrtx_path, QtGui.QColor('#ffff00'))
+            elif self.group_id == 3:
+                painter.fillPath(vrtx_path, QtGui.QColor('#00ff00'))
+            elif self.group_id == 4:
+                painter.fillPath(vrtx_path, QtGui.QColor('#00ffff'))
+            elif self.group_id == 5:
+                painter.fillPath(vrtx_path, QtGui.QColor('#4a86e8'))
+            elif self.group_id == 6:
+                painter.fillPath(vrtx_path, QtGui.QColor('#9900ff'))
+            elif self.group_id == 7:
+                painter.fillPath(vrtx_path, QtGui.QColor('#ff00ff'))
+            elif self.group_id == 8:
+                painter.fillPath(vrtx_path, QtGui.QColor('#fce5cd'))
+            elif self.group_id == 9:
+                painter.fillPath(vrtx_path, QtGui.QColor('#9fc5e8'))
+            else:
+                painter.fillPath(vrtx_path, self._vertex_fill_color)
             if self.fill:
                 color = (
                     self.select_fill_color
