@@ -435,10 +435,8 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         help = action(
-            self.tr("&Tutorial"),
-            self.tutorial,
-            icon="help",
-            tip=self.tr("Show tutorial page"),
+            self.tr("等分眉毛点"),
+            self.BisectionEyebrow,
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -640,7 +638,7 @@ class MainWindow(QtWidgets.QMainWindow):
             file=self.menu(self.tr("文件")),
             edit=self.menu(self.tr("编辑")),
             view=self.menu(self.tr("视图")),
-            help=self.menu(self.tr("帮助")),
+            help=self.menu(self.tr("眉毛")),
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
@@ -1988,3 +1986,9 @@ class MainWindow(QtWidgets.QMainWindow):
         except:
             images.sort(key=lambda x: x.lower())
         return images
+
+    def BisectionEyebrow(self):
+        for item in self.labelList:
+            print(item["group_id"])
+            # item.setCheckState(Qt.Checked if value else Qt.Unchecked)
+        # for label in self.labelList:

@@ -267,7 +267,9 @@ class Canvas(QtWidgets.QWidget):
                 self.prevhEdge = self.hEdge = index_edge
                 shape.highlightVertex(index, shape.MOVE_VERTEX)
                 self.overrideCursor(CURSOR_POINT)
-                self.setToolTip(self.tr("Click & drag to move point"))
+                # 修改的内容
+                # self.setToolTip(self.tr("Click & drag to move point))
+                self.setToolTip(self.tr(str(shape.label)))
                 self.setStatusTip(self.toolTip())
                 self.update()
                 break
