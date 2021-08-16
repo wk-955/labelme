@@ -30,7 +30,8 @@ from labelme.widgets import LabelListWidgetItem
 from labelme.widgets import ToolBar
 from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
-
+import json
+from labelme.SpacingAlgo import CalculationBisectionPoints
 
 # FIXME
 # - [medium] Set max zoom value to something big enough for FitWidth/Window
@@ -42,6 +43,7 @@ from labelme.widgets import ZoomWidget
 # - Zoom is too "steppy".
 
 
+cal = CalculationBisectionPoints()
 LABEL_COLORMAP = imgviz.label_colormap(value=200)
 
 
@@ -434,9 +436,27 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
 
-        help = action(
-            self.tr("等分眉毛点"),
-            self.BisectionEyebrow,
+        face = action(
+            self.tr("等分脸部"),
+            functools.partial(self.BisectionEyebrow, 'face', False),
+        )
+
+        l_eyebrow = action(
+            self.tr("等分左眉毛点"),
+            functools.partial(self.BisectionEyebrow, 'l_eyebrow', False),
+        )
+        r_eyebrow = action(
+            self.tr("等分右眉毛点"),
+            functools.partial(self.BisectionEyebrow, 'r_eyebrow', False),
+        )
+
+        l_eye = action(
+            self.tr("等分左眼"),
+            functools.partial(self.BisectionEyebrow, 'l_eye', True),
+        )
+        r_eye = action(
+            self.tr("等分右眼"),
+            functools.partial(self.BisectionEyebrow, 'r_eye', True),
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -638,7 +658,7 @@ class MainWindow(QtWidgets.QMainWindow):
             file=self.menu(self.tr("文件")),
             edit=self.menu(self.tr("编辑")),
             view=self.menu(self.tr("视图")),
-            help=self.menu(self.tr("眉毛")),
+            eyebrow=self.menu(self.tr("眉毛")),
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
@@ -662,7 +682,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 quit,
             ),
         )
-        utils.addActions(self.menus.help, (help,))
+        utils.addActions(self.menus.eyebrow, (l_eyebrow, r_eyebrow, face, l_eye, r_eye))
         utils.addActions(
             self.menus.view,
             (
@@ -1987,8 +2007,55 @@ class MainWindow(QtWidgets.QMainWindow):
             images.sort(key=lambda x: x.lower())
         return images
 
-    def BisectionEyebrow(self):
-        for item in self.labelList:
-            print(item["group_id"])
-            # item.setCheckState(Qt.Checked if value else Qt.Unchecked)
-        # for label in self.labelList:
+    def read_data(self):
+        try:
+            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
+                content = json.loads(f.read())
+            return content
+        except:
+            return None
+
+    def save_data(self, content):
+        # path = r'E:\数据测试\人脸稠密点测试\保存路径'
+        # with open(path + '\\' + '658288864427900940.json', 'w', encoding='utf-8') as f:
+        #     json.dump(content, f, ensure_ascii=False, indent=4)
+        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
+            json.dump(content, f, ensure_ascii=False, indent=4)
+
+    def get_newPoint(self, points, mid, num, close):
+        if points:
+            points = points + [points[0]]
+        top = points[:mid + 1]
+        up = points[mid:]
+        print(top)
+        print(up)
+        new_top = cal.inputPoint(top, num)
+        new_up = cal.inputPoint(up, num)
+        new = new_top[:-1] + new_up
+        if close:
+            return new[:-1]
+        return new
+
+    def BisectionEyebrow(self, name, close):
+        n = 0
+        with open('config.txt', 'r') as f:
+            for lab in f.readlines():
+                if name in lab:
+                    num = lab.split('#')[1].replace('\n', '')
+                    if num.isdigit():
+                        n = int(int(num) / 2)
+        if n:
+            if self.filename:
+                self.saveFile()
+                content = self.read_data()
+                if content:
+                    shapes = content["shapes"]
+                    for shape in shapes:
+                        if shape["group_id"] == name:
+                            points = shape["points"]
+                            mid = int(len(points) / 2)
+                            points = self.get_newPoint(points, mid, n, close)
+                            shape["points"] = points
+                            print(len(points))
+                    self.save_data(content)
+                    self.loadFile(self.filename)
