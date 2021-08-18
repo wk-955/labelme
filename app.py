@@ -438,25 +438,44 @@ class MainWindow(QtWidgets.QMainWindow):
 
         face = action(
             self.tr("等分脸部"),
-            functools.partial(self.BisectionEyebrow, 'face', False),
+            functools.partial(self.readConfig, 'face', False),
         )
 
         l_eyebrow = action(
             self.tr("等分左眉毛点"),
-            functools.partial(self.BisectionEyebrow, 'l_eyebrow', False),
+            functools.partial(self.readConfig, 'l_eyebrow', False),
         )
         r_eyebrow = action(
             self.tr("等分右眉毛点"),
-            functools.partial(self.BisectionEyebrow, 'r_eyebrow', False),
+            functools.partial(self.readConfig, 'r_eyebrow', False),
         )
 
         l_eye = action(
             self.tr("等分左眼"),
-            functools.partial(self.BisectionEyebrow, 'l_eye', True),
+            functools.partial(self.readConfig, 'l_eye', True),
         )
         r_eye = action(
             self.tr("等分右眼"),
-            functools.partial(self.BisectionEyebrow, 'r_eye', True),
+            functools.partial(self.readConfig, 'r_eye', True),
+        )
+
+        top_mouse = action(
+            self.tr("等分上唇"),
+            functools.partial(self.readConfig, 't_mouse', True),
+        )
+        up_mouse = action(
+            self.tr("等分下唇"),
+            functools.partial(self.readConfig, 'u_mouse', True),
+        )
+
+        general0 = action(
+            self.tr("根据配置等分(闭合)"),
+            functools.partial(self.generalCconfig0,),
+        )
+
+        general1 = action(
+            self.tr("根据配置等分(不闭合)"),
+            functools.partial(self.generalCconfig1, ),
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -682,7 +701,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 quit,
             ),
         )
-        utils.addActions(self.menus.eyebrow, (l_eyebrow, r_eyebrow, face, l_eye, r_eye))
+        utils.addActions(self.menus.eyebrow, (face, l_eyebrow, r_eyebrow, l_eye, r_eye, top_mouse, up_mouse, general0, general1))
         utils.addActions(
             self.menus.view,
             (
@@ -2007,7 +2026,7 @@ class MainWindow(QtWidgets.QMainWindow):
             images.sort(key=lambda x: x.lower())
         return images
 
-    def read_data(self):
+    def readData(self):
         try:
             with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
                 content = json.loads(f.read())
@@ -2015,20 +2034,18 @@ class MainWindow(QtWidgets.QMainWindow):
         except:
             return None
 
-    def save_data(self, content):
+    def saveData(self, content):
         # path = r'E:\数据测试\人脸稠密点测试\保存路径'
         # with open(path + '\\' + '658288864427900940.json', 'w', encoding='utf-8') as f:
         #     json.dump(content, f, ensure_ascii=False, indent=4)
         with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
             json.dump(content, f, ensure_ascii=False, indent=4)
 
-    def get_newPoint(self, points, mid, num, close):
-        if points:
+    def getNewPoint(self, points, mid, num, close):
+        if close:
             points = points + [points[0]]
         top = points[:mid + 1]
         up = points[mid:]
-        print(top)
-        print(up)
         new_top = cal.inputPoint(top, num)
         new_up = cal.inputPoint(up, num)
         new = new_top[:-1] + new_up
@@ -2036,26 +2053,71 @@ class MainWindow(QtWidgets.QMainWindow):
             return new[:-1]
         return new
 
-    def BisectionEyebrow(self, name, close):
-        n = 0
-        with open('config.txt', 'r') as f:
-            for lab in f.readlines():
+    def readConfig(self, name, close):
+        bisection_num = 0
+        with open('config.txt', 'r', encoding='utf-8') as f:
+            for lab in f.readlines()[4:]:
                 if name in lab:
                     num = lab.split('#')[1].replace('\n', '')
                     if num.isdigit():
-                        n = int(int(num) / 2)
-        if n:
-            if self.filename:
-                self.saveFile()
-                content = self.read_data()
-                if content:
-                    shapes = content["shapes"]
-                    for shape in shapes:
-                        if shape["group_id"] == name:
-                            points = shape["points"]
-                            mid = int(len(points) / 2)
-                            points = self.get_newPoint(points, mid, n, close)
-                            shape["points"] = points
-                            print(len(points))
-                    self.save_data(content)
-                    self.loadFile(self.filename)
+                        bisection_num = int(int(num) / 2)
+        if bisection_num and self.filename:
+            self.Bisection(bisection_num, name, close)
+            self.loadFile(self.filename)
+
+    def Bisection(self, bisection_num, name, close):
+        self.saveFile()
+        content = self.readData()
+        if content:
+            shapes = content["shapes"]
+            if shapes:
+                for shape in shapes:
+                    if shape["label"] == name:
+                        points = shape["points"]
+                        mid = int(len(points) / 2)
+                        points = self.getNewPoint(points, mid, bisection_num, close)
+                        shape["points"] = points
+                self.saveData(content)
+
+    def generalCconfig0(self):
+        config = []
+        with open('config.txt', 'r', encoding='utf-8') as f:
+            for lab in f.readlines()[4:]:
+                if 'general0' in lab:
+                    config += lab.split('&')[1:-1]
+        if config:
+            for lab in config:
+                if len(lab.split('#')) == 2 and lab.split('#')[1].isdigit() and self.filename:
+                    bisection_num = int(lab.split('#')[1])
+                    self.generalBisection(bisection_num, lab.split('#')[0], True)
+            self.loadFile(self.filename)
+
+    def generalCconfig1(self):
+        config = []
+        with open('config.txt', 'r', encoding='utf-8') as f:
+            for lab in f.readlines()[4:]:
+                if 'general1' in lab:
+                    config += lab.split('&')[1:-1]
+        if config:
+            for lab in config:
+                if len(lab.split('#')) == 2 and lab.split('#')[1].isdigit() and self.filename:
+                    bisection_num = int(lab.split('#')[1])
+                    self.generalBisection(bisection_num, lab.split('#')[0], False)
+            self.loadFile(self.filename)
+
+    def generalBisection(self, bisection_num, name, close):
+        self.saveFile()
+        content = self.readData()
+        if content:
+            shapes = content["shapes"]
+            if shapes:
+                for shape in shapes:
+                    if shape["label"] == name:
+                        points = shape["points"]
+                        if close:
+                            points = cal.inputPoint(points + [points[0]], bisection_num)[:-1]
+                        else:
+                            points = cal.inputPoint(points, bisection_num-1)
+                        shape["points"] = points
+                self.saveData(content)
+

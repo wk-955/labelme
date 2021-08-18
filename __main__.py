@@ -181,6 +181,9 @@ def main():
         win.settings.clear()
         sys.exit(0)
 
+    if os.path.exists('a.png'):
+        os.remove('a.png')
+
     win.show()
     win.raise_()
     sys.exit(app.exec_())

@@ -342,8 +342,8 @@ class Canvas(QtWidgets.QWidget):
                         self.line[0] = self.current[-1]
                         if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
                             self.finalise()
-                # elif not self.outOfPixmap(pos):
-                else:
+                elif not self.outOfPixmap(pos):
+                # else:
                     # Create new shape.
                     self.current = Shape(shape_type=self.createMode)
                     self.current.addPoint(pos)
@@ -469,22 +469,22 @@ class Canvas(QtWidgets.QWidget):
     def boundedMoveVertex(self, pos):
         index, shape = self.hVertex, self.hShape
         point = shape[index]
-        # if self.outOfPixmap(pos):
-        #     pos = self.intersectionPoint(point, pos)
+        if self.outOfPixmap(pos):
+            pos = self.intersectionPoint(point, pos)
         shape.moveVertexBy(index, pos - point)
 
     def boundedMoveShapes(self, shapes, pos):
-        # if self.outOfPixmap(pos):
-        #     return False  # No need to move
+        if self.outOfPixmap(pos):
+            return False  # No need to move
         o1 = pos + self.offsets[0]
-        # if self.outOfPixmap(o1):
-        #     pos -= QtCore.QPoint(min(0, o1.x()), min(0, o1.y()))
+        if self.outOfPixmap(o1):
+            pos -= QtCore.QPoint(min(0, o1.x()), min(0, o1.y()))
         o2 = pos + self.offsets[1]
-        # if self.outOfPixmap(o2):
-        #     pos += QtCore.QPoint(
-        #         min(0, self.pixmap.width() - o2.x()),
-        #         min(0, self.pixmap.height() - o2.y()),
-        #     )
+        if self.outOfPixmap(o2):
+            pos += QtCore.QPoint(
+                min(0, self.pixmap.width() - o2.x()),
+                min(0, self.pixmap.height() - o2.y()),
+            )
         # XXX: The next line tracks the new position of the cursor
         # relative to the shape, but also results in making it
         # a bit "shaky" when nearing the border and allows it to
@@ -588,7 +588,7 @@ class Canvas(QtWidgets.QWidget):
 
     def outOfPixmap(self, p):
         w, h = self.pixmap.width(), self.pixmap.height()
-        # return not (0 <= p.x() <= w - 1 and 0 <= p.y() <= h - 1)
+        return not (0 <= p.x() <= w - 1 and 0 <= p.y() <= h - 1)
 
     def finalise(self):
         assert self.current

@@ -1,4 +1,13 @@
-l_eyebrow#35
-r_eyebrow#19
+# 说明： 闭合是初始点位和最后一个点位形成一个圈   不闭合是线段等分
+# 第一行是闭合通用配置 配置格式  general0&xxx#8&xxx#18&xxx#108 (general0开头，#是类别分割符，xxx是标签名，#是组分隔符，后面接数字，数字是生成的点个数)
+# 第二行是不闭合通用配置 配置格式 general1&xxx#8&xxx#18&xxx#108 (general1开头，后面和上一样
+# 后面几行是固定配置 有脸部、左眉毛、右眉毛、左眼、右眼、上嘴唇、下嘴唇， #号后面接生成的点个数
+general0&ddd#7&
+general1&eee#7&
 face#33
-l_eye#16
+l_eyebrow#19
+r_eyebrow#19
+l_eye#15
+r_eye#16
+t_mouse#20
+u_mouse#20
