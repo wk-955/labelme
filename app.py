@@ -435,37 +435,114 @@ class MainWindow(QtWidgets.QMainWindow):
             tip=self.tr("Show all polygons"),
             enabled=False,
         )
-
-        face = action(
-            self.tr("等分脸部"),
-            functools.partial(self.readConfig, 'face', False),
+        face0 = action(
+            self.tr('等分脸部(包括额头)'),
+            functools.partial(self.BisectionConfig, {"face1": 17, "face2": 17, "forehead": 7})
         )
 
-        l_eyebrow = action(
+        face1 = action(
+            self.tr("等分左脸部"),
+            functools.partial(self.readConfig, 'face1', False),
+        )
+        face2 = action(
+            self.tr("等分右脸部"),
+            functools.partial(self.readConfig, 'face2', False),
+        )
+
+        forehead = action(
+            self.tr("等分额头"),
+            functools.partial(self.readConfig, 'forehead', False),
+        )
+# 眉毛
+        eyebrow0 = action(
+            self.tr("等分所有眉毛点"),
+            functools.partial(self.BisectionConfig, {"l_eyebrow1": 9, "l_eyebrow2": 9, "r_eyebrow1": 9, "r_eyebrow2": 9}),
+        )
+        l_eyebrow0 = action(
             self.tr("等分左眉毛点"),
-            functools.partial(self.readConfig, 'l_eyebrow', False),
+            functools.partial(self.BisectionConfig, {"l_eyebrow1": 9, "l_eyebrow2": 9}),
         )
-        r_eyebrow = action(
+        l_eyebrow1 = action(
+            self.tr("等分左上眉毛点"),
+            functools.partial(self.readConfig, 'l_eyebrow1', False),
+        )
+        l_eyebrow2 = action(
+            self.tr("等分左下眉毛点"),
+            functools.partial(self.readConfig, 'l_eyebrow2', False),
+        )
+        r_eyebrow0 = action(
             self.tr("等分右眉毛点"),
-            functools.partial(self.readConfig, 'r_eyebrow', False),
+            functools.partial(self.BisectionConfig, {"r_eyebrow1": 9, "r_eyebrow2": 9}),
+        )
+        r_eyebrow1 = action(
+            self.tr("等分右上眉毛点"),
+            functools.partial(self.readConfig, 'r_eyebrow1', False),
+        )
+        r_eyebrow2 = action(
+            self.tr("等分右下眉毛点"),
+            functools.partial(self.readConfig, 'r_eyebrow2', False),
+        )
+# 眼睛
+        eye0 = action(
+            self.tr("等分所有眼睛点"),
+            functools.partial(self.BisectionConfig, {"l_eye1": 9, "l_eye2": 9, "r_eye1": 9, "r_eye2": 9}),
+        )
+        l_eye0 = action(
+            self.tr("等分左眼睛点"),
+            functools.partial(self.BisectionConfig, {"l_eye1": 9, "l_eye2": 9}),
+        )
+        l_eye1 = action(
+            self.tr("等分左上眼"),
+            functools.partial(self.readConfig, 'l_eye1', False),
+        )
+        l_eye2 = action(
+            self.tr("等分左下眼"),
+            functools.partial(self.readConfig, 'l_eye2', False),
+        )
+        # r_eye = action(
+        #     self.tr("等分右眼"),
+        #     functools.partial(self.readConfig, 'r_eye', True),
+        # )
+        r_eye0 = action(
+            self.tr("等分右眼睛点"),
+            functools.partial(self.BisectionConfig, {"r_eye1": 9, "r_eye2": 9}),
+        )
+        r_eye1 = action(
+            self.tr("等分右上眼"),
+            functools.partial(self.readConfig, 'r_eye1', False),
+        )
+        r_eye2 = action(
+            self.tr("等分右下眼"),
+            functools.partial(self.readConfig, 'r_eye2', False),
         )
 
-        l_eye = action(
-            self.tr("等分左眼"),
-            functools.partial(self.readConfig, 'l_eye', True),
+        o_mouse = action(
+            self.tr("等分外唇"),
+            functools.partial(self.BisectionConfig, {"mouse1": 17, "mouse2": 17}),
         )
-        r_eye = action(
-            self.tr("等分右眼"),
-            functools.partial(self.readConfig, 'r_eye', True),
+        o_mouse1 = action(
+            self.tr("等分外唇上边"),
+            functools.partial(self.readConfig, 'mouse1', False),
         )
-
-        top_mouse = action(
-            self.tr("等分上唇"),
-            functools.partial(self.readConfig, 't_mouse', True),
+        o_mouse2 = action(
+            self.tr("等分外唇下边"),
+            functools.partial(self.readConfig, 'mouse2', False),
         )
-        up_mouse = action(
-            self.tr("等分下唇"),
-            functools.partial(self.readConfig, 'u_mouse', True),
+        i_mouse = action(
+            self.tr("等分内唇"),
+            functools.partial(self.BisectionConfig, {"i_mouse1": 17, "i_mouse2": 17}),
+        )
+        i_mouse1 = action(
+            self.tr("等分内唇上边"),
+            functools.partial(self.readConfig, 'i_mouse1', False),
+        )
+        i_mouse2 = action(
+            self.tr("等分内唇下边"),
+            functools.partial(self.readConfig, 'i_mouse2', False),
+        )
+        mouse0 = action(
+            self.tr("等分嘴唇"),
+            functools.partial(self.BisectionConfig, {"i_mouse1": 17, "i_mouse2": 17, "mouse1": 17, "mouse2": 17}),
         )
 
         general0 = action(
@@ -476,6 +553,49 @@ class MainWindow(QtWidgets.QMainWindow):
         general1 = action(
             self.tr("根据配置等分(不闭合)"),
             functools.partial(self.generalCconfig1, ),
+        )
+
+        nose = action(
+            self.tr("等分鼻子(包括法令纹)"),
+            functools.partial(self.BisectionConfig, {'nose0': 4, 'nose1': 5, 'nose2': 5, 'nose3': 5, 'fl0': 4, 'fl1': 4}),
+        )
+
+        nose0 = action(
+            self.tr("等分鼻子线段0"),
+            functools.partial(self.readConfig1, 'nose0', False),
+        )
+        nose1 = action(
+            self.tr("等分鼻子线段1"),
+            functools.partial(self.readConfig1, 'nose1', False),
+        )
+        nose2 = action(
+            self.tr("等分鼻子线段2"),
+            functools.partial(self.readConfig1, 'nose2', False),
+        )
+        nose3 = action(
+            self.tr("等分鼻子线段3"),
+            functools.partial(self.readConfig1, 'nose3', False),
+        )
+        fl0 = action(
+            self.tr("等分法令纹左"),
+            functools.partial(self.readConfig1, 'fl0', False),
+        )
+        fl1 = action(
+            self.tr("等分法令纹右"),
+            functools.partial(self.readConfig1, 'fl1', False),
+        )
+
+        pupil = action(
+            self.tr("等分瞳孔"),
+            functools.partial(self.readConfig1, []),
+        )
+        l_pupil = action(
+            self.tr("等分左瞳孔"),
+            functools.partial(self.readConfig1, 'l_pupil', False),
+        )
+        r_pupil = action(
+            self.tr("等分右瞳孔"),
+            functools.partial(self.readConfig1, 'r_pupil', False),
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -677,7 +797,12 @@ class MainWindow(QtWidgets.QMainWindow):
             file=self.menu(self.tr("文件")),
             edit=self.menu(self.tr("编辑")),
             view=self.menu(self.tr("视图")),
-            eyebrow=self.menu(self.tr("眉毛")),
+            face=self.menu(self.tr("等分脸部")),
+            eyebrow=self.menu(self.tr("等分眉毛部位")),
+            eye=self.menu(self.tr("等分眼睛部位")),
+            nosePart=self.menu(self.tr("等分鼻子部位")),
+            mouse=self.menu(self.tr("等分嘴巴部位")),
+            general=self.menu(self.tr("自定义配置")),
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
@@ -701,7 +826,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 quit,
             ),
         )
-        utils.addActions(self.menus.eyebrow, (face, l_eyebrow, r_eyebrow, l_eye, r_eye, top_mouse, up_mouse, general0, general1))
+        utils.addActions(self.menus.face, (face1, face2, forehead, face0))
+        # utils.addActions(self.menus.eyebrow, (l_eyebrow, r_eyebrow, l_eye, r_eye, o_mouse, i_mouse, general0, general1))
+        utils.addActions(self.menus.eyebrow, (l_eyebrow1, l_eyebrow2, r_eyebrow1, r_eyebrow2, l_eyebrow0, r_eyebrow0, eyebrow0))
+        utils.addActions(self.menus.eye, (l_eye1, l_eye2, r_eye1, r_eye2, l_eye0, r_eye0, eye0))
+        utils.addActions(self.menus.nosePart, (nose, nose0, nose1, nose2, nose3, fl0, fl1,))
+        utils.addActions(self.menus.mouse, (o_mouse1, o_mouse2, i_mouse1, i_mouse2, o_mouse, i_mouse, mouse0))
+        utils.addActions(self.menus.general, (general0, general1))
         utils.addActions(
             self.menus.view,
             (
@@ -2053,6 +2184,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return new[:-1]
         return new
 
+    # 有中点的等分
     def readConfig(self, name, close):
         bisection_num = 0
         with open('config.txt', 'r', encoding='utf-8') as f:
@@ -2063,6 +2195,18 @@ class MainWindow(QtWidgets.QMainWindow):
                         bisection_num = int(int(num) / 2)
         if bisection_num and self.filename:
             self.Bisection(bisection_num, name, close)
+            self.loadFile(self.filename)
+
+    # 无中点的等分
+    def readConfig1(self, name, close):
+        with open('config.txt', 'r', encoding='utf-8') as f:
+            for lab in f.readlines()[4:]:
+                if name in lab:
+                    num = lab.split('#')[1].replace('\n', '')
+                    if num.isdigit():
+                        bisection_num = int(num)
+        if bisection_num and self.filename:
+            self.generalBisection(bisection_num, name, close)
             self.loadFile(self.filename)
 
     def Bisection(self, bisection_num, name, close):
@@ -2079,6 +2223,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         shape["points"] = points
                 self.saveData(content)
 
+    # 通用闭合等分
     def generalCconfig0(self):
         config = []
         with open('config.txt', 'r', encoding='utf-8') as f:
@@ -2092,6 +2237,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.generalBisection(bisection_num, lab.split('#')[0], True)
             self.loadFile(self.filename)
 
+    # 通用不闭合等分
     def generalCconfig1(self):
         config = []
         with open('config.txt', 'r', encoding='utf-8') as f:
@@ -2121,3 +2267,25 @@ class MainWindow(QtWidgets.QMainWindow):
                         shape["points"] = points
                 self.saveData(content)
 
+    # 按照列表进行等分
+    def BisectionConfig(self, n):
+        if self.filename:
+            self.saveFile()
+            content = self.readData()
+            if content:
+                shapes = content["shapes"]
+                if shapes:
+                    for shape in shapes:
+                        if shape["label"] in list(n.keys()):
+                            points = shape["points"]
+                            points = cal.inputPoint(points, n[shape["label"]]-1)
+                            shape["points"] = points
+                self.saveData(content)
+                self.loadFile(self.filename)
+
+
+    def tran(self):
+        with open('config.txt', 'r', encoding='utf-8') as f:
+            for lab in f.readlines()[4:]:
+                if len(lab.split('#')) > 2:
+                    print(lab)
