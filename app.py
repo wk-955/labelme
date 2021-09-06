@@ -32,6 +32,8 @@ from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
 import json
 from labelme.SpacingAlgo import CalculationBisectionPoints
+import math
+from json_to_img import TO_IMG
 
 # FIXME
 # - [medium] Set max zoom value to something big enough for FitWidth/Window
@@ -437,7 +439,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         face0 = action(
             self.tr('等分脸部(包括额头)'),
-            functools.partial(self.BisectionConfig, {"face1": 17, "face2": 17, "forehead": 7})
+            functools.partial(self.BisectionConfig, ["face1", "face2", "forehead"])
         )
 
         face1 = action(
@@ -456,11 +458,11 @@ class MainWindow(QtWidgets.QMainWindow):
 # 眉毛
         eyebrow0 = action(
             self.tr("等分所有眉毛点"),
-            functools.partial(self.BisectionConfig, {"l_eyebrow1": 9, "l_eyebrow2": 9, "r_eyebrow1": 9, "r_eyebrow2": 9}),
+            functools.partial(self.BisectionConfig, ["l_eyebrow1", "l_eyebrow2", "r_eyebrow1", "r_eyebrow2"]),
         )
         l_eyebrow0 = action(
             self.tr("等分左眉毛点"),
-            functools.partial(self.BisectionConfig, {"l_eyebrow1": 9, "l_eyebrow2": 9}),
+            functools.partial(self.BisectionConfig, ["l_eyebrow1", "l_eyebrow2"]),
         )
         l_eyebrow1 = action(
             self.tr("等分左上眉毛点"),
@@ -472,7 +474,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         r_eyebrow0 = action(
             self.tr("等分右眉毛点"),
-            functools.partial(self.BisectionConfig, {"r_eyebrow1": 9, "r_eyebrow2": 9}),
+            functools.partial(self.BisectionConfig, ["r_eyebrow1", "r_eyebrow2"]),
         )
         r_eyebrow1 = action(
             self.tr("等分右上眉毛点"),
@@ -485,11 +487,11 @@ class MainWindow(QtWidgets.QMainWindow):
 # 眼睛
         eye0 = action(
             self.tr("等分所有眼睛点"),
-            functools.partial(self.BisectionConfig, {"l_eye1": 9, "l_eye2": 9, "r_eye1": 9, "r_eye2": 9}),
+            functools.partial(self.BisectionConfig, ["l_eye1", "l_eye2", "r_eye1", "r_eye2"]),
         )
         l_eye0 = action(
             self.tr("等分左眼睛点"),
-            functools.partial(self.BisectionConfig, {"l_eye1": 9, "l_eye2": 9}),
+            functools.partial(self.BisectionConfig, ["l_eye1", "l_eye2"]),
         )
         l_eye1 = action(
             self.tr("等分左上眼"),
@@ -505,7 +507,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # )
         r_eye0 = action(
             self.tr("等分右眼睛点"),
-            functools.partial(self.BisectionConfig, {"r_eye1": 9, "r_eye2": 9}),
+            functools.partial(self.BisectionConfig, ["r_eye1", "r_eye2"]),
         )
         r_eye1 = action(
             self.tr("等分右上眼"),
@@ -518,7 +520,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         o_mouse = action(
             self.tr("等分外唇"),
-            functools.partial(self.BisectionConfig, {"mouse1": 17, "mouse2": 17}),
+            functools.partial(self.BisectionConfig, ["mouse1", "mouse2"]),
         )
         o_mouse1 = action(
             self.tr("等分外唇上边"),
@@ -530,7 +532,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         i_mouse = action(
             self.tr("等分内唇"),
-            functools.partial(self.BisectionConfig, {"i_mouse1": 17, "i_mouse2": 17}),
+            functools.partial(self.BisectionConfig, ["i_mouse1", "i_mouse2"]),
         )
         i_mouse1 = action(
             self.tr("等分内唇上边"),
@@ -542,7 +544,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         mouse0 = action(
             self.tr("等分嘴唇"),
-            functools.partial(self.BisectionConfig, {"i_mouse1": 17, "i_mouse2": 17, "mouse1": 17, "mouse2": 17}),
+            functools.partial(self.BisectionConfig, ["i_mouse1", "i_mouse2", "mouse1", "mouse2"]),
         )
 
         general0 = action(
@@ -557,7 +559,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         nose = action(
             self.tr("等分鼻子(包括法令纹)"),
-            functools.partial(self.BisectionConfig, {'nose0': 4, 'nose1': 5, 'nose2': 5, 'nose3': 5, 'fl0': 4, 'fl1': 4}),
+            functools.partial(self.BisectionConfig, ['nose0', 'nose1', 'nose2', 'nose3', 'fl0', 'fl1']),
         )
 
         nose0 = action(
@@ -585,17 +587,17 @@ class MainWindow(QtWidgets.QMainWindow):
             functools.partial(self.readConfig1, 'fl1', False),
         )
 
-        pupil = action(
-            self.tr("等分瞳孔"),
-            functools.partial(self.readConfig1, []),
-        )
         l_pupil = action(
             self.tr("等分左瞳孔"),
-            functools.partial(self.readConfig1, 'l_pupil', False),
+            functools.partial(self.readConfig2, ['l_pupil']),
         )
         r_pupil = action(
             self.tr("等分右瞳孔"),
-            functools.partial(self.readConfig1, 'r_pupil', False),
+            functools.partial(self.readConfig2, ['r_pupil']),
+        )
+        pupil0 = action(
+            self.tr("等分全部瞳孔"),
+            functools.partial(self.readConfig2, ['l_pupil', 'r_pupil']),
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -654,6 +656,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tr("Zoom follows window width"),
             checkable=True,
             enabled=False,
+        )
+        createImg = action(
+            self.tr('生成标注图片'),
+            self.tran,
+            shortcuts["createImg"],
+            "objects",
         )
         brightnessContrast = action(
             "对比色",
@@ -800,6 +808,7 @@ class MainWindow(QtWidgets.QMainWindow):
             face=self.menu(self.tr("等分脸部")),
             eyebrow=self.menu(self.tr("等分眉毛部位")),
             eye=self.menu(self.tr("等分眼睛部位")),
+            pupil=self.menu(self.tr("等分瞳孔部位")),
             nosePart=self.menu(self.tr("等分鼻子部位")),
             mouse=self.menu(self.tr("等分嘴巴部位")),
             general=self.menu(self.tr("自定义配置")),
@@ -823,6 +832,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 close,
                 deleteFile,
                 None,
+                createImg,
+                None,
                 quit,
             ),
         )
@@ -833,6 +844,7 @@ class MainWindow(QtWidgets.QMainWindow):
         utils.addActions(self.menus.nosePart, (nose, nose0, nose1, nose2, nose3, fl0, fl1,))
         utils.addActions(self.menus.mouse, (o_mouse1, o_mouse2, i_mouse1, i_mouse2, o_mouse, i_mouse, mouse0))
         utils.addActions(self.menus.general, (general0, general1))
+        utils.addActions(self.menus.pupil, (l_pupil, r_pupil, pupil0))
         utils.addActions(
             self.menus.view,
             (
@@ -854,6 +866,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 fitWidth,
                 None,
                 brightnessContrast,
+                None,
+                createImg
             ),
         )
 
@@ -888,6 +902,8 @@ class MainWindow(QtWidgets.QMainWindow):
             None,
             zoom,
             fitWidth,
+            None,
+            createImg
         )
 
         self.statusBar().showMessage(self.tr("%s started.") % __appname__)
@@ -2162,6 +2178,10 @@ class MainWindow(QtWidgets.QMainWindow):
             with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
                 content = json.loads(f.read())
             return content
+        except UnicodeDecodeError:
+            with open(osp.splitext(self.filename)[0] + '.json', 'r',) as f:
+                content = json.loads(f.read())
+            return content
         except:
             return None
 
@@ -2184,30 +2204,21 @@ class MainWindow(QtWidgets.QMainWindow):
             return new[:-1]
         return new
 
-    # 有中点的等分
-    def readConfig(self, name, close):
-        bisection_num = 0
-        with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[4:]:
-                if name in lab:
-                    num = lab.split('#')[1].replace('\n', '')
-                    if num.isdigit():
-                        bisection_num = int(int(num) / 2)
-        if bisection_num and self.filename:
-            self.Bisection(bisection_num, name, close)
-            self.loadFile(self.filename)
-
-    # 无中点的等分
-    def readConfig1(self, name, close):
-        with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[4:]:
-                if name in lab:
-                    num = lab.split('#')[1].replace('\n', '')
-                    if num.isdigit():
-                        bisection_num = int(num)
-        if bisection_num and self.filename:
-            self.generalBisection(bisection_num, name, close)
-            self.loadFile(self.filename)
+    def generalBisection(self, bisection_num, name, close):
+        self.saveFile()
+        content = self.readData()
+        if content:
+            shapes = content["shapes"]
+            if shapes:
+                for shape in shapes:
+                    if shape["label"] == name:
+                        points = shape["points"]
+                        if close:
+                            points = cal.inputPoint(points + [points[0]], bisection_num)[:-1]
+                        else:
+                            points = cal.inputPoint(points, bisection_num - 1)
+                        shape["points"] = points
+                self.saveData(content)
 
     def Bisection(self, bisection_num, name, close):
         self.saveFile()
@@ -2223,11 +2234,57 @@ class MainWindow(QtWidgets.QMainWindow):
                         shape["points"] = points
                 self.saveData(content)
 
+    # 瞳孔等分计算
+    def BisectionCircular(self, bisection_num, name):
+        content = self.readData()
+        if content:
+            shapes = content["shapes"]
+            if shapes:
+                for shape in shapes:
+                    if shape["label"] == name:
+                        points = shape["points"]
+                        if len(points) > 1:
+                            new_points = [points[0]]
+                            r = round(math.hypot(points[0][0] - points[1][0],
+                                                 points[0][1] - points[1][1]))
+                            radians = (math.pi / 180) * round(360 / (int(bisection_num) - 1))
+                            for i in range(int(bisection_num) - 1):
+                                x = points[0][0] + r * math.sin(radians * i)
+                                y = points[0][1] + r * math.cos(radians * i)
+                                new_points.append([x, y])
+                            shape["points"] = new_points
+                self.saveData(content)
+
+    # 有中点的等分
+    def readConfig(self, name, close):
+        bisection_num = 0
+        with open('config.txt', 'r', encoding='utf-8') as f:
+            for lab in f.readlines()[5:]:
+                if name in lab:
+                    num = lab.split('#')[1].replace('\n', '')
+                    if num.isdigit():
+                        bisection_num = int(int(num) / 2)
+        if bisection_num and self.filename:
+            self.Bisection(bisection_num, name, close)
+            self.loadFile(self.filename)
+
+    # 无中点的等分
+    def readConfig1(self, name, close):
+        with open('config.txt', 'r', encoding='utf-8') as f:
+            for lab in f.readlines()[5:]:
+                if name in lab:
+                    num = lab.split('#')[1].replace('\n', '')
+                    if num.isdigit():
+                        bisection_num = int(num)
+        if bisection_num and self.filename:
+            self.generalBisection(bisection_num, name, close)
+            self.loadFile(self.filename)
+
     # 通用闭合等分
     def generalCconfig0(self):
         config = []
         with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[4:]:
+            for lab in f.readlines()[5:]:
                 if 'general0' in lab:
                     config += lab.split('&')[1:-1]
         if config:
@@ -2241,7 +2298,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def generalCconfig1(self):
         config = []
         with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[4:]:
+            for lab in f.readlines()[5:]:
                 if 'general1' in lab:
                     config += lab.split('&')[1:-1]
         if config:
@@ -2251,24 +2308,15 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.generalBisection(bisection_num, lab.split('#')[0], False)
             self.loadFile(self.filename)
 
-    def generalBisection(self, bisection_num, name, close):
-        self.saveFile()
-        content = self.readData()
-        if content:
-            shapes = content["shapes"]
-            if shapes:
-                for shape in shapes:
-                    if shape["label"] == name:
-                        points = shape["points"]
-                        if close:
-                            points = cal.inputPoint(points + [points[0]], bisection_num)[:-1]
-                        else:
-                            points = cal.inputPoint(points, bisection_num-1)
-                        shape["points"] = points
-                self.saveData(content)
-
     # 按照列表进行等分
-    def BisectionConfig(self, n):
+    def BisectionConfig(self, names):
+        n = {}
+        with open('config.txt', 'r', encoding='utf-8') as f:
+            for lab in f.readlines()[5:]:
+                for name in names:
+                    if name in lab:
+                        n[name] = int(lab.split('#')[1])
+
         if self.filename:
             self.saveFile()
             content = self.readData()
@@ -2283,9 +2331,21 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.saveData(content)
                 self.loadFile(self.filename)
 
+    # 瞳孔等分
+    def readConfig2(self, names):
+        self.saveFile()
+        with open('config.txt', 'r', encoding='utf-8') as f:
+            for lab in f.readlines()[5:]:
+                for name in names:
+                    if name in lab:
+                        num = lab.split('#')[1].replace('\n', '')
+                        if num.isdigit():
+                            bisection_num = int(num)
+                            self.BisectionCircular(bisection_num, name)
+        self.loadFile(self.filename)
 
     def tran(self):
-        with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[4:]:
-                if len(lab.split('#')) > 2:
-                    print(lab)
+        if self.filename:
+            self.saveFile()
+            to_img = TO_IMG()
+            to_img.main(osp.splitext(self.filename)[0] + '.json')
