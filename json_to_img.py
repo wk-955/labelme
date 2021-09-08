@@ -39,20 +39,29 @@ class TO_IMG:
             new_shapes.append(shape)
         return new_shapes
 
-
     def crate_img(self, imagePath, points):
         img = cv2.imdecode(np.fromfile(imagePath, dtype=np.uint8), -1)
 
         for num in points:
             color = (0, 255, 0) if points[num][1] else (0, 0, 255)
-            cv2.circle(img, (round(points[num][0][0]), round(points[num][0][1])), 5, (0, 0, 255), thickness=-1)
+            cv2.circle(img, (round(points[num][0][0]), round(points[num][0][1])), 2, (0, 0, 255), thickness=-1)
             cv2.putText(img, num, (round(points[num][0][0]), round(points[num][0][1])), cv2.FONT_HERSHEY_PLAIN,
-                        3, color, thickness=4)
+                        2, color, thickness=1)
             # cv2.imshow("image", img)
-        cv2.namedWindow(os.path.basename(imagePath), 0)
-        cv2.imshow(os.path.basename(imagePath), img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        save = os.path.join(os.path.dirname(imagePath), 'point_images')
+        if not os.path.exists(save):
+            os.mkdir(save)
+        # print(os.path.join(save, os.path.basename(imagePath)))
+        # cv2.imwrite(os.path.join(save, os.path.basename(imagePath)), img)
+        try:
+            cv2.imencode('.jpg', img)[1].tofile(os.path.join(save, os.path.basename(imagePath)))
+            os.system(os.path.join(save, os.path.basename(imagePath)))
+        except:
+            print('{} 图片已被占用，请关闭图片再重新生成点位图。'.format(os.path.basename(imagePath)))
+        # cv2.namedWindow(os.path.basename(imagePath), 0)
+        # cv2.imshow(os.path.basename(imagePath), img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
     def main(self, path):
         with open('config.txt', 'r', encoding='utf-8') as f:
