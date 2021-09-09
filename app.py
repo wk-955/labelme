@@ -103,6 +103,7 @@ class MainWindow(QtWidgets.QMainWindow):
             fit_to_content=self._config["fit_to_content"],
             flags=self._config["label_flags"],
         )
+        self.shapeList = []
 
         self.labelList = LabelListWidget()
         self.lastOpenDir = None
@@ -386,6 +387,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tr("Create a duplicate of the selected polygons"),
             enabled=False,
         )
+        paste = action(
+            self.tr("粘贴多边形"),
+            self.pasteShape,
+            shortcuts["paste"],
+            "copy",
+            self.tr("paste polygons"),
+        )
         undoLastPoint = action(
             self.tr("还原上一个标注"),
             self.canvas.undoLastPoint,
@@ -566,6 +574,7 @@ class MainWindow(QtWidgets.QMainWindow):
             delete=delete,
             edit=edit,
             copy=copy,
+            paste=paste,
             undoLastPoint=undoLastPoint,
             undo=undo,
             addPointToEdge=addPointToEdge,
@@ -593,6 +602,7 @@ class MainWindow(QtWidgets.QMainWindow):
             editMenu=(
                 edit,
                 copy,
+                paste,
                 delete,
                 None,
                 undo,
@@ -1247,11 +1257,16 @@ class MainWindow(QtWidgets.QMainWindow):
             return False
 
     def copySelectedShape(self):
+        self.shapeList = []
         added_shapes = self.canvas.copySelectedShapes()
-        self.labelList.clearSelection()
         for shape in added_shapes:
+            self.shapeList.append(shape)
+
+    def pasteShape(self):
+        for shape in self.shapeList:
             self.addLabel(shape)
         self.setDirty()
+        # self.loadFile(self.filename)
 
     def labelSelectionChanged(self):
         if self._noSelectionSlot:
@@ -1984,7 +1999,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         relativePath = osp.join(root, file)
                         images.append(relativePath)
         try:
-            images.sort(key=lambda x: int(osp.basename(x).split('.')[0]))
+            images.sort(key=lambda x: int(osp.basename(x).split('.')[0].split('_')[-1]))
         except:
             images.sort(key=lambda x: x.lower())
         return images
