@@ -75,11 +75,27 @@ class LabelDialog(QtWidgets.QDialog):
         # label_list
         self.labelList = QtWidgets.QListWidget()
 
-        self.labelList.addItem('Head')
-        self.labelList.addItem('Visible')
-        self.labelList.addItem('Full')
-        self.labelList.addItem('Head_1')
-        self.labelList.addItem('Full_1')
+        self.labelList.addItem('walk')
+        self.labelList.addItem('run')
+        self.labelList.addItem('jump')
+        self.labelList.addItem('clap')
+        self.labelList.addItem('walk_Left_leg_1')
+        self.labelList.addItem('walk_right_leg_2')
+        self.labelList.addItem('run_Left_leg_1')
+        self.labelList.addItem('run_right_leg_2')
+        self.labelList.addItem('jump_both_legs_3')
+        self.labelList.addItem('clap_hand_4')
+        self.labelList.addItem('walk_clap_Left_leg_1')
+        self.labelList.addItem('walk_clap_right_leg_2')
+        self.labelList.addItem('walk_clap_Left_leg_1_claphand4')
+        self.labelList.addItem('walk_clap_right_leg_2_claphand4')
+        self.labelList.addItem('run_clap_Left_leg_1')
+        self.labelList.addItem('run_clap_right_leg_2')
+        self.labelList.addItem('run_clap_Left_leg_1_claphand4')
+        self.labelList.addItem('run_clap_right_leg_2_claphand4')
+        self.labelList.addItem('jump_clap_ claphand4')
+        self.labelList.addItem('jump_clap_ both_legs_3')
+        self.labelList.addItem('jump_clap_both_legs_3_claphand4')
 
         if self._fit_to_content["row"]:
             self.labelList.setHorizontalScrollBarPolicy(
@@ -92,8 +108,8 @@ class LabelDialog(QtWidgets.QDialog):
         self._sort_labels = sort_labels
         if labels:
             self.labelList.addItems(labels)
-        if self._sort_labels:
-            self.labelList.sortItems()
+        # if self._sort_labels:
+        #     self.labelList.sortItems()
         else:
             self.labelList.setDragDropMode(
                 QtWidgets.QAbstractItemView.InternalMove
@@ -135,8 +151,8 @@ class LabelDialog(QtWidgets.QDialog):
         if self.labelList.findItems(label, QtCore.Qt.MatchExactly):
             return
         self.labelList.addItem(label)
-        if self._sort_labels:
-            self.labelList.sortItems()
+        # if self._sort_labels:
+        #     self.labelList.sortItems()
 
     def labelSelected(self, item):
         self.edit.setText(item.text())
@@ -205,7 +221,7 @@ class LabelDialog(QtWidgets.QDialog):
         group_id = self.edit_group_id.text()
         if group_id:
             return int(group_id)
-        return 0
+        return None
 
     def popUp(self, text=None, move=True, flags=None, group_id=None):
         if self._fit_to_content["row"]:

@@ -153,7 +153,7 @@ class Shape(object):
             # Try using integer sizes for smoother drawing(?)
             # pen.setWidth(max(1, int(round(2.0 / self.scale))))
 # 画笔的粗细
-            pen.setWidth(0)
+            pen.setWidth(1)
             painter.setPen(pen)
 
             line_path = QtGui.QPainterPath()
@@ -244,7 +244,7 @@ class Shape(object):
 
 # 补充 添加标签可见属性,
         if i == 0:
-            myFont = QtGui.QFont('Times', 7)
+            myFont = QtGui.QFont('Times', 10)
             mypoint = point - QtCore.QPointF(0, d)
             point_name = self.label
             path.addText(mypoint, myFont, point_name)

@@ -31,7 +31,7 @@ from labelme.widgets import ToolBar
 from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
 
-
+from generate_data import deal_data, remove_json
 # FIXME
 # - [medium] Set max zoom value to something big enough for FitWidth/Window
 
@@ -443,10 +443,18 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         help = action(
-            self.tr("&Tutorial"),
-            self.tutorial,
+            self.tr("生成区间数据"),
+            self.create_data,
             icon="help",
+            shortcut=shortcuts["help"],
             tip=self.tr("Show tutorial page"),
+        )
+        del_j = action(
+            self.tr("删除指定数据"),
+            self.del_json,
+            shortcut=shortcuts["del_j"],
+            icon="help",
+            # tip=self.tr("Show tutorial page"),
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -650,7 +658,7 @@ class MainWindow(QtWidgets.QMainWindow):
             file=self.menu(self.tr("文件")),
             edit=self.menu(self.tr("编辑")),
             view=self.menu(self.tr("视图")),
-            help=self.menu(self.tr("帮助")),
+            help=self.menu(self.tr("数据生成")),
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
@@ -674,7 +682,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 quit,
             ),
         )
-        utils.addActions(self.menus.help, (help,))
+        utils.addActions(self.menus.help, (help, del_j))
         utils.addActions(
             self.menus.view,
             (
@@ -758,6 +766,7 @@ class MainWindow(QtWidgets.QMainWindow):
             Qt.Horizontal: {},
             Qt.Vertical: {},
         }  # key=filename, value=scroll_value
+
 
         if filename is not None and osp.isdir(filename):
             self.importDirImages(filename, load=False)
@@ -1263,10 +1272,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.shapeList.append(shape)
 
     def pasteShape(self):
+        # self.labelList.clearSelection()
         for shape in self.shapeList:
             self.addLabel(shape)
         self.setDirty()
-        # self.loadFile(self.filename)
+        self.saveFile()
+        self.loadFile(self.filename)
 
     def labelSelectionChanged(self):
         if self._noSelectionSlot:
@@ -2003,3 +2014,15 @@ class MainWindow(QtWidgets.QMainWindow):
         except:
             images.sort(key=lambda x: x.lower())
         return images
+
+    def create_data(self):
+        if self.filename:
+            deal_data(os.path.dirname(self.filename))
+            if os.path.exists(os.path.join(os.path.dirname(self.filename), '已标注图片')):
+                # self.openDirDialog(dirpath=os.path.join(os.path.dirname(self.filename), '已标注图片'))
+                self.importDirImages(os.path.join(os.path.dirname(self.filename), '已标注图片'))
+
+    def del_json(self):
+        if self.filename:
+            number = input('输入需要删除的帧数(区间则用-分割,非区间用英文的逗号(,)分割): ')
+            remove_json(os.path.dirname(self.filename), number)
