@@ -75,27 +75,10 @@ class LabelDialog(QtWidgets.QDialog):
         # label_list
         self.labelList = QtWidgets.QListWidget()
 
-        self.labelList.addItem('walk')
-        self.labelList.addItem('run')
-        self.labelList.addItem('jump')
-        self.labelList.addItem('clap')
-        self.labelList.addItem('walk_Left_leg_1')
-        self.labelList.addItem('walk_right_leg_2')
-        self.labelList.addItem('run_Left_leg_1')
-        self.labelList.addItem('run_right_leg_2')
-        self.labelList.addItem('jump_both_legs_3')
-        self.labelList.addItem('clap_hand_4')
-        self.labelList.addItem('walk_clap_Left_leg_1')
-        self.labelList.addItem('walk_clap_right_leg_2')
-        self.labelList.addItem('walk_clap_Left_leg_1_claphand4')
-        self.labelList.addItem('walk_clap_right_leg_2_claphand4')
-        self.labelList.addItem('run_clap_Left_leg_1')
-        self.labelList.addItem('run_clap_right_leg_2')
-        self.labelList.addItem('run_clap_Left_leg_1_claphand4')
-        self.labelList.addItem('run_clap_right_leg_2_claphand4')
-        self.labelList.addItem('jump_clap_ claphand4')
-        self.labelList.addItem('jump_clap_ both_legs_3')
-        self.labelList.addItem('jump_clap_both_legs_3_claphand4')
+        self.labelList.addItem('hand')
+        self.labelList.addItem('hand_occlude')
+        self.labelList.addItem('hand_blur')
+        self.labelList.addItem('hand_occlude_blur')
 
         if self._fit_to_content["row"]:
             self.labelList.setHorizontalScrollBarPolicy(
