@@ -75,11 +75,6 @@ class LabelDialog(QtWidgets.QDialog):
         # label_list
         self.labelList = QtWidgets.QListWidget()
 
-        self.labelList.addItem('hand')
-        self.labelList.addItem('hand_occlude')
-        self.labelList.addItem('hand_blur')
-        self.labelList.addItem('hand_occlude_blur')
-
         if self._fit_to_content["row"]:
             self.labelList.setHorizontalScrollBarPolicy(
                 QtCore.Qt.ScrollBarAlwaysOff

@@ -77,7 +77,7 @@ class Shape(object):
     @shape_type.setter
     def shape_type(self, value):
         if value is None:
-            value = "polygon"
+            value = "linestrip"
         if value not in [
             "polygon",
             "rectangle",
@@ -125,30 +125,30 @@ class Shape(object):
 
     def paint(self, painter):
         if self.points:
-            if self.group_id == 0:
-                color = (QtGui.QColor('#ff0000'))
-            elif self.group_id == 1:
-                color = (QtGui.QColor('#ff9900'))
-            elif self.group_id == 2:
-                color = (QtGui.QColor('#ffff00'))
-            elif self.group_id == 3:
-                color = (QtGui.QColor('#00ff00'))
-            elif self.group_id == 4:
-                color = (QtGui.QColor('#00ffff'))
-            elif self.group_id == 5:
-                color = (QtGui.QColor('#4a86e8'))
-            elif self.group_id == 6:
-                color = (QtGui.QColor('#9900ff'))
-            elif self.group_id == 7:
-                color = (QtGui.QColor('#ff00ff'))
-            elif self.group_id == 8:
-                color = (QtGui.QColor('#fce5cd'))
-            elif self.group_id == 9:
-                color = (QtGui.QColor('#9fc5e8'))
-            else:
-                color = (
-                    self.select_line_color if self.selected else self.line_color
-                )
+            # if self.group_id == 0:
+            #     color = (QtGui.QColor('#ff0000'))
+            # elif self.group_id == 1:
+            #     color = (QtGui.QColor('#ff9900'))
+            # elif self.group_id == 2:
+            #     color = (QtGui.QColor('#ffff00'))
+            # elif self.group_id == 3:
+            #     color = (QtGui.QColor('#00ff00'))
+            # elif self.group_id == 4:
+            #     color = (QtGui.QColor('#00ffff'))
+            # elif self.group_id == 5:
+            #     color = (QtGui.QColor('#4a86e8'))
+            # elif self.group_id == 6:
+            #     color = (QtGui.QColor('#9900ff'))
+            # elif self.group_id == 7:
+            #     color = (QtGui.QColor('#ff00ff'))
+            # elif self.group_id == 8:
+            #     color = (QtGui.QColor('#fce5cd'))
+            # elif self.group_id == 9:
+            #     color = (QtGui.QColor('#9fc5e8'))
+            # else:
+            color = (
+                self.select_line_color if self.selected else self.line_color
+            )
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
             # pen.setWidth(max(1, int(round(2.0 / self.scale))))
@@ -173,11 +173,14 @@ class Shape(object):
                     line_path.addEllipse(rectangle)
                 for i in range(len(self.points)):
                     self.drawVertex(vrtx_path, i)
-            elif self.shape_type == "linestrip":
-                line_path.moveTo(self.points[0])
-                for i, p in enumerate(self.points):
-                    line_path.lineTo(p)
-                    self.drawVertex(vrtx_path, i)
+            # elif self.shape_type == "linestrip":
+            #     line_path.moveTo(self.points[0])
+            #     for i, p in enumerate(self.points):
+            #         line_path.lineTo(p)
+            #         self.drawVertex(vrtx_path, i)
+            #     if self.isClosed():
+            #         line_path.lineTo(self.points[0])
+
             else:
                 line_path.moveTo(self.points[0])
                 # Uncommenting the following line will draw 2 paths
@@ -187,44 +190,47 @@ class Shape(object):
 
                 for i, p in enumerate(self.points):
                     line_path.lineTo(p)
-                    self.drawVertex(vrtx_path, i)
+                    self.drawVertex(vrtx_path, i, p)
                 if self.isClosed():
                     line_path.lineTo(self.points[0])
 
             painter.drawPath(line_path)
             painter.drawPath(vrtx_path)
-            # painter.fillPath(vrtx_path, self._vertex_fill_color)
-            if self.group_id == 0:
-                painter.fillPath(vrtx_path, QtGui.QColor("#ff0000"))
-            elif self.group_id == 1:
-                painter.fillPath(vrtx_path, QtGui.QColor('#ff9900'))
-            elif self.group_id == 2:
-                painter.fillPath(vrtx_path, QtGui.QColor('#ffff00'))
-            elif self.group_id == 3:
-                painter.fillPath(vrtx_path, QtGui.QColor('#00ff00'))
-            elif self.group_id == 4:
-                painter.fillPath(vrtx_path, QtGui.QColor('#00ffff'))
-            elif self.group_id == 5:
-                painter.fillPath(vrtx_path, QtGui.QColor('#4a86e8'))
-            elif self.group_id == 6:
-                painter.fillPath(vrtx_path, QtGui.QColor('#9900ff'))
-            elif self.group_id == 7:
-                painter.fillPath(vrtx_path, QtGui.QColor('#ff00ff'))
-            elif self.group_id == 8:
-                painter.fillPath(vrtx_path, QtGui.QColor('#fce5cd'))
-            elif self.group_id == 9:
-                painter.fillPath(vrtx_path, QtGui.QColor('#9fc5e8'))
-            else:
-                painter.fillPath(vrtx_path, self._vertex_fill_color)
-            if self.fill:
-                color = (
-                    self.select_fill_color
-                    if self.selected
-                    else self.fill_color
-                )
-                painter.fillPath(line_path, color)
 
-    def drawVertex(self, path, i):
+            # painter.fillPath(vrtx_path, self._vertex_fill_color)
+
+            # if self.group_id == 0:
+            #     painter.fillPath(vrtx_path, QtGui.QColor("#ff0000"))
+            # elif self.group_id == 1:
+            #     painter.fillPath(vrtx_path, QtGui.QColor('#ff9900'))
+            # elif self.group_id == 2:
+            #     painter.fillPath(vrtx_path, QtGui.QColor('#ffff00'))
+            # elif self.group_id == 3:
+            #     painter.fillPath(vrtx_path, QtGui.QColor('#00ff00'))
+            # elif self.group_id == 4:
+            #     painter.fillPath(vrtx_path, QtGui.QColor('#00ffff'))
+            # elif self.group_id == 5:
+            #     painter.fillPath(vrtx_path, QtGui.QColor('#4a86e8'))
+            # elif self.group_id == 6:
+            #     painter.fillPath(vrtx_path, QtGui.QColor('#9900ff'))
+            # elif self.group_id == 7:
+            #     painter.fillPath(vrtx_path, QtGui.QColor('#ff00ff'))
+            # elif self.group_id == 8:
+            #     painter.fillPath(vrtx_path, QtGui.QColor('#fce5cd'))
+            # elif self.group_id == 9:
+            #     painter.fillPath(vrtx_path, QtGui.QColor('#9fc5e8'))
+            # else:
+            #     painter.fillPath(vrtx_path, self._vertex_fill_color)
+
+            # if self.fill:
+            #     color = (
+            #         self.select_fill_color
+            #         if self.selected
+            #         else self.fill_color
+            #     )
+            #     painter.fillPath(line_path, color)
+
+    def drawVertex(self, path, i, p):
         d = self.point_size / self.scale
         shape = self.point_type
         point = self.points[i]
@@ -241,13 +247,12 @@ class Shape(object):
             path.addEllipse(point, d / 2.0, d / 2.0)
         else:
             assert False, "unsupported vertex shape"
-
 # 补充 添加标签可见属性,
-        if i == 0:
-            myFont = QtGui.QFont('Times', 10)
-            mypoint = point - QtCore.QPointF(0, d)
-            point_name = self.label
-            path.addText(mypoint, myFont, point_name)
+#         if i is not None:
+        myFont = QtGui.QFont('Times', 10)
+        mypoint = point - QtCore.QPointF(0, d)
+        point_name = str(i)
+        path.addText(mypoint, myFont, point_name)
 
     def nearestVertex(self, point, epsilon):
         min_distance = float("inf")
