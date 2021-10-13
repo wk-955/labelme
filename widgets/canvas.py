@@ -549,6 +549,7 @@ class Canvas(QtWidgets.QWidget):
             ):
                 shape.fill = shape.selected or shape == self.hShape
                 shape.paint(p)
+
         if self.current:
             self.current.paint(p)
             self.line.paint(p)
