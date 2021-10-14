@@ -249,10 +249,10 @@ class Shape(object):
             assert False, "unsupported vertex shape"
 # 补充 添加标签可见属性,
 #         if i is not None:
-#         myFont = QtGui.QFont('Times', 10)
-#         mypoint = point - QtCore.QPointF(0, d)
-#         point_name = str(i)
-#         path.addText(mypoint, myFont, point_name)
+        myFont = QtGui.QFont('Times', 10)
+        mypoint = point - QtCore.QPointF(0, d)
+        point_name = str(i)
+        path.addText(mypoint, myFont, point_name)
 
     def nearestVertex(self, point, epsilon):
         min_distance = float("inf")

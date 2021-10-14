@@ -441,6 +441,14 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
 
+        visible = action(
+            self.tr("遮挡"),
+            functools.partial(self.changeVisible, ),
+            # slot=self.changeVisible,
+            shortcut=shortcuts["visible"],
+            # enabled=False,
+        )
+
         zoom = QtWidgets.QWidgetAction(self)
         zoom.setDefaultWidget(self.zoomWidget)
         self.zoomWidget.setWhatsThis(
@@ -570,6 +578,7 @@ class MainWindow(QtWidgets.QMainWindow):
             undoLastPoint=undoLastPoint,
             undo=undo,
             addPointToEdge=addPointToEdge,
+            visible=visible,
             removePoint=removePoint,
             createMode=createMode,
             editMode=editMode,
@@ -620,6 +629,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 undoLastPoint,
                 addPointToEdge,
                 removePoint,
+                visible
             ),
             onLoadActive=(
                 close,
@@ -720,6 +730,8 @@ class MainWindow(QtWidgets.QMainWindow):
             None,
             zoom,
             fitWidth,
+            None,
+            visible
         )
 
         self.statusBar().showMessage(self.tr("%s started.") % __appname__)
@@ -1996,3 +2008,29 @@ class MainWindow(QtWidgets.QMainWindow):
         except:
             images.sort(key=lambda x: x.lower())
         return images
+
+    def changeVisible(self):
+        def format_shape(s):
+            data = s.other_data.copy()
+            data.update(
+                dict(
+                    label=s.label.encode("utf-8") if PY2 else s.label,
+                    points=[(p.x(), p.y()) for p in s.points],
+                    group_id=s.group_id,
+                    shape_type=s.shape_type,
+                    flags=s.flags,
+                )
+            )
+            return data
+        # print('1')
+        # print(self.filename)
+        print(self.shapeList)
+        for item in self.labelList.selectedItems():
+            shape = format_shape(item)
+            print(shape)
+
+
+        shapes = [format_shape(item.shape()) for item in self.labelList]
+        print(shapes)
+            # selected_shapes.append(item.shape())
+        # print(self.canvas.selectedShapes)1
