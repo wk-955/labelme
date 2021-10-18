@@ -42,7 +42,7 @@ class Shape(object):
         line_color=None,
         shape_type=None,
         flags=None,
-        group_id=None,
+        group_id=None
     ):
         self.label = label
         self.group_id = group_id
@@ -51,7 +51,7 @@ class Shape(object):
         self.selected = False
         self.shape_type = shape_type
         self.flags = flags
-        self.other_data = {}
+        self.visible = []
 
         self._highlightIndex = None
         self._highlightMode = self.NEAR_VERTEX
@@ -118,6 +118,9 @@ class Shape(object):
     def setOpen(self):
         self._closed = False
 
+    def addOcclusion(self, i):
+        self.visible[i] = 1
+
     def getRectFromLine(self, pt1, pt2):
         x1, y1 = pt1.x(), pt1.y()
         x2, y2 = pt2.x(), pt2.y()
@@ -125,14 +128,16 @@ class Shape(object):
 
     def paint(self, painter):
         if self.points:
-            if self.shape_type == 'point':
-                color = (QtGui.QColor(255, 0, 0))
-            elif self.shape_type == 'linestrip':
-                color = (QtGui.QColor(0, 255, 0))
-            else:
-                color = (
-                    self.select_line_color if self.selected else self.line_color
-                )
+            color = (
+                self.select_line_color if self.selected else self.line_color
+            )
+            if self.label in ['mouse1', 'i_mouse1']:
+                color = (QtGui.QColor(154, 255, 154))
+            if self.label in ['mouse2', 'i_mouse2']:
+                color = (QtGui.QColor(46, 139, 87))
+            if self.label in ['l_pupil', 'r_pupil']:
+                color = (QtGui.QColor(0, 0, 255))
+
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
             # pen.setWidth(max(1, int(round(2.0 / self.scale))))
@@ -177,12 +182,7 @@ class Shape(object):
 
             painter.drawPath(line_path)
             painter.drawPath(vrtx_path)
-            if self.shape_type == 'point':
-                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
-            elif self.shape_type == 'linestrip':
-                painter.fillPath(vrtx_path, QtGui.QColor(0, 255, 0))
-            else:
-                painter.fillPath(vrtx_path, self._vertex_fill_color)
+            painter.fillPath(vrtx_path, self._vertex_fill_color)
             # if self.fill:
             #     color = (
             #         self.select_fill_color
@@ -210,11 +210,11 @@ class Shape(object):
             assert False, "unsupported vertex shape"
 
 # 补充 添加标签可见属性,
-        if i == 0:
-            myFont = QtGui.QFont('Times', 7)
-            mypoint = point - QtCore.QPointF(0, d)
-            point_name = self.label
-            path.addText(mypoint, myFont, point_name)
+#         if i == 0:
+        myFont = QtGui.QFont('Times', 7)
+        mypoint = point - QtCore.QPointF(0, d)
+        point_name = str(i)
+        path.addText(mypoint, myFont, point_name)
 
     def nearestVertex(self, point, epsilon):
         min_distance = float("inf")

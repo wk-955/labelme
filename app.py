@@ -414,6 +414,14 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
 
+        rePoint = action(
+            text="选择点",
+            slot=self.canvas.reSelectedPoint,
+            icon="edit",
+            tip="Remove selected point from polygon",
+            enabled=False,
+        )
+
         undo = action(
             self.tr("还原"),
             self.undoShapeEdit,
@@ -438,8 +446,8 @@ class MainWindow(QtWidgets.QMainWindow):
             enabled=False,
         )
         face0 = action(
-            self.tr('等分脸部(包括额头)'),
-            functools.partial(self.BisectionConfig, ["face1", "face2", "forehead"])
+            self.tr('等分脸部'),
+            functools.partial(self.BisectionConfig, ["face1", "face2"])
         )
 
         face1 = action(
@@ -451,10 +459,6 @@ class MainWindow(QtWidgets.QMainWindow):
             functools.partial(self.readConfig, 'face2', False),
         )
 
-        forehead = action(
-            self.tr("等分额头"),
-            functools.partial(self.readConfig, 'forehead', False),
-        )
 # 眉毛
         eyebrow0 = action(
             self.tr("等分所有眉毛点"),
@@ -558,8 +562,8 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         nose = action(
-            self.tr("等分鼻子(包括法令纹)"),
-            functools.partial(self.BisectionConfig, ['nose0', 'nose1', 'nose2', 'nose3', 'fl0', 'fl1']),
+            self.tr("等分鼻子"),
+            functools.partial(self.BisectionConfig, ['nose0', 'nose1', 'nose2', 'nose3']),
         )
 
         nose0 = action(
@@ -578,14 +582,20 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tr("等分鼻子线段3"),
             functools.partial(self.readConfig1, 'nose3', False),
         )
-        fl0 = action(
-            self.tr("等分法令纹左"),
-            functools.partial(self.readConfig1, 'fl0', False),
+
+        pCenter = action(
+            self.tr("生成眼球中心点"),
+            functools.partial(self.pupilCenter,),
         )
-        fl1 = action(
-            self.tr("等分法令纹右"),
-            functools.partial(self.readConfig1, 'fl1', False),
-        )
+
+        # fl0 = action(
+        #     self.tr("等分法令纹左"),
+        #     functools.partial(self.readConfig1, 'fl0', False),
+        # )
+        # fl1 = action(
+        #     self.tr("等分法令纹右"),
+        #     functools.partial(self.readConfig1, 'fl1', False),
+        # )
 
         l_pupil = action(
             self.tr("等分左瞳孔"),
@@ -735,6 +745,7 @@ class MainWindow(QtWidgets.QMainWindow):
             undo=undo,
             addPointToEdge=addPointToEdge,
             removePoint=removePoint,
+            rePoint=rePoint,
             createMode=createMode,
             editMode=editMode,
             createRectangleMode=createRectangleMode,
@@ -783,6 +794,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 undoLastPoint,
                 addPointToEdge,
                 removePoint,
+                rePoint
             ),
             onLoadActive=(
                 close,
@@ -800,6 +812,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.canvas.edgeSelected.connect(self.canvasShapeEdgeSelected)
         self.canvas.vertexSelected.connect(self.actions.removePoint.setEnabled)
+        self.canvas.vertexSelected.connect(self.actions.rePoint.setEnabled)
 
         self.menus = utils.struct(
             file=self.menu(self.tr("文件")),
@@ -811,6 +824,7 @@ class MainWindow(QtWidgets.QMainWindow):
             pupil=self.menu(self.tr("等分瞳孔部位")),
             nosePart=self.menu(self.tr("等分鼻子部位")),
             mouse=self.menu(self.tr("等分嘴巴部位")),
+            pc=self.menu(self.tr("生成眼球中心点")),
             general=self.menu(self.tr("自定义配置")),
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
@@ -837,12 +851,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 quit,
             ),
         )
-        utils.addActions(self.menus.face, (face1, face2, forehead, face0))
+        utils.addActions(self.menus.face, (face1, face2, face0))
         # utils.addActions(self.menus.eyebrow, (l_eyebrow, r_eyebrow, l_eye, r_eye, o_mouse, i_mouse, general0, general1))
         utils.addActions(self.menus.eyebrow, (l_eyebrow1, l_eyebrow2, r_eyebrow1, r_eyebrow2, l_eyebrow0, r_eyebrow0, eyebrow0))
         utils.addActions(self.menus.eye, (l_eye1, l_eye2, r_eye1, r_eye2, l_eye0, r_eye0, eye0))
-        utils.addActions(self.menus.nosePart, (nose, nose0, nose1, nose2, nose3, fl0, fl1,))
+        utils.addActions(self.menus.nosePart, (nose, nose0, nose1, nose2, nose3,))
         utils.addActions(self.menus.mouse, (o_mouse1, o_mouse2, i_mouse1, i_mouse2, o_mouse, i_mouse, mouse0))
+        utils.addActions(self.menus.pc, (pCenter, )),
         utils.addActions(self.menus.general, (general0, general1))
         utils.addActions(self.menus.pupil, (l_pupil, r_pupil, pupil0))
         utils.addActions(
@@ -1296,10 +1311,38 @@ class MainWindow(QtWidgets.QMainWindow):
 
         rgb = self._get_rgb_by_label(shape.label)
 
-        r, g, b = rgb
+        if shape.shape_type == 'point':
+            r, g, b = 255, 0, 0
+        elif shape.shape_type == 'linestrip':
+            r, g, b = 0, 255, 0
+        elif shape.shape_type == 'line':
+            r, g, b = 0, 255, 0
+        elif shape.shape_type == 'circle':
+            # color = (QtGui.QColor(0, 0, 255))
+            r, g, b = 0, 0, 255
+        else:
+            r, g, b = rgb
+
+        if shape.label in ['mouse1', 'i_mouse1']:
+            r, g, b = 154, 255, 154
+        if shape.label in ['mouse2', 'i_mouse2']:
+            r, g, b = 46, 139, 87
+        if shape.label in ['l_pupil', 'r_pupil']:
+            r, g, b = 0, 0, 255
+        if shape.label == 'nose0':
+            r, g, b = 0, 255, 255
+        if shape.label == 'nose1':
+            r, g, b = 193, 255, 193
+        if shape.label == 'nose2':
+            r, g, b = 192, 255, 62
+        if shape.label == 'nose3':
+            r, g, b = 0, 139, 139
+        if shape.label in ['l_eyebrow1', 'r_eyebrow1', 'l_eye1', 'r_eye1']:
+            r, g, b = 255, 64, 64
+
         label_list_item.setText(
-            '{} <font color="#{:02x}{:02x}{:02x}">●</font>'.format(
-                text, r, g, b
+            '<font color="#{:02x}{:02x}{:02x}">{}</font>'.format(
+                r, g, b, text
             )
         )
         shape.line_color = QtGui.QColor(r, g, b)
@@ -1345,10 +1388,11 @@ class MainWindow(QtWidgets.QMainWindow):
             shape_type = shape["shape_type"]
             flags = shape["flags"]
             group_id = shape["group_id"]
+            visible = shape["visible"]
             other_data = shape["other_data"]
-
+            print(visible)
             shape = Shape(
-                label=label, shape_type=shape_type, group_id=group_id,
+                label=label, shape_type=shape_type, group_id=group_id, visible=visible
             )
             for x, y in points:
                 shape.addPoint(QtCore.QPointF(x, y))
@@ -2349,3 +2393,48 @@ class MainWindow(QtWidgets.QMainWindow):
             self.saveFile()
             to_img = TO_IMG()
             to_img.main(osp.splitext(self.filename)[0] + '.json')
+
+    def pupilCenter(self, ):
+        if self.filename:
+            self.saveFile()
+            content = self.readData()
+            if content:
+                shapes = content["shapes"]
+                if shapes:
+                    ly1 = ly2 = ry1 = ry2 = 0
+                    for shape in shapes:
+                        if shape["label"] == 'l_eye1' and len(shape["points"]) > 6:
+                            lx = (shape['points'][0][0] + shape['points'][-1][0]) / 2
+                            ly1 = shape['points'][6][1]
+                        if shape["label"] == 'l_eye2' and len(shape["points"]) > 6:
+                            ly2 = shape['points'][6][1]
+                        if shape["label"] == 'r_eye1' and len(shape["points"]) > 6:
+                            rx = (shape['points'][0][0] + shape['points'][-1][0]) / 2
+                            ry1 = shape['points'][6][1]
+                        if shape["label"] == 'r_eye2' and len(shape["points"]) > 6:
+                            ry2 = shape['points'][6][1]
+
+                    if ly1 and ly2 and ry1 and ry2:
+                        ly = (ly1+ly2) / 2
+                        newPoint1 = {
+                            "label": "l_pupilCenter",
+                            "points": [[lx, ly]],
+                            "group_id": None,
+                            "shape_type": "point",
+                            "flags": {}
+                        }
+                        shapes.append(newPoint1)
+
+                        ry = (ry1 + ry2) / 2
+                        newPoint2 = {
+                            "label": "r_pupilCenter",
+                            "points": [[rx, ry]],
+                            "group_id": None,
+                            "shape_type": "point",
+                            "flags": {}
+                        }
+                        shapes.append(newPoint2)
+
+                        content["shapes"] = shapes
+                    self.saveData(content)
+                    self.loadFile(self.filename)
