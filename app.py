@@ -296,7 +296,8 @@ class MainWindow(QtWidgets.QMainWindow):
             slot=self.enableSaveImageWithData,
             tip="Save image data in label file",
             checkable=True,
-            checked=self._config["store_data"],
+            # checked=self._config["store_data"],
+            checked=False
         )
 
         close = action(
@@ -315,6 +316,16 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tr('Toggle "keep pevious annotation" mode'),
             checkable=True,
         )
+
+        display_btn = action(
+            self.tr("显示/关闭标签"),
+            self.display,
+            shortcuts["display"],
+            # None,
+            # self.tr('Toggle "keep pevious annotation" mode'),
+            checkable=True,
+        )
+
         toggle_keep_prev_mode.setChecked(self._config["keep_prev"])
 
         createMode = action(
@@ -411,6 +422,24 @@ class MainWindow(QtWidgets.QMainWindow):
             slot=self.canvas.removeSelectedPoint,
             icon="edit",
             tip="Remove selected point from polygon",
+            enabled=False,
+        )
+
+        rePoint = action(
+            text="遮挡点",
+            slot=self.canvas.reSelectedPoint,
+            shortcut=shortcuts["invisible"],
+            icon="edit",
+            tip="add selected point in visible",
+            enabled=False,
+        )
+
+        rePointOcc = action(
+            text="删除遮挡点",
+            slot=self.canvas.removeSelectedOcc,
+            shortcut=shortcuts["visible"],
+            icon="edit",
+            tip="Remove selected point from visible",
             enabled=False,
         )
 
@@ -734,6 +763,8 @@ class MainWindow(QtWidgets.QMainWindow):
             undoLastPoint=undoLastPoint,
             undo=undo,
             addPointToEdge=addPointToEdge,
+            rePoint=rePoint,
+            rePointOcc=rePointOcc,
             removePoint=removePoint,
             createMode=createMode,
             editMode=editMode,
@@ -764,6 +795,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 undoLastPoint,
                 None,
                 addPointToEdge,
+                rePoint,
+                rePointOcc,
                 None,
                 toggle_keep_prev_mode,
             ),
@@ -783,6 +816,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 undoLastPoint,
                 addPointToEdge,
                 removePoint,
+                rePoint,
+                rePointOcc
             ),
             onLoadActive=(
                 close,
@@ -800,6 +835,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.canvas.edgeSelected.connect(self.canvasShapeEdgeSelected)
         self.canvas.vertexSelected.connect(self.actions.removePoint.setEnabled)
+        self.canvas.vertexSelected.connect(self.actions.rePoint.setEnabled)
+        self.canvas.vertexSelected.connect(self.actions.rePointOcc.setEnabled)
 
         self.menus = utils.struct(
             file=self.menu(self.tr("文件")),
@@ -867,7 +904,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 None,
                 brightnessContrast,
                 None,
-                createImg
+                createImg,
+                display_btn
             ),
         )
 
@@ -1030,7 +1068,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def setClean(self):
         self.dirty = False
-        self.actions.save.setEnabled(False)
+        self.actions.save.setEnabled(True)
         self.actions.createMode.setEnabled(True)
         self.actions.createRectangleMode.setEnabled(True)
         self.actions.createCircleMode.setEnabled(True)
@@ -1346,9 +1384,16 @@ class MainWindow(QtWidgets.QMainWindow):
             flags = shape["flags"]
             group_id = shape["group_id"]
             other_data = shape["other_data"]
+            visible = shape["visible"]
+            if visible is None:
+                visible = []
+            # if 'visible' in shape:
+            #     visible = shape["visible"]
+            # else:
+            #     visible = []
 
             shape = Shape(
-                label=label, shape_type=shape_type, group_id=group_id,
+                label=label, shape_type=shape_type, group_id=group_id, visible=visible
             )
             for x, y in points:
                 shape.addPoint(QtCore.QPointF(x, y))
@@ -1387,6 +1432,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     group_id=s.group_id,
                     shape_type=s.shape_type,
                     flags=s.flags,
+                    visible=s.visible
                 )
             )
             return data
@@ -2349,3 +2395,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.saveFile()
             to_img = TO_IMG()
             to_img.main(osp.splitext(self.filename)[0] + '.json')
+
+    def display(self):
+        Shape.display = not Shape.display

@@ -776,3 +776,19 @@ class Canvas(QtWidgets.QWidget):
         self.pixmap = None
         self.shapesBackups = []
         self.update()
+
+    def reSelectedPoint(self):
+        shape = self.prevhShape
+        point = self.prevMovePoint
+        if shape is None or point is None:
+            return
+        index = shape.nearestVertex(point, self.epsilon)
+        shape.addOcclusion(index)
+
+    def removeSelectedOcc(self):
+        shape = self.prevhShape
+        point = self.prevMovePoint
+        if shape is None or point is None:
+            return
+        index = shape.nearestVertex(point, self.epsilon)
+        shape.removeOcclusion(index)

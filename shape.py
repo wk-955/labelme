@@ -36,6 +36,8 @@ class Shape(object):
     point_size = 4
     scale = 1.0
 
+    display = True
+
     def __init__(
         self,
         label=None,
@@ -43,6 +45,7 @@ class Shape(object):
         shape_type=None,
         flags=None,
         group_id=None,
+        visible=[]
     ):
         self.label = label
         self.group_id = group_id
@@ -52,6 +55,7 @@ class Shape(object):
         self.shape_type = shape_type
         self.flags = flags
         self.other_data = {}
+        self.visible = visible
 
         self._highlightIndex = None
         self._highlightMode = self.NEAR_VERTEX
@@ -118,6 +122,14 @@ class Shape(object):
     def setOpen(self):
         self._closed = False
 
+    def addOcclusion(self, i):
+        if i is not None and i not in self.visible:
+            self.visible.append(i)
+
+    def removeOcclusion(self, i):
+        if i in self.visible:
+            self.visible.remove(i)
+
     def getRectFromLine(self, pt1, pt2):
         x1, y1 = pt1.x(), pt1.y()
         x2, y2 = pt2.x(), pt2.y()
@@ -161,7 +173,10 @@ class Shape(object):
                 line_path.moveTo(self.points[0])
                 for i, p in enumerate(self.points):
                     line_path.lineTo(p)
-                    self.drawVertex(vrtx_path, i)
+                    if i in self.visible:
+                        self.drawVertex1(vrtx_path, i)
+                    else:
+                        self.drawVertex(vrtx_path, i)
             else:
                 line_path.moveTo(self.points[0])
                 # Uncommenting the following line will draw 2 paths
@@ -171,7 +186,11 @@ class Shape(object):
 
                 for i, p in enumerate(self.points):
                     line_path.lineTo(p)
-                    self.drawVertex(vrtx_path, i)
+                    if i in self.visible:
+                        self.drawVertex1(vrtx_path, i)
+                    else:
+                        self.drawVertex(vrtx_path, i)
+                    # self.drawVertex(vrtx_path, i)
                 if self.isClosed():
                     line_path.lineTo(self.points[0])
 
@@ -210,11 +229,28 @@ class Shape(object):
             assert False, "unsupported vertex shape"
 
 # 补充 添加标签可见属性,
-        if i == 0:
+#         if i == 0:
+        if self.display:
             myFont = QtGui.QFont('Times', 7)
             mypoint = point - QtCore.QPointF(0, d)
-            point_name = self.label
+            # point_name = self.label
+            point_name = str(i)
             path.addText(mypoint, myFont, point_name)
+
+    def drawVertex1(self, path, i):
+        d = self.point_size / self.scale
+        shape = self.point_type
+        point = self.points[i]
+        if i == self._highlightIndex:
+            size, shape = self._highlightSettings[self._highlightMode]
+            d *= size
+        self._vertex_fill_color = self.vertex_fill_color
+        if shape == self.P_SQUARE:
+            path.addRect(point.x() - d / 2, point.y() - d / 2, d, d)
+        elif shape == self.P_ROUND:
+            path.addEllipse(point, d / 2.0, d / 2.0)
+        else:
+            assert False, "unsupported vertex shape"
 
     def nearestVertex(self, point, epsilon):
         min_distance = float("inf")

@@ -74,7 +74,7 @@ class TO_IMG:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.loads(f.read())
         shapes = data["shapes"]
-        img = data["imagePath"]
+        img = os.path.basename(data["imagePath"])
         occlusion_list = []
         for shape in shapes:
             if shape["shape_type"] == "rectangle":
