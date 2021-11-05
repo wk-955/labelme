@@ -473,16 +473,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
         face1 = action(
             self.tr("等分左脸部"),
-            functools.partial(self.readConfig, 'face1', False),
+            functools.partial(self.bisectionFace, ['face1', ]),
         )
         face2 = action(
             self.tr("等分右脸部"),
-            functools.partial(self.readConfig, 'face2', False),
+            functools.partial(self.bisectionFace, ['face2', ]),
         )
 
         forehead = action(
             self.tr("等分额头"),
             functools.partial(self.readConfig, 'forehead', False),
+        )
+        face3 = action(
+            self.tr("等分脸部(包括额头)"),
+            functools.partial(self.bisectionFace, ['face1', 'face2', 'forehead']),
         )
 # 眉毛
         eyebrow0 = action(
@@ -692,6 +696,12 @@ class MainWindow(QtWidgets.QMainWindow):
             shortcuts["createImg"],
             "objects",
         )
+        check_json = action(
+            self.tr('检查格式完整性'),
+            self.check_json,
+            shortcuts["check_json"],
+            "objects",
+        )
         brightnessContrast = action(
             "对比色",
             self.brightnessContrast,
@@ -870,11 +880,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 deleteFile,
                 None,
                 createImg,
+                check_json,
                 None,
                 quit,
             ),
         )
-        utils.addActions(self.menus.face, (face1, face2, forehead, face0))
+        utils.addActions(self.menus.face, (face1, face2, forehead, face3))
         # utils.addActions(self.menus.eyebrow, (l_eyebrow, r_eyebrow, l_eye, r_eye, o_mouse, i_mouse, general0, general1))
         utils.addActions(self.menus.eyebrow, (l_eyebrow1, l_eyebrow2, r_eyebrow1, r_eyebrow2, l_eyebrow0, r_eyebrow0, eyebrow0))
         utils.addActions(self.menus.eye, (l_eye1, l_eye2, r_eye1, r_eye2, l_eye0, r_eye0, eye0))
@@ -905,6 +916,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 brightnessContrast,
                 None,
                 createImg,
+                check_json,
                 display_btn
             ),
         )
@@ -941,7 +953,8 @@ class MainWindow(QtWidgets.QMainWindow):
             zoom,
             fitWidth,
             None,
-            createImg
+            createImg,
+            check_json
         )
 
         self.statusBar().showMessage(self.tr("%s started.") % __appname__)
@@ -2276,7 +2289,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     if shape["label"] == name:
                         points = shape["points"]
                         mid = int(len(points) / 2)
-                        points = self.getNewPoint(points, mid, bisection_num, close)
+                        if name == 'forehead':
+                            points = self.getNewPoint(points, mid, bisection_num+1, close)
+                            del points[3]
+                            del points[4]
+                        else:
+                            points = self.getNewPoint(points, mid, bisection_num, close)
                         shape["points"] = points
                 self.saveData(content)
 
@@ -2362,6 +2380,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 for name in names:
                     if name in lab:
                         n[name] = int(lab.split('#')[1])
+                        if name == 'forehead':
+                            n[name] = int(lab.split('#')[1])+2
 
         if self.filename:
             self.saveFile()
@@ -2373,7 +2393,11 @@ class MainWindow(QtWidgets.QMainWindow):
                         if shape["label"] in list(n.keys()):
                             points = shape["points"]
                             points = cal.inputPoint(points, n[shape["label"]]-1)
+                            if shape["label"] == 'forehead':
+                                del points[3]
+                                del points[4]
                             shape["points"] = points
+
                 self.saveData(content)
                 self.loadFile(self.filename)
 
@@ -2398,3 +2422,81 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def display(self):
         Shape.display = not Shape.display
+
+    def check_json(self):
+        try:
+            if self.filename:
+                required_label = {}
+                with open('config.txt', 'r', encoding='utf-8') as f:
+                    for lab in f.readlines()[7:]:
+                        required_label[lab.split('#')[0]] = int(lab.split('#')[1])
+
+                with open(osp.splitext(self.filename)[0] + '.json', 'r') as f:
+                    data = json.loads(f.read())
+
+                info = ''
+                shapes = data["shapes"]
+                for shape in shapes:
+                    if shape["label"] in required_label.keys():
+                        if len(shape["points"]) != required_label[shape["label"]]:
+                            print('{}标签不满足要求：{}'.format(shape["label"], str(required_label[shape["label"]])))
+                            info += '{}标签不满足要求：{}'.format(shape["label"], str(required_label[shape["label"]]))
+                            info += '\n'
+                        else:
+                            del required_label[shape["label"]]
+
+                if len(required_label) != 0:
+                    print('缺少标签： {}'.format(required_label))
+                    info += '缺少标签： {}'.format(list(required_label.keys()))
+
+                if info == '':
+                    info = '格式无误'
+                msgBox = QtWidgets.QMessageBox()
+                msgBox.setWindowTitle(u'提示')
+                msgBox.setText(u"{}".format(info))
+                msgBox.setWindowIcon(QtGui.QIcon(r':/0102.png'))
+
+                # 隐藏ok按钮
+                msgBox.addButton(QtWidgets.QMessageBox.Ok)
+                msgBox.button(QtWidgets.QMessageBox.Ok).hide()
+
+                # 模态对话框
+                msgBox.exec_()
+        except Exception as e:
+            print(e)
+
+    def bisectionFace(self, name):
+        if self.filename:
+            self.saveFile()
+            content = self.readData()
+            if content:
+                shapes = content["shapes"]
+                if shapes:
+                    for shape in shapes:
+                        if shape["label"] in name:
+                            points = shape["points"]
+                            if len(points) == 17:
+                                if shape["label"] == 'face1':
+                                    if points[0][1] > points[-1][1]:
+                                        points = points[::-1]
+                                    point1 = cal.inputPoint(points[:6], 5)
+                                    point2 = cal.inputPoint(points[5:], 11)
+                                    points = point1 + point2[1:]
+
+                                if shape["label"] == 'face2':
+                                    if shape["points"][0][1] < shape["points"][-1][1]:
+                                        points = points[::-1]
+                                    point1 = cal.inputPoint(points[:12], 11)
+                                    point2 = cal.inputPoint(points[11:], 5)
+                                    points = point1[:-1] + point2
+                            else:
+                                if shape["label"] == 'forehead':
+                                    points = self.getNewPoint(points, 3, 4, False)
+                                    del points[3]
+                                    del points[4]
+                                else:
+                                    points = cal.inputPoint(points, 16)
+                            shape["points"] = points
+                self.saveData(content)
+                self.loadFile(self.filename)
+                # self.readConfig('forehead', False)

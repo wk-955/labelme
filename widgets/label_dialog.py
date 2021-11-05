@@ -74,6 +74,39 @@ class LabelDialog(QtWidgets.QDialog):
         layout.addWidget(bb)
         # label_list
         self.labelList = QtWidgets.QListWidget()
+        self.labelList.addItem('face1')
+        self.labelList.addItem('face2')
+        self.labelList.addItem('forehead')
+        self.labelList.addItem('l_eyebrow1')
+        self.labelList.addItem('l_eyebrow2')
+        self.labelList.addItem('r_eyebrow1')
+        self.labelList.addItem('r_eyebrow2')
+        self.labelList.addItem('l_eye1')
+        self.labelList.addItem('l_eye2')
+        self.labelList.addItem('r_eye1')
+        self.labelList.addItem('r_eye2')
+        self.labelList.addItem('nose0')
+        self.labelList.addItem('nose1')
+        self.labelList.addItem('nose2')
+        self.labelList.addItem('nose3')
+        self.labelList.addItem('fl0')
+        self.labelList.addItem('fl1')
+        self.labelList.addItem('mouse1')
+        self.labelList.addItem('mouse2')
+        self.labelList.addItem('i_mouse1')
+        self.labelList.addItem('i_mouse2')
+        self.labelList.addItem('l_pupil')
+        self.labelList.addItem('r_pupil')
+        self.labelList.addItem('96')
+        self.labelList.addItem('221')
+        self.labelList.addItem('219')
+        self.labelList.addItem('220')
+        self.labelList.addItem('222')
+        self.labelList.addItem('126')
+        self.labelList.addItem('142')
+        self.labelList.addItem('146')
+        self.labelList.addItem('231')
+
         if self._fit_to_content["row"]:
             self.labelList.setHorizontalScrollBarPolicy(
                 QtCore.Qt.ScrollBarAlwaysOff
@@ -85,8 +118,8 @@ class LabelDialog(QtWidgets.QDialog):
         self._sort_labels = sort_labels
         if labels:
             self.labelList.addItems(labels)
-        if self._sort_labels:
-            self.labelList.sortItems()
+        # if self._sort_labels:
+        #     self.labelList.sortItems()
         else:
             self.labelList.setDragDropMode(
                 QtWidgets.QAbstractItemView.InternalMove

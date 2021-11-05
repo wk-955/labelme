@@ -43,3 +43,5 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         slider.setValue(50)
         slider.valueChanged.connect(self.onNewValue)
         return slider
+
+

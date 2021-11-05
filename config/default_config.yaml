@@ -103,3 +103,4 @@ shortcuts:
   invisible: Z
   visible: X
   display: Q
+  check_json: C
