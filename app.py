@@ -325,6 +325,14 @@ class MainWindow(QtWidgets.QMainWindow):
             # self.tr('Toggle "keep pevious annotation" mode'),
             checkable=True,
         )
+        showLabel_btn = action(
+            self.tr("显示点号/标签"),
+            self.showLabel,
+            shortcuts["showlabel"],
+            # None,
+            # self.tr('Toggle "keep pevious annotation" mode'),
+            checkable=True,
+        )
 
         toggle_keep_prev_mode.setChecked(self._config["keep_prev"])
 
@@ -917,7 +925,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 None,
                 createImg,
                 check_json,
-                display_btn
+                display_btn,
+                showLabel_btn
             ),
         )
 
@@ -2422,6 +2431,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def display(self):
         Shape.display = not Shape.display
+
+    def showLabel(self):
+        Shape.showlabel = not Shape.showlabel
 
     def check_json(self):
         try:

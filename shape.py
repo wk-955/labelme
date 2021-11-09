@@ -37,6 +37,7 @@ class Shape(object):
     scale = 1.0
 
     display = True
+    showlabel = True
 
     def __init__(
         self,
@@ -234,8 +235,14 @@ class Shape(object):
             myFont = QtGui.QFont('Times', 7)
             mypoint = point - QtCore.QPointF(0, d)
             # point_name = self.label
-            point_name = str(i)
-            path.addText(mypoint, myFont, point_name)
+            if self.showlabel:
+                point_name = str(i)
+                path.addText(mypoint, myFont, point_name)
+            else:
+                point_name = self.label
+                if i == 0:
+                    path.addText(mypoint, myFont, point_name)
+
 
     def drawVertex1(self, path, i):
         d = self.point_size / self.scale
