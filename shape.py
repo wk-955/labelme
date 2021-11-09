@@ -243,7 +243,6 @@ class Shape(object):
                 if i == 0:
                     path.addText(mypoint, myFont, point_name)
 
-
     def drawVertex1(self, path, i):
         d = self.point_size / self.scale
         shape = self.point_type
