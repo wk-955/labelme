@@ -138,14 +138,14 @@ class Shape(object):
 
     def paint(self, painter):
         if self.points:
-            if self.shape_type == 'point':
-                color = (QtGui.QColor(255, 0, 0))
-            elif self.shape_type == 'linestrip':
-                color = (QtGui.QColor(0, 255, 0))
-            else:
-                color = (
-                    self.select_line_color if self.selected else self.line_color
-                )
+            # if self.shape_type == 'point':
+            #     color = (QtGui.QColor(255, 0, 0))
+            # elif self.shape_type == 'linestrip':
+            #     color = (QtGui.QColor(0, 255, 0))
+            # else:
+            color = (
+                self.select_line_color if self.selected else self.line_color
+            )
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
             # pen.setWidth(max(1, int(round(2.0 / self.scale))))
@@ -197,12 +197,13 @@ class Shape(object):
 
             painter.drawPath(line_path)
             painter.drawPath(vrtx_path)
-            if self.shape_type == 'point':
-                painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
-            elif self.shape_type == 'linestrip':
-                painter.fillPath(vrtx_path, QtGui.QColor(0, 255, 0))
-            else:
-                painter.fillPath(vrtx_path, self._vertex_fill_color)
+            painter.fillPath(vrtx_path, self._vertex_fill_color)
+            # if self.shape_type == 'point':
+            #     painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
+            # elif self.shape_type == 'linestrip':
+            #     painter.fillPath(vrtx_path, QtGui.QColor(0, 255, 0))
+            # else:
+            #     painter.fillPath(vrtx_path, self._vertex_fill_color)
             # if self.fill:
             #     color = (
             #         self.select_fill_color

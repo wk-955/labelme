@@ -474,172 +474,6 @@ class MainWindow(QtWidgets.QMainWindow):
             tip=self.tr("Show all polygons"),
             enabled=False,
         )
-        face0 = action(
-            self.tr('等分脸部(包括额头)'),
-            functools.partial(self.BisectionConfig, ["face1", "face2", "forehead"])
-        )
-
-        face1 = action(
-            self.tr("等分左脸部"),
-            functools.partial(self.bisectionFace, ['face1', ]),
-        )
-        face2 = action(
-            self.tr("等分右脸部"),
-            functools.partial(self.bisectionFace, ['face2', ]),
-        )
-
-        forehead = action(
-            self.tr("等分额头"),
-            functools.partial(self.readConfig, 'forehead', False),
-        )
-        face3 = action(
-            self.tr("等分脸部(包括额头)"),
-            functools.partial(self.bisectionFace, ['face1', 'face2', 'forehead']),
-        )
-# 眉毛
-        eyebrow0 = action(
-            self.tr("等分所有眉毛点"),
-            functools.partial(self.BisectionConfig, ["l_eyebrow1", "l_eyebrow2", "r_eyebrow1", "r_eyebrow2"]),
-        )
-        l_eyebrow0 = action(
-            self.tr("等分左眉毛点"),
-            functools.partial(self.BisectionConfig, ["l_eyebrow1", "l_eyebrow2"]),
-        )
-        l_eyebrow1 = action(
-            self.tr("等分左上眉毛点"),
-            functools.partial(self.readConfig, 'l_eyebrow1', False),
-        )
-        l_eyebrow2 = action(
-            self.tr("等分左下眉毛点"),
-            functools.partial(self.readConfig, 'l_eyebrow2', False),
-        )
-        r_eyebrow0 = action(
-            self.tr("等分右眉毛点"),
-            functools.partial(self.BisectionConfig, ["r_eyebrow1", "r_eyebrow2"]),
-        )
-        r_eyebrow1 = action(
-            self.tr("等分右上眉毛点"),
-            functools.partial(self.readConfig, 'r_eyebrow1', False),
-        )
-        r_eyebrow2 = action(
-            self.tr("等分右下眉毛点"),
-            functools.partial(self.readConfig, 'r_eyebrow2', False),
-        )
-# 眼睛
-        eye0 = action(
-            self.tr("等分所有眼睛点"),
-            functools.partial(self.BisectionConfig, ["l_eye1", "l_eye2", "r_eye1", "r_eye2"]),
-        )
-        l_eye0 = action(
-            self.tr("等分左眼睛点"),
-            functools.partial(self.BisectionConfig, ["l_eye1", "l_eye2"]),
-        )
-        l_eye1 = action(
-            self.tr("等分左上眼"),
-            functools.partial(self.readConfig, 'l_eye1', False),
-        )
-        l_eye2 = action(
-            self.tr("等分左下眼"),
-            functools.partial(self.readConfig, 'l_eye2', False),
-        )
-        # r_eye = action(
-        #     self.tr("等分右眼"),
-        #     functools.partial(self.readConfig, 'r_eye', True),
-        # )
-        r_eye0 = action(
-            self.tr("等分右眼睛点"),
-            functools.partial(self.BisectionConfig, ["r_eye1", "r_eye2"]),
-        )
-        r_eye1 = action(
-            self.tr("等分右上眼"),
-            functools.partial(self.readConfig, 'r_eye1', False),
-        )
-        r_eye2 = action(
-            self.tr("等分右下眼"),
-            functools.partial(self.readConfig, 'r_eye2', False),
-        )
-
-        o_mouse = action(
-            self.tr("等分外唇"),
-            functools.partial(self.BisectionConfig, ["mouse1", "mouse2"]),
-        )
-        o_mouse1 = action(
-            self.tr("等分外唇上边"),
-            functools.partial(self.readConfig, 'mouse1', False),
-        )
-        o_mouse2 = action(
-            self.tr("等分外唇下边"),
-            functools.partial(self.readConfig, 'mouse2', False),
-        )
-        i_mouse = action(
-            self.tr("等分内唇"),
-            functools.partial(self.BisectionConfig, ["i_mouse1", "i_mouse2"]),
-        )
-        i_mouse1 = action(
-            self.tr("等分内唇上边"),
-            functools.partial(self.readConfig, 'i_mouse1', False),
-        )
-        i_mouse2 = action(
-            self.tr("等分内唇下边"),
-            functools.partial(self.readConfig, 'i_mouse2', False),
-        )
-        mouse0 = action(
-            self.tr("等分嘴唇"),
-            functools.partial(self.BisectionConfig, ["i_mouse1", "i_mouse2", "mouse1", "mouse2"]),
-        )
-
-        general0 = action(
-            self.tr("根据配置等分(闭合)"),
-            functools.partial(self.generalCconfig0,),
-        )
-
-        general1 = action(
-            self.tr("根据配置等分(不闭合)"),
-            functools.partial(self.generalCconfig1, ),
-        )
-
-        nose = action(
-            self.tr("等分鼻子(包括法令纹)"),
-            functools.partial(self.BisectionConfig, ['nose0', 'nose1', 'nose2', 'nose3', 'fl0', 'fl1']),
-        )
-
-        nose0 = action(
-            self.tr("等分鼻子线段0"),
-            functools.partial(self.readConfig1, 'nose0', False),
-        )
-        nose1 = action(
-            self.tr("等分鼻子线段1"),
-            functools.partial(self.readConfig1, 'nose1', False),
-        )
-        nose2 = action(
-            self.tr("等分鼻子线段2"),
-            functools.partial(self.readConfig1, 'nose2', False),
-        )
-        nose3 = action(
-            self.tr("等分鼻子线段3"),
-            functools.partial(self.readConfig1, 'nose3', False),
-        )
-        fl0 = action(
-            self.tr("等分法令纹左"),
-            functools.partial(self.readConfig1, 'fl0', False),
-        )
-        fl1 = action(
-            self.tr("等分法令纹右"),
-            functools.partial(self.readConfig1, 'fl1', False),
-        )
-
-        l_pupil = action(
-            self.tr("等分左瞳孔"),
-            functools.partial(self.readConfig2, ['l_pupil']),
-        )
-        r_pupil = action(
-            self.tr("等分右瞳孔"),
-            functools.partial(self.readConfig2, ['r_pupil']),
-        )
-        pupil0 = action(
-            self.tr("等分全部瞳孔"),
-            functools.partial(self.readConfig2, ['l_pupil', 'r_pupil']),
-        )
 
         zoom = QtWidgets.QWidgetAction(self)
         zoom.setDefaultWidget(self.zoomWidget)
@@ -709,6 +543,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.check_json,
             shortcuts["check_json"],
             "objects",
+        )
+        create_template = action(
+            self.tr('创建标注模板'),
+            self.template,
+            shortcuts["create_template"],
+            "edit",
         )
         brightnessContrast = action(
             "对比色",
@@ -860,13 +700,6 @@ class MainWindow(QtWidgets.QMainWindow):
             file=self.menu(self.tr("文件")),
             edit=self.menu(self.tr("编辑")),
             view=self.menu(self.tr("视图")),
-            face=self.menu(self.tr("等分脸部")),
-            eyebrow=self.menu(self.tr("等分眉毛部位")),
-            eye=self.menu(self.tr("等分眼睛部位")),
-            pupil=self.menu(self.tr("等分瞳孔部位")),
-            nosePart=self.menu(self.tr("等分鼻子部位")),
-            mouse=self.menu(self.tr("等分嘴巴部位")),
-            general=self.menu(self.tr("自定义配置")),
             recentFiles=QtWidgets.QMenu(self.tr("打开最近的")),
             labelList=labelMenu,
         )
@@ -887,20 +720,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 close,
                 deleteFile,
                 None,
-                createImg,
-                check_json,
-                None,
                 quit,
             ),
         )
-        utils.addActions(self.menus.face, (face1, face2, forehead, face3))
-        # utils.addActions(self.menus.eyebrow, (l_eyebrow, r_eyebrow, l_eye, r_eye, o_mouse, i_mouse, general0, general1))
-        utils.addActions(self.menus.eyebrow, (l_eyebrow1, l_eyebrow2, r_eyebrow1, r_eyebrow2, l_eyebrow0, r_eyebrow0, eyebrow0))
-        utils.addActions(self.menus.eye, (l_eye1, l_eye2, r_eye1, r_eye2, l_eye0, r_eye0, eye0))
-        utils.addActions(self.menus.nosePart, (nose, nose0, nose1, nose2, nose3, fl0, fl1,))
-        utils.addActions(self.menus.mouse, (o_mouse1, o_mouse2, i_mouse1, i_mouse2, o_mouse, i_mouse, mouse0))
-        utils.addActions(self.menus.general, (general0, general1))
-        utils.addActions(self.menus.pupil, (l_pupil, r_pupil, pupil0))
         utils.addActions(
             self.menus.view,
             (
@@ -923,7 +745,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 None,
                 brightnessContrast,
                 None,
-                createImg,
+                # createImg,
+                create_template,
                 check_json,
                 display_btn,
                 showLabel_btn
@@ -962,7 +785,8 @@ class MainWindow(QtWidgets.QMainWindow):
             zoom,
             fitWidth,
             None,
-            createImg,
+            # createImg,
+            create_template,
             check_json
         )
 
@@ -1353,10 +1177,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.labelDialog.addLabelHistory(shape.label)
         for action in self.actions.onShapesPresent:
             action.setEnabled(True)
+        # rgb = self._get_rgb_by_label(shape.label)
+        # r, g, b = rgb
 
-        rgb = self._get_rgb_by_label(shape.label)
-
-        r, g, b = rgb
+        if shape.group_id is None or shape.group_id == 1:
+            r, g, b = 0, 255, 0
+        elif shape.group_id == 2:
+            r, g, b = 0, 0, 205
+        elif shape.group_id == 3:
+            r, g, b = 0, 255, 255
+        elif shape.group_id == 4:
+            r, g, b = 255, 255, 0
+        elif shape.group_id == 5:
+            r, g, b = 178, 34, 34
+        elif shape.group_id == 6:
+            r, g, b = 0, 229, 238
+        elif shape.group_id == 7:
+            r, g, b = 255, 246, 143
+        else:
+            rgb = self._get_rgb_by_label(shape.label)
+            r, g, b = rgb
         label_list_item.setText(
             '{} <font color="#{:02x}{:02x}{:02x}">●</font>'.format(
                 text, r, g, b
@@ -1364,10 +1204,17 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         shape.line_color = QtGui.QColor(r, g, b)
         shape.vertex_fill_color = QtGui.QColor(r, g, b)
-        shape.hvertex_fill_color = QtGui.QColor(255, 255, 255)
-        shape.fill_color = QtGui.QColor(r, g, b, 128)
-        shape.select_line_color = QtGui.QColor(255, 255, 255)
-        shape.select_fill_color = QtGui.QColor(r, g, b, 155)
+        shape.hvertex_fill_color = QtGui.QColor(r, g, b)
+        shape.fill_color = QtGui.QColor(r, g, b)
+        shape.select_line_color = QtGui.QColor(r, g, b)
+        shape.select_fill_color = QtGui.QColor(r, g, b)
+
+        # shape.line_color = QtGui.QColor(r, g, b)
+        # shape.vertex_fill_color = QtGui.QColor(r, g, b)
+        # shape.hvertex_fill_color = QtGui.QColor(255, 255, 255)
+        # shape.fill_color = QtGui.QColor(r, g, b, 128)
+        # shape.select_line_color = QtGui.QColor(255, 255, 255)
+        # shape.select_fill_color = QtGui.QColor(r, g, b, 155)
 
     def _get_rgb_by_label(self, label):
         if self._config["shape_color"] == "auto":
@@ -2241,188 +2088,6 @@ class MainWindow(QtWidgets.QMainWindow):
             images.sort(key=lambda x: x.lower())
         return images
 
-    def readData(self):
-        try:
-            with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
-                content = json.loads(f.read())
-            return content
-        except UnicodeDecodeError:
-            with open(osp.splitext(self.filename)[0] + '.json', 'r',) as f:
-                content = json.loads(f.read())
-            return content
-        except:
-            return None
-
-    def saveData(self, content):
-        # path = r'E:\数据测试\人脸稠密点测试\保存路径'
-        # with open(path + '\\' + '658288864427900940.json', 'w', encoding='utf-8') as f:
-        #     json.dump(content, f, ensure_ascii=False, indent=4)
-        with open(osp.splitext(self.filename)[0] + '.json', 'w', encoding='utf-8') as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
-
-    def getNewPoint(self, points, mid, num, close):
-        if close:
-            points = points + [points[0]]
-        top = points[:mid + 1]
-        up = points[mid:]
-        new_top = cal.inputPoint(top, num)
-        new_up = cal.inputPoint(up, num)
-        new = new_top[:-1] + new_up
-        if close:
-            return new[:-1]
-        return new
-
-    def generalBisection(self, bisection_num, name, close):
-        self.saveFile()
-        content = self.readData()
-        if content:
-            shapes = content["shapes"]
-            if shapes:
-                for shape in shapes:
-                    if shape["label"] == name:
-                        points = shape["points"]
-                        if close:
-                            points = cal.inputPoint(points + [points[0]], bisection_num)[:-1]
-                        else:
-                            points = cal.inputPoint(points, bisection_num - 1)
-                        shape["points"] = points
-                self.saveData(content)
-
-    def Bisection(self, bisection_num, name, close):
-        self.saveFile()
-        content = self.readData()
-        if content:
-            shapes = content["shapes"]
-            if shapes:
-                for shape in shapes:
-                    if shape["label"] == name:
-                        points = shape["points"]
-                        mid = int(len(points) / 2)
-                        if name == 'forehead':
-                            points = self.getNewPoint(points, mid, bisection_num+1, close)
-                            del points[3]
-                            del points[4]
-                        else:
-                            points = self.getNewPoint(points, mid, bisection_num, close)
-                        shape["points"] = points
-                self.saveData(content)
-
-    # 瞳孔等分计算
-    def BisectionCircular(self, bisection_num, name):
-        content = self.readData()
-        if content:
-            shapes = content["shapes"]
-            if shapes:
-                for shape in shapes:
-                    if shape["label"] == name:
-                        points = shape["points"]
-                        if len(points) > 1:
-                            new_points = [points[0]]
-                            r = round(math.hypot(points[0][0] - points[1][0],
-                                                 points[0][1] - points[1][1]))
-                            radians = (math.pi / 180) * round(360 / (int(bisection_num) - 1))
-                            for i in range(int(bisection_num) - 1):
-                                x = points[0][0] + r * math.sin(radians * i)
-                                y = points[0][1] + r * math.cos(radians * i)
-                                new_points.append([x, y])
-                            shape["points"] = new_points
-                self.saveData(content)
-
-    # 有中点的等分
-    def readConfig(self, name, close):
-        bisection_num = 0
-        with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[5:]:
-                if name in lab:
-                    num = lab.split('#')[1].replace('\n', '')
-                    if num.isdigit():
-                        bisection_num = int(int(num) / 2)
-        if bisection_num and self.filename:
-            self.Bisection(bisection_num, name, close)
-            self.loadFile(self.filename)
-
-    # 无中点的等分
-    def readConfig1(self, name, close):
-        with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[5:]:
-                if name in lab:
-                    num = lab.split('#')[1].replace('\n', '')
-                    if num.isdigit():
-                        bisection_num = int(num)
-        if bisection_num and self.filename:
-            self.generalBisection(bisection_num, name, close)
-            self.loadFile(self.filename)
-
-    # 通用闭合等分
-    def generalCconfig0(self):
-        config = []
-        with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[5:]:
-                if 'general0' in lab:
-                    config += lab.split('&')[1:-1]
-        if config:
-            for lab in config:
-                if len(lab.split('#')) == 2 and lab.split('#')[1].isdigit() and self.filename:
-                    bisection_num = int(lab.split('#')[1])
-                    self.generalBisection(bisection_num, lab.split('#')[0], True)
-            self.loadFile(self.filename)
-
-    # 通用不闭合等分
-    def generalCconfig1(self):
-        config = []
-        with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[5:]:
-                if 'general1' in lab:
-                    config += lab.split('&')[1:-1]
-        if config:
-            for lab in config:
-                if len(lab.split('#')) == 2 and lab.split('#')[1].isdigit() and self.filename:
-                    bisection_num = int(lab.split('#')[1])
-                    self.generalBisection(bisection_num, lab.split('#')[0], False)
-            self.loadFile(self.filename)
-
-    # 按照列表进行等分
-    def BisectionConfig(self, names):
-        n = {}
-        with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[5:]:
-                for name in names:
-                    if name in lab:
-                        n[name] = int(lab.split('#')[1])
-                        if name == 'forehead':
-                            n[name] = int(lab.split('#')[1])+2
-
-        if self.filename:
-            self.saveFile()
-            content = self.readData()
-            if content:
-                shapes = content["shapes"]
-                if shapes:
-                    for shape in shapes:
-                        if shape["label"] in list(n.keys()):
-                            points = shape["points"]
-                            points = cal.inputPoint(points, n[shape["label"]]-1)
-                            if shape["label"] == 'forehead':
-                                del points[3]
-                                del points[4]
-                            shape["points"] = points
-
-                self.saveData(content)
-                self.loadFile(self.filename)
-
-    # 瞳孔等分
-    def readConfig2(self, names):
-        self.saveFile()
-        with open('config.txt', 'r', encoding='utf-8') as f:
-            for lab in f.readlines()[5:]:
-                for name in names:
-                    if name in lab:
-                        num = lab.split('#')[1].replace('\n', '')
-                        if num.isdigit():
-                            bisection_num = int(num)
-                            self.BisectionCircular(bisection_num, name)
-        self.loadFile(self.filename)
-
     def tran(self):
         if self.filename:
             self.saveFile()
@@ -2443,7 +2108,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     for lab in f.readlines()[7:]:
                         required_label[lab.split('#')[0]] = int(lab.split('#')[1])
 
-                with open(osp.splitext(self.filename)[0] + '.json', 'r') as f:
+                with open(osp.splitext(self.filename)[0] + '.json', 'r', encoding='utf-8') as f:
                     data = json.loads(f.read())
 
                 info = ''
@@ -2477,38 +2142,241 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print(e)
 
-    def bisectionFace(self, name):
+    def template(self):
         if self.filename:
             self.saveFile()
-            content = self.readData()
-            if content:
-                shapes = content["shapes"]
-                if shapes:
-                    for shape in shapes:
-                        if shape["label"] in name:
-                            points = shape["points"]
-                            if len(points) == 17:
-                                if shape["label"] == 'face1':
-                                    if points[0][1] > points[-1][1]:
-                                        points = points[::-1]
-                                    point1 = cal.inputPoint(points[:6], 5)
-                                    point2 = cal.inputPoint(points[5:], 11)
-                                    points = point1 + point2[1:]
 
-                                if shape["label"] == 'face2':
-                                    if shape["points"][0][1] < shape["points"][-1][1]:
-                                        points = points[::-1]
-                                    point1 = cal.inputPoint(points[:12], 11)
-                                    point2 = cal.inputPoint(points[11:], 5)
-                                    points = point1[:-1] + point2
-                            else:
-                                if shape["label"] == 'forehead':
-                                    points = self.getNewPoint(points, 3, 4, False)
-                                    del points[3]
-                                    del points[4]
-                                else:
-                                    points = cal.inputPoint(points, 16)
-                            shape["points"] = points
-                self.saveData(content)
+            if os.path.exists(self.filename.replace('.jpg', '.json')):
+                with open(self.filename.replace('.jpg', '.json'), 'r', encoding='utf-8') as f:
+                    data = json.loads(f.read())
+                shapes = data["shapes"]
+                imageHeight = data["imageHeight"]
+
+                groups = [shape["group_id"] for shape in shapes]
+                count = 1
+                while True:
+                    if count in groups:
+                        count += 1
+                    else:
+                        break
+
+                new_shape = [
+                    {
+                        "label": str(count),
+                        "points": [
+                            [10, 10],
+                            [int(imageHeight/5)+10, int(imageHeight/5)+10]
+                        ],
+                        "group_id": count,
+                        "shape_type": "rectangle",
+                        "flags": {}
+                    },
+                    {
+                        "label": "head_points",
+                        "points": [
+                            [
+                                313,
+                                103
+                            ],
+                            [
+                                331,
+                                93
+                            ],
+                            [
+                                315,
+                                90
+                            ],
+                            [
+                                304,
+                                92
+                            ],
+                            [
+                                296,
+                                92
+                            ],
+                            [
+                                325,
+                                77
+                            ],
+                            [
+                                300,
+                                80
+                            ]
+                        ],
+                        "group_id": count,
+                        "shape_type": "linestrip",
+                        "flags": {}
+                    },
+                    {
+                        "label": "l_hand_points",
+                        "points": [
+                            [
+                                347,
+                                119
+                            ],
+                            [
+                                347,
+                                139
+                            ],
+                            [
+                                359,
+                                178
+                            ],
+                            [
+                                376,
+                                166
+                            ],
+                            [
+                                384,
+                                175
+                            ],
+                            [
+                                384,
+                                185
+                            ],
+                            [
+                                380,
+                                193
+                            ],
+                            [
+                                366,
+                                202
+                            ],
+                            [
+                                364,
+                                137
+                            ]
+                        ],
+                        "group_id": count,
+                        "shape_type": "linestrip",
+                        "flags": {},
+                    },
+                    {
+                        "label": "r_hand_points",
+                        "points": [
+                            [
+                                263,
+                                118
+                            ],
+                            [
+                                257,
+                                147
+                            ],
+                            [
+                                273,
+                                207
+                            ],
+                            [
+                                289,
+                                194
+                            ],
+                            [
+                                291,
+                                200
+                            ],
+                            [
+                                291,
+                                207
+                            ],
+                            [
+                                290,
+                                215
+                            ],
+                            [
+                                277,
+                                215
+                            ],
+                            [
+                                280,
+                                145
+                            ]
+                        ],
+                        "group_id": count,
+                        "shape_type": "linestrip",
+                        "flags": {},
+                    },
+                    {
+                        "label": "l_foot_points",
+                        "points": [
+                            [
+                                382,
+                                226
+                            ],
+                            [
+                                402,
+                                277
+                            ],
+                            [
+                                399,
+                                348
+                            ],
+                            [
+                                416,
+                                377
+                            ],
+                            [
+                                397,
+                                384
+                            ],
+                            [
+                                388,
+                                356
+                            ],
+                            [
+                                375,
+                                360
+                            ],
+                            [
+                                366,
+                                287
+                            ]
+                        ],
+                        "group_id": count,
+                        "shape_type": "linestrip",
+                        "flags": {},
+                    },
+                    {
+                        "label": "r_foot_points",
+                        "points": [
+                            [
+                                270,
+                                247
+                            ],
+                            [
+                                261,
+                                301
+                            ],
+                            [
+                                248,
+                                343
+                            ],
+                            [
+                                235,
+                                374
+                            ],
+                            [
+                                251,
+                                377
+                            ],
+                            [
+                                264,
+                                350
+                            ],
+                            [
+                                256,
+                                351
+                            ],
+                            [
+                                273,
+                                305
+                            ]
+                        ],
+                        "group_id": count,
+                        "shape_type": "linestrip",
+                        "flags": {},
+                    }
+                ]
+                data["shapes"] = shapes + new_shape
+                with open(self.filename.replace('.jpg', '.json'), 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=4)
                 self.loadFile(self.filename)
-                # self.readConfig('forehead', False)
