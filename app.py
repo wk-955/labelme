@@ -292,7 +292,7 @@ class MainWindow(QtWidgets.QMainWindow):
             slot=self.enableSaveImageWithData,
             tip="Save image data in label file",
             checkable=True,
-            checked=self._config["store_data"],
+            checked=False,
         )
 
         close = action(
@@ -578,7 +578,6 @@ class MainWindow(QtWidgets.QMainWindow):
             undoLastPoint=undoLastPoint,
             undo=undo,
             addPointToEdge=addPointToEdge,
-            visible=visible,
             removePoint=removePoint,
             createMode=createMode,
             editMode=editMode,
@@ -629,7 +628,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 undoLastPoint,
                 addPointToEdge,
                 removePoint,
-                visible
             ),
             onLoadActive=(
                 close,
@@ -730,8 +728,7 @@ class MainWindow(QtWidgets.QMainWindow):
             None,
             zoom,
             fitWidth,
-            None,
-            visible
+
         )
 
         self.statusBar().showMessage(self.tr("%s started.") % __appname__)

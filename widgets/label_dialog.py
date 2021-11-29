@@ -74,6 +74,16 @@ class LabelDialog(QtWidgets.QDialog):
         layout.addWidget(bb)
         # label_list
         self.labelList = QtWidgets.QListWidget()
+        self.labelList.addItem('athlete_')
+        self.labelList.addItem('1')
+        self.labelList.addItem('2')
+        self.labelList.addItem('3')
+        self.labelList.addItem('4')
+        self.labelList.addItem('5')
+        self.labelList.addItem('6')
+        self.labelList.addItem('7')
+        self.labelList.addItem('8')
+        self.labelList.addItem('9')
 
         if self._fit_to_content["row"]:
             self.labelList.setHorizontalScrollBarPolicy(
