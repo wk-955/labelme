@@ -190,8 +190,8 @@ class LabelFile(object):
             version=__version__,
             flags=flags,
             shapes=shapes,
-            imagePath=imagePath,
-            imageData=imageData,
+            imagePath=osp.basename(imagePath),
+            imageData=None,
             imageHeight=imageHeight,
             imageWidth=imageWidth,
         )

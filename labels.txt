@@ -1,0 +1,5 @@
+head
+l_hand
+r_hand
+l_foot
+r_foot

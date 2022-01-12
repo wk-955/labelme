@@ -101,8 +101,9 @@ shortcuts:
   createImg: w
 
   invisible: Z
-  visible: X
+  visible: C
+  overstep: X
   display: Q
-  check_json: C
-  showlabel: E
   create_template: S
+  create_template1: F
+  deleteShape: R

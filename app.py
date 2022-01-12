@@ -32,7 +32,6 @@ from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
 import json
 from labelme.SpacingAlgo import CalculationBisectionPoints
-import math
 from json_to_img import TO_IMG
 
 # FIXME
@@ -325,14 +324,14 @@ class MainWindow(QtWidgets.QMainWindow):
             # self.tr('Toggle "keep pevious annotation" mode'),
             checkable=True,
         )
-        showLabel_btn = action(
-            self.tr("显示点号/标签"),
-            self.showLabel,
-            shortcuts["showlabel"],
-            # None,
-            # self.tr('Toggle "keep pevious annotation" mode'),
-            checkable=True,
-        )
+        # showLabel_btn = action(
+        #     self.tr("显示点号/标签"),
+        #     self.showLabel,
+        #     shortcuts["showlabel"],
+        #     # None,
+        #     # self.tr('Toggle "keep pevious annotation" mode'),
+        #     checkable=True,
+        # )
 
         toggle_keep_prev_mode.setChecked(self._config["keep_prev"])
 
@@ -436,6 +435,8 @@ class MainWindow(QtWidgets.QMainWindow):
         rePoint = action(
             text="遮挡点",
             slot=self.canvas.reSelectedPoint,
+            # self.tr("遮挡点"),
+            # self.OcclusionPoint,
             shortcut=shortcuts["invisible"],
             icon="edit",
             tip="add selected point in visible",
@@ -445,9 +446,38 @@ class MainWindow(QtWidgets.QMainWindow):
         rePointOcc = action(
             text="删除遮挡点",
             slot=self.canvas.removeSelectedOcc,
+            # self.tr("删除遮挡点"),
+            # self.removeOcclusionPoint,
             shortcut=shortcuts["visible"],
             icon="edit",
             tip="Remove selected point from visible",
+            enabled=False,
+        )
+
+        overstepPoint = action(
+            text="不可见点",
+            slot=self.canvas.overstepSelectedPoint,
+            shortcut=shortcuts["overstep"],
+            icon="edit",
+            tip="add selected point in overstep",
+            enabled=False,
+        )
+
+        # rmoverstepPoint = action(
+        #     text="删除不可见点",
+        #     slot=self.canvas.rmOverstepSelectedOcc,
+        #     shortcut=shortcuts["rmOverstep"],
+        #     icon="edit",
+        #     tip="Remove selected point from overstep",
+        #     enabled=False,
+        # )
+
+        deleteShape = action(
+            self.tr("删除点"),
+            self.removePoints,
+            shortcut=shortcuts["deleteShape"],
+            icon="edit",
+            tip="Remove shape from shapes",
             enabled=False,
         )
 
@@ -541,7 +571,7 @@ class MainWindow(QtWidgets.QMainWindow):
         check_json = action(
             self.tr('检查格式完整性'),
             self.check_json,
-            shortcuts["check_json"],
+            # shortcuts["check_json"],
             "objects",
         )
         create_template = action(
@@ -550,6 +580,12 @@ class MainWindow(QtWidgets.QMainWindow):
             shortcuts["create_template"],
             "edit",
         )
+        # create_template1 = action(
+        #     self.tr('创建标注模板(遮挡)'),
+        #     self.template1,
+        #     shortcuts["create_template1"],
+        #     "edit",
+        # )
         brightnessContrast = action(
             "对比色",
             self.brightnessContrast,
@@ -623,6 +659,9 @@ class MainWindow(QtWidgets.QMainWindow):
             addPointToEdge=addPointToEdge,
             rePoint=rePoint,
             rePointOcc=rePointOcc,
+            overstepPoint=overstepPoint,
+            # rmoverstepPoint=rmoverstepPoint,
+            deleteShape=deleteShape,
             removePoint=removePoint,
             createMode=createMode,
             editMode=editMode,
@@ -655,6 +694,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 addPointToEdge,
                 rePoint,
                 rePointOcc,
+                deleteShape,
+                overstepPoint,
                 None,
                 toggle_keep_prev_mode,
             ),
@@ -673,9 +714,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 undo,
                 undoLastPoint,
                 addPointToEdge,
-                removePoint,
+                # removePoint,
+                deleteShape,
                 rePoint,
-                rePointOcc
+                rePointOcc,
+                overstepPoint
             ),
             onLoadActive=(
                 close,
@@ -695,6 +738,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.vertexSelected.connect(self.actions.removePoint.setEnabled)
         self.canvas.vertexSelected.connect(self.actions.rePoint.setEnabled)
         self.canvas.vertexSelected.connect(self.actions.rePointOcc.setEnabled)
+        self.canvas.vertexSelected.connect(self.actions.deleteShape.setEnabled)
+        self.canvas.vertexSelected.connect(self.actions.overstepPoint.setEnabled)
+        # self.canvas.vertexSelected.connect(self.actions.rmoverstepPoint.setEnabled)
 
         self.menus = utils.struct(
             file=self.menu(self.tr("文件")),
@@ -747,9 +793,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 None,
                 # createImg,
                 create_template,
+                # create_template1,
                 check_json,
                 display_btn,
-                showLabel_btn
+                # showLabel_btn
             ),
         )
 
@@ -787,6 +834,7 @@ class MainWindow(QtWidgets.QMainWindow):
             None,
             # createImg,
             create_template,
+            # create_template1,
             check_json
         )
 
@@ -991,7 +1039,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actions.editMode.setEnabled(not drawing)
         self.actions.undoLastPoint.setEnabled(drawing)
         self.actions.undo.setEnabled(not drawing)
-        self.actions.delete.setEnabled(not drawing)
+        # self.actions.delete.setEnabled(not drawing)
 
     def toggleDrawMode(self, edit=True, createMode="polygon"):
         self.canvas.setEditing(edit)
@@ -1253,16 +1301,17 @@ class MainWindow(QtWidgets.QMainWindow):
             flags = shape["flags"]
             group_id = shape["group_id"]
             other_data = shape["other_data"]
-            visible = shape["visible"]
-            if visible is None:
+            if 'visible' not in shape:
                 visible = []
-            # if 'visible' in shape:
-            #     visible = shape["visible"]
-            # else:
-            #     visible = []
+            else:
+                visible = shape["visible"]
+            if 'overstep' not in shape:
+                overstep = []
+            else:
+                overstep = shape["overstep"]
 
             shape = Shape(
-                label=label, shape_type=shape_type, group_id=group_id, visible=visible
+                label=label, shape_type=shape_type, group_id=group_id, visible=visible, overstep=overstep
             )
             for x, y in points:
                 shape.addPoint(QtCore.QPointF(x, y))
@@ -1301,7 +1350,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     group_id=s.group_id,
                     shape_type=s.shape_type,
                     flags=s.flags,
-                    visible=s.visible
+                    visible=s.visible,
+                    overstep=s.overstep
                 )
             )
             return data
@@ -2142,241 +2192,19 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print(e)
 
+    # def OcclusionPoint(self):
+    #     self.canvas.reSelectedPoint()
+    #
+    # def removeOcclusionPoint(self):
+    #     self.canvas.removeSelectedOcc()
+
     def template(self):
         if self.filename:
-            self.saveFile()
+            pass
+            # with open()
 
-            if os.path.exists(self.filename.replace('.jpg', '.json')):
-                with open(self.filename.replace('.jpg', '.json'), 'r', encoding='utf-8') as f:
-                    data = json.loads(f.read())
-                shapes = data["shapes"]
-                imageHeight = data["imageHeight"]
-
-                groups = [shape["group_id"] for shape in shapes]
-                count = 1
-                while True:
-                    if count in groups:
-                        count += 1
-                    else:
-                        break
-
-                new_shape = [
-                    {
-                        "label": str(count),
-                        "points": [
-                            [10, 10],
-                            [int(imageHeight/5)+10, int(imageHeight/5)+10]
-                        ],
-                        "group_id": count,
-                        "shape_type": "rectangle",
-                        "flags": {}
-                    },
-                    {
-                        "label": "head_points",
-                        "points": [
-                            [
-                                313,
-                                103
-                            ],
-                            [
-                                331,
-                                93
-                            ],
-                            [
-                                315,
-                                90
-                            ],
-                            [
-                                304,
-                                92
-                            ],
-                            [
-                                296,
-                                92
-                            ],
-                            [
-                                325,
-                                77
-                            ],
-                            [
-                                300,
-                                80
-                            ]
-                        ],
-                        "group_id": count,
-                        "shape_type": "linestrip",
-                        "flags": {}
-                    },
-                    {
-                        "label": "l_hand_points",
-                        "points": [
-                            [
-                                347,
-                                119
-                            ],
-                            [
-                                347,
-                                139
-                            ],
-                            [
-                                359,
-                                178
-                            ],
-                            [
-                                376,
-                                166
-                            ],
-                            [
-                                384,
-                                175
-                            ],
-                            [
-                                384,
-                                185
-                            ],
-                            [
-                                380,
-                                193
-                            ],
-                            [
-                                366,
-                                202
-                            ],
-                            [
-                                364,
-                                137
-                            ]
-                        ],
-                        "group_id": count,
-                        "shape_type": "linestrip",
-                        "flags": {},
-                    },
-                    {
-                        "label": "r_hand_points",
-                        "points": [
-                            [
-                                263,
-                                118
-                            ],
-                            [
-                                257,
-                                147
-                            ],
-                            [
-                                273,
-                                207
-                            ],
-                            [
-                                289,
-                                194
-                            ],
-                            [
-                                291,
-                                200
-                            ],
-                            [
-                                291,
-                                207
-                            ],
-                            [
-                                290,
-                                215
-                            ],
-                            [
-                                277,
-                                215
-                            ],
-                            [
-                                280,
-                                145
-                            ]
-                        ],
-                        "group_id": count,
-                        "shape_type": "linestrip",
-                        "flags": {},
-                    },
-                    {
-                        "label": "l_foot_points",
-                        "points": [
-                            [
-                                382,
-                                226
-                            ],
-                            [
-                                402,
-                                277
-                            ],
-                            [
-                                399,
-                                348
-                            ],
-                            [
-                                416,
-                                377
-                            ],
-                            [
-                                397,
-                                384
-                            ],
-                            [
-                                388,
-                                356
-                            ],
-                            [
-                                375,
-                                360
-                            ],
-                            [
-                                366,
-                                287
-                            ]
-                        ],
-                        "group_id": count,
-                        "shape_type": "linestrip",
-                        "flags": {},
-                    },
-                    {
-                        "label": "r_foot_points",
-                        "points": [
-                            [
-                                270,
-                                247
-                            ],
-                            [
-                                261,
-                                301
-                            ],
-                            [
-                                248,
-                                343
-                            ],
-                            [
-                                235,
-                                374
-                            ],
-                            [
-                                251,
-                                377
-                            ],
-                            [
-                                264,
-                                350
-                            ],
-                            [
-                                256,
-                                351
-                            ],
-                            [
-                                273,
-                                305
-                            ]
-                        ],
-                        "group_id": count,
-                        "shape_type": "linestrip",
-                        "flags": {},
-                    }
-                ]
-                data["shapes"] = shapes + new_shape
-                with open(self.filename.replace('.jpg', '.json'), 'w', encoding='utf-8') as f:
-                    json.dump(data, f, ensure_ascii=False, indent=4)
-                self.loadFile(self.filename)
+    def removePoints(self):
+        # self.canvas.removeSelectedPoint()
+        self.canvas.removeSelectedPoint()
+        self.remLabels(self.canvas.deleteSelected())
+        self.setDirty()

@@ -46,7 +46,8 @@ class Shape(object):
         shape_type=None,
         flags=None,
         group_id=None,
-        visible=[]
+        visible=[],
+        overstep=[]
     ):
         self.label = label
         self.group_id = group_id
@@ -56,7 +57,18 @@ class Shape(object):
         self.shape_type = shape_type
         self.flags = flags
         self.other_data = {}
-        self.visible = visible
+
+        # 可见性
+        if visible:
+            self.visible = visible
+        else:
+            self.visible = []
+
+        # 超出范围
+        if overstep:
+            self.overstep = overstep
+        else:
+            self.overstep = []
 
         self._highlightIndex = None
         self._highlightMode = self.NEAR_VERTEX
@@ -82,7 +94,7 @@ class Shape(object):
     @shape_type.setter
     def shape_type(self, value):
         if value is None:
-            value = "polygon"
+            value = "point"
         if value not in [
             "polygon",
             "rectangle",
@@ -130,6 +142,16 @@ class Shape(object):
     def removeOcclusion(self, i):
         if i in self.visible:
             self.visible.remove(i)
+        if i in self.overstep:
+            self.overstep.remove(i)
+
+    def addOverstep(self, i):
+        if i is not None and i not in self.overstep:
+            self.overstep.append(i)
+
+    def removeOverstep(self, i):
+        if i in self.overstep:
+            self.overstep.remove(i)
 
     def getRectFromLine(self, pt1, pt2):
         x1, y1 = pt1.x(), pt1.y()
@@ -138,11 +160,6 @@ class Shape(object):
 
     def paint(self, painter):
         if self.points:
-            # if self.shape_type == 'point':
-            #     color = (QtGui.QColor(255, 0, 0))
-            # elif self.shape_type == 'linestrip':
-            #     color = (QtGui.QColor(0, 255, 0))
-            # else:
             color = (
                 self.select_line_color if self.selected else self.line_color
             )
@@ -174,10 +191,7 @@ class Shape(object):
                 line_path.moveTo(self.points[0])
                 for i, p in enumerate(self.points):
                     line_path.lineTo(p)
-                    if i in self.visible:
-                        self.drawVertex1(vrtx_path, i)
-                    else:
-                        self.drawVertex(vrtx_path, i)
+                    self.drawVertex(vrtx_path, i)
             else:
                 line_path.moveTo(self.points[0])
                 # Uncommenting the following line will draw 2 paths
@@ -187,23 +201,14 @@ class Shape(object):
 
                 for i, p in enumerate(self.points):
                     line_path.lineTo(p)
-                    if i in self.visible:
-                        self.drawVertex1(vrtx_path, i)
-                    else:
-                        self.drawVertex(vrtx_path, i)
-                    # self.drawVertex(vrtx_path, i)
+                    self.drawVertex(vrtx_path, i)
                 if self.isClosed():
                     line_path.lineTo(self.points[0])
 
             painter.drawPath(line_path)
             painter.drawPath(vrtx_path)
             painter.fillPath(vrtx_path, self._vertex_fill_color)
-            # if self.shape_type == 'point':
-            #     painter.fillPath(vrtx_path, QtGui.QColor(255, 0, 0))
-            # elif self.shape_type == 'linestrip':
-            #     painter.fillPath(vrtx_path, QtGui.QColor(0, 255, 0))
-            # else:
-            #     painter.fillPath(vrtx_path, self._vertex_fill_color)
+
             # if self.fill:
             #     color = (
             #         self.select_fill_color
@@ -230,34 +235,38 @@ class Shape(object):
         else:
             assert False, "unsupported vertex shape"
 
-# 补充 添加标签可见属性,
-#         if i == 0:
         if self.display:
             myFont = QtGui.QFont('Times', 7)
             mypoint = point - QtCore.QPointF(0, d)
-            # point_name = self.label
-            if self.showlabel:
-                point_name = str(i)
-                path.addText(mypoint, myFont, point_name)
-            else:
+            # if self.showlabel:
+            point_name = str(i)
+            if i == 0:
                 point_name = self.label
-                if i == 0:
-                    path.addText(mypoint, myFont, point_name)
+            if i in self.visible:
+                point_name = point_name + '-' + 'z'
+            if i in self.overstep:
+                point_name = point_name + '-' + 'o'
 
-    def drawVertex1(self, path, i):
-        d = self.point_size / self.scale
-        shape = self.point_type
-        point = self.points[i]
-        if i == self._highlightIndex:
-            size, shape = self._highlightSettings[self._highlightMode]
-            d *= size
-        self._vertex_fill_color = self.vertex_fill_color
-        if shape == self.P_SQUARE:
-            path.addRect(point.x() - d / 2, point.y() - d / 2, d, d)
-        elif shape == self.P_ROUND:
-            path.addEllipse(point, d / 2.0, d / 2.0)
-        else:
-            assert False, "unsupported vertex shape"
+            path.addText(mypoint, myFont, point_name)
+            # else:
+            #     point_name = self.label
+            #     if i == 0:
+            #         path.addText(mypoint, myFont, point_name)
+
+    # def drawVertex1(self, path, i):
+    #     d = self.point_size / self.scale
+    #     shape = self.point_type
+    #     point = self.points[i]
+    #     if i == self._highlightIndex:
+    #         size, shape = self._highlightSettings[self._highlightMode]
+    #         d *= size
+    #     self._vertex_fill_color = self.vertex_fill_color
+    #     if shape == self.P_SQUARE:
+    #         path.addRect(point.x() - d / 2, point.y() - d / 2, d, d)
+    #     elif shape == self.P_ROUND:
+    #         path.addEllipse(point, d / 2.0, d / 2.0)
+    #     else:
+    #         assert False, "unsupported vertex shape"
 
     def nearestVertex(self, point, epsilon):
         min_distance = float("inf")

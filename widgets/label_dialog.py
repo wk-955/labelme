@@ -7,6 +7,7 @@ from qtpy import QtWidgets
 
 from labelme.logger import logger
 import labelme.utils
+import os
 
 
 QT5 = QT_VERSION[0] == "5"
@@ -33,12 +34,13 @@ class LabelDialog(QtWidgets.QDialog):
         text="Enter object label",
         parent=None,
         labels=None,
-        sort_labels=True,
+        sort_labels=False,
         show_text_field=True,
         completion="startswith",
         fit_to_content=None,
         flags=None,
     ):
+        self.default_group = 1
         if fit_to_content is None:
             fit_to_content = {"row": False, "column": True}
         self._fit_to_content = fit_to_content
@@ -51,7 +53,7 @@ class LabelDialog(QtWidgets.QDialog):
         if flags:
             self.edit.textChanged.connect(self.updateFlags)
         self.edit_group_id = QtWidgets.QLineEdit()
-        self.edit_group_id.setPlaceholderText("Group ID")
+        self.edit_group_id.setPlaceholderText('默认组为上一个组id')
         self.edit_group_id.setValidator(
             QtGui.QRegExpValidator(QtCore.QRegExp(r"\d*"), None)
         )
@@ -74,11 +76,11 @@ class LabelDialog(QtWidgets.QDialog):
         layout.addWidget(bb)
         # label_list
         self.labelList = QtWidgets.QListWidget()
-        self.labelList.addItem('head_points')
-        self.labelList.addItem('l_hand_points')
-        self.labelList.addItem('r_hand_points')
-        self.labelList.addItem('l_foot_points')
-        self.labelList.addItem('r_foot_points')
+        if os.path.exists('labels.txt'):
+            with open('labels.txt', 'r', encoding='utf-8') as f:
+                label_list = f.readlines()
+            for label in label_list:
+                self.labelList.addItem(label.replace('\n', ''))
 
         if self._fit_to_content["row"]:
             self.labelList.setHorizontalScrollBarPolicy(
@@ -91,8 +93,9 @@ class LabelDialog(QtWidgets.QDialog):
         self._sort_labels = sort_labels
         if labels:
             self.labelList.addItems(labels)
-        # if self._sort_labels:
-        #     self.labelList.sortItems()
+        if self._sort_labels:
+            # self.labelList.sortItems()
+            pass
         else:
             self.labelList.setDragDropMode(
                 QtWidgets.QAbstractItemView.InternalMove
@@ -134,8 +137,8 @@ class LabelDialog(QtWidgets.QDialog):
         if self.labelList.findItems(label, QtCore.Qt.MatchExactly):
             return
         self.labelList.addItem(label)
-        if self._sort_labels:
-            self.labelList.sortItems()
+        # if self._sort_labels:
+        #     self.labelList.sortItems()
 
     def labelSelected(self, item):
         self.edit.setText(item.text())
@@ -203,8 +206,10 @@ class LabelDialog(QtWidgets.QDialog):
     def getGroupId(self):
         group_id = self.edit_group_id.text()
         if group_id:
+            self.default_group = int(group_id)
             return int(group_id)
-        return None
+        return self.default_group
+        # return None
 
     def popUp(self, text=None, move=True, flags=None, group_id=None):
         if self._fit_to_content["row"]:

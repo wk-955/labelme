@@ -32,7 +32,7 @@ class Canvas(QtWidgets.QWidget):
     CREATE, EDIT = 0, 1
 
     # polygon, rectangle, line, or point
-    _createMode = "polygon"
+    _createMode = "point"
 
     _fill_drawing = False
 
@@ -312,12 +312,15 @@ class Canvas(QtWidgets.QWidget):
         if shape is None or point is None:
             return
         index = shape.nearestVertex(point, self.epsilon)
-        shape.removePoint(index)
-        # shape.highlightVertex(index, shape.MOVE_VERTEX)
-        self.hShape = shape
-        self.hVertex = None
-        self.hEdge = None
-        self.movingShape = True  # Save changes
+        if shape.shape_type == "point":
+            self.selectedShapes.append(shape)
+        else:
+            shape.removePoint(index)
+            # shape.highlightVertex(index, shape.MOVE_VERTEX)
+            self.hShape = shape
+            self.hVertex = None
+            self.hEdge = None
+            self.movingShape = True  # Save changes
 
     def mousePressEvent(self, ev):
         if QT5:
@@ -792,3 +795,19 @@ class Canvas(QtWidgets.QWidget):
             return
         index = shape.nearestVertex(point, self.epsilon)
         shape.removeOcclusion(index)
+
+    def overstepSelectedPoint(self):
+        shape = self.prevhShape
+        point = self.prevMovePoint
+        if shape is None or point is None:
+            return
+        index = shape.nearestVertex(point, self.epsilon)
+        shape.addOverstep(index)
+
+    def rmOverstepSelectedOcc(self):
+        shape = self.prevhShape
+        point = self.prevMovePoint
+        if shape is None or point is None:
+            return
+        index = shape.nearestVertex(point, self.epsilon)
+        shape.removeOverstep(index)
