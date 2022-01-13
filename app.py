@@ -2200,8 +2200,32 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def template(self):
         if self.filename:
-            pass
-            # with open()
+            self.saveFile()
+            if os.path.exists(self.filename.replace('.jpg', '.json')):
+                with open(self.filename.replace('.jpg', '.json'), 'r', encoding='utf-8') as f:
+                    data = json.loads(f.read())
+                shapes = data["shapes"]
+                groups = [shape["group_id"] for shape in shapes]
+                count = 1
+                while True:
+                    if count in groups:
+                        count += 1
+                    else:
+                        break
+                shapes += [{
+                    "label": "face",
+                    "points": [
+                        [100, 100],
+                        [200, 200]
+                    ],
+                    "group_id": count,
+                    "shape_type": "rectangle",
+                    "flags": {}
+                }]
+                data["shapes"] = shapes
+                with open(self.filename.replace('.jpg', '.json'), 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=4)
+                self.loadFile(self.filename)
 
     def removePoints(self):
         # self.canvas.removeSelectedPoint()
