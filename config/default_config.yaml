@@ -7,9 +7,9 @@ keep_prev_brightness: false
 keep_prev_contrast: false
 logger_level: info
 
-flags: null
+flags: null # 默认为null,要添加标签则按照格式 [a,b,c,'4','遮挡'] 注：如果是数字或者中文则必须加引号
 label_flags: null
-labels: null
+labels: null # 默认为null,要添加标签则按照格式 [a,b,c,'4','遮挡'] 注：如果是数字或者中文则必须加引号
 file_search: null
 sort_labels: true
 validate_label: null

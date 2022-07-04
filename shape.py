@@ -33,7 +33,7 @@ class Shape(object):
     vertex_fill_color = DEFAULT_VERTEX_FILL_COLOR
     hvertex_fill_color = DEFAULT_HVERTEX_FILL_COLOR
     point_type = P_ROUND
-    point_size = 5
+    point_size = 5    # 设置点的大小
     scale = 1.0
 
     def __init__(
@@ -125,6 +125,7 @@ class Shape(object):
 
     def paint(self, painter):
         if self.points:
+            ## 设置分组颜色
             # if self.group_id == 0:
             #     color = (QtGui.QColor('#ff0000'))
             # elif self.group_id == 1:
@@ -152,8 +153,7 @@ class Shape(object):
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
             pen.setWidth(max(1, int(round(2.0 / self.scale))))
-# 画笔的粗细
-#             pen.setWidth(1)
+            pen.setWidth(1)    # 画笔的粗细
             painter.setPen(pen)
 
             line_path = QtGui.QPainterPath()
@@ -199,6 +199,7 @@ class Shape(object):
 
             painter.fillPath(vrtx_path, self._vertex_fill_color)
 
+            ## 是否显示填充颜色
             # if self.fill:
             #     color = (
             #         self.select_fill_color
@@ -207,6 +208,7 @@ class Shape(object):
             #     )
             #     painter.fillPath(line_path, color)
 
+    # 画图
     def drawVertex(self, path, i):
         d = self.point_size / self.scale
         shape = self.point_type
@@ -224,8 +226,8 @@ class Shape(object):
             path.addEllipse(point, d / 2.0, d / 2.0)
         else:
             assert False, "unsupported vertex shape"
-# 补充 添加标签可见属性,
-#         if i is not None:
+
+        # if i is not None:     # 显示标签是否可见
         myFont = QtGui.QFont('Times', 10)
         mypoint = point - QtCore.QPointF(0, d)
         # point_name = str(i)

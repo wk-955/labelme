@@ -189,7 +189,8 @@ class LabelFile(object):
             flags=flags,
             shapes=shapes,
             imagePath=imagePath,
-            imageData=imageData,
+            # imageData=imageData,
+            imageData=None,
             imageHeight=imageHeight,
             imageWidth=imageWidth,
         )

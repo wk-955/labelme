@@ -64,6 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 output_file = output
 
         # see labelme/config/default_config.yaml for valid configuration
+        # print(config)
         if config is None:
             config = get_config()
         self._config = config

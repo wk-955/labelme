@@ -29,9 +29,8 @@ def get_default_config():
     config_file = osp.join(here, "default_config.yaml")
     if not osp.exists(config_file):
         config_file = 'default_config.yaml'
-    with open(config_file) as f:
+    with open(config_file, encoding='utf-8') as f:
         config = yaml.safe_load(f)
-
     # save default config to ~/.labelmerc
     user_config_file = osp.join(osp.expanduser("~"), ".labelmerc")
     if not osp.exists(user_config_file):
@@ -63,24 +62,22 @@ def validate_config_item(key, value):
 def get_config(config_file_or_yaml=None, config_from_args=None):
     # 1. default config
     config = get_default_config()
-
-    # 2. specified as file or yaml
-    if config_file_or_yaml is not None:
-        config_from_yaml = yaml.safe_load(config_file_or_yaml)
-        if not isinstance(config_from_yaml, dict):
-            with open(config_from_yaml) as f:
-                logger.info(
-                    "Loading config file from: {}".format(config_from_yaml)
-                )
-                config_from_yaml = yaml.safe_load(f)
-        update_dict(
-            config, config_from_yaml, validate_item=validate_config_item
-        )
-
-    # 3. command line argument or specified config file
-    if config_from_args is not None:
-        update_dict(
-            config, config_from_args, validate_item=validate_config_item
-        )
-
+    # # 2. specified as file or yaml
+    # if config_file_or_yaml is not None:
+    #     config_from_yaml = yaml.safe_load(config_file_or_yaml)
+    #     if not isinstance(config_from_yaml, dict):
+    #         with open(config_from_yaml) as f:
+    #             logger.info(
+    #                 "Loading config file from: {}".format(config_from_yaml)
+    #             )
+    #             config_from_yaml = yaml.safe_load(f)
+    #     update_dict(
+    #         config, config_from_yaml, validate_item=validate_config_item
+    #     )
+    #
+    # # 3. command line argument or specified config file
+    # if config_from_args is not None:
+    #     update_dict(
+    #         config, config_from_args, validate_item=validate_config_item
+    #     )
     return config
